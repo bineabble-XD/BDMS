@@ -10,6 +10,8 @@ function App() {
     <>
       <h1>hello</h1>
       <h2>Khalid Sex</h2>
+      <h2>Abbas Sex</h2>
+      <h2>Hassan Sex</h2>
     </>
   )
 }
