@@ -9,7 +9,8 @@ function App() {
   return (
     <>
       <h1>hello</h1>
-      <h2>Khalid Sex</h2>
+      <h2>CJ Khalid</h2>
+      <h3>Hasoon</h3>
     </>
   )
 }
