@@ -1,77 +1,73 @@
-import { Container, Row, Col, FormGroup, Label, Input, Button } from 'reactstrap';
-//import { Link } from 'react-router-dom';
-//import Logo from '../assets/logo.png';
-//import { UserSchemaValidation } from '../validations/userSchemaValidation';
-//import { useForm } from 'react-hook-form';
-//import { yupResolver } from '@hookform/resolvers/yup';
-//import { useEffect, useState } from 'react';
-
-//import { getUser } from '../features/UserSlice';
-//import {useDispatch,useSelector} from 'react-redux';
-//import { useNavigate } from 'react-router-dom';
-//import { isAxiosError } from 'axios';
+import React from 'react';
+import { Link } from 'react-router-dom';
+import donorIllustration from '../assets/donor.png';
 
 const Login = () => {
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // TODO: call your backend login API here
+    console.log('Login submitted');
+  };
 
-    //UseStates
+  return (
+    <div className="auth-page container-fluid">
+      <div className="row align-items-center min-vh-100">
+        {/* LEFT SIDE – FORM */}
+        <div className="col-md-6 auth-left">
+          <div className="mb-4">
+            <span className="brand-name">BDMS</span>
+          </div>
 
+          <h2 className="auth-title mb-4">Login</h2>
 
-    //Validation Configuration
+          <form className="auth-form" onSubmit={handleSubmit}>
+            {/* EMAIL */}
+            <div className="mb-3">
+              <label className="form-label">Email Address</label>
+              <input
+                type="email"
+                className="form-control"
+                placeholder="Email Address"
+                required
+              />
+            </div>
 
+            {/* PASSWORD */}
+            <div className="mb-3">
+              <label className="form-label">Password</label>
+              <input
+                type="password"
+                className="form-control"
+                placeholder="Password"
+                required
+              />
+            </div>
 
-    return (
-<div>
-    <Container fluid>
-        <Row className='div-row'>
-            <Col md='6' className='div-col'>
-                <form className='div-form'>
-                    <div>
-                        
-                    </div>
+            <button type="submit" className="btn btn-danger w-100 mb-3">
+              Login
+            </button>
+          </form>
 
-                    <FormGroup>
-                        <Label>Email</Label>
-                        <input
-                            placeholder='Please Enter your Email here...'
-                            type='email'
-                            className='form-control'
-                        />
-                    </FormGroup>
+          <p className="small text-muted mb-1">Forget password?</p>
+          <p className="small">
+            Don&apos;t have an account?{' '}
+            <Link to="/register" className="text-danger text-decoration-none">
+              Sign up
+            </Link>
+          </p>
+        </div>
 
-                    <FormGroup>
-                        <Label>Password</Label>
-                        <input
-                            placeholder='Please Enter your Password here...'
-                            type='password'
-                            className='form-control'
-                        />
-                    </FormGroup>
-
-                    <FormGroup>
-                        <Input type='checkbox' />
-                        <Label>Remember Me</Label>
-                    </FormGroup>
-
-                    <FormGroup>
-                        <Button className='form-control' color='dark'>
-                            Sign In
-                        </Button>
-                    </FormGroup>
-
-                    <FormGroup className='text-center'>
-                        <Label>Forget password</Label>
-                    </FormGroup>
-
-                    <FormGroup className='text-center'>
-
-                    </FormGroup>
-                </form>
-            </Col>
-        </Row>
-    </Container>
-</div>
-
-    );
-}
+        {/* RIGHT SIDE – IMAGE */}
+        <div className="col-md-6 auth-right text-center">
+          <img
+            src={donorIllustration}
+            alt="Blood donor"
+            className="auth-illustration img-fluid"
+          />
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export default Login;
