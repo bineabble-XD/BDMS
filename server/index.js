@@ -7,7 +7,7 @@ app.use(cors());
 app.use(express.json());
 
 try {
-  const connectionString = "mongodb+srv://admin:admin@btech.mun6zsy.mongodb.net/?appName=btech";
+  const connectionString = "mongodb+srv://admin:admin@btech.mun6zsy.mongodb.net/BDMS?appName=btech";
   mongoose.connect(connectionString);
   console.log("Database Connected..");
 } catch (error) {
