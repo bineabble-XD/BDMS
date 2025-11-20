@@ -6,11 +6,10 @@ import donorIllustration from '../assets/donor.png';
 const Register = () => {
   const navigate = useNavigate();
 
-  // form state
   const [formData, setFormData] = useState({
-    fullName: '',
-    phoneNumber: '',
-    age: '',
+    fName: '',
+    phoneNum: '',
+    Age: '',
     gender: '',
     bloodType: '',
     role: '',
@@ -31,23 +30,21 @@ const Register = () => {
     e.preventDefault();
 
     try {
-      const res = await fetch('http://localhost:5050/api/donors', {
+      const res = await fetch('http://localhost:5050/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...formData,
-          age: Number(formData.age),
-        }),
+        body: JSON.stringify(formData),
       });
 
+      const data = await res.json().catch(() => ({}));
+
       if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
         alert(data.message || 'Failed to register');
         return;
       }
 
-      alert('Registered successfully!');
-      navigate('/login'); // after successful sign up go back to login page
+      alert(data.message || 'Registered successfully!');
+      navigate('/login');
     } catch (err) {
       console.error(err);
       alert('Something went wrong. Please try again.');
@@ -57,56 +54,19 @@ const Register = () => {
   return (
     <div className="register-page container-fluid">
       <div className="row min-vh-100 align-items-center">
-        {/* LEFT SIDE – NAV + FORM */}
         <div className="col-md-7">
-          {/* TOP NAVBAR */}
-          <header className="d-flex justify-content-between align-items-center mb-4">
-            {/* Logo + text */}
-            <div className="d-flex align-items-center gap-2">
-              <div className="logo-icon"></div>
-              <div>
-                <div className="logo-title">
-                  <span className="text-danger fw-bold">BLOOD</span>{' '}
-                  <span className="fw-bold">DONATION</span>
-                </div>
-                <div className="logo-subtitle small text-muted">
-                  MANAGEMENT SYSTEM
-                </div>
-              </div>
-            </div>
+          {/* header/nav exactly as you already have */}
 
-            {/* Nav links (simple, not functional yet) */}
-            <nav className="nav gap-4">
-              <Link className="nav-link" to="#">
-                Home
-              </Link>
-              <Link className="nav-link" to="#">
-                About Us
-              </Link>
-              <Link className="nav-link" to="#">
-                Urgent Requests
-              </Link>
-              <Link className="nav-link active-link" to="/register">
-                Register Now
-              </Link>
-              <Link className="nav-link" to="/login">
-                Log In
-              </Link>
-            </nav>
-          </header>
-
-          {/* TITLE */}
           <h3 className="mb-3 text-center fw-semibold">Registration</h3>
 
-          {/* FORM */}
           <form className="register-form" onSubmit={handleSubmit}>
             <div className="mb-3">
               <label className="form-label">Full Name</label>
               <input
                 type="text"
                 className="form-control"
-                name="fullName"
-                value={formData.fullName}
+                name="fName"
+                value={formData.fName}
                 onChange={handleChange}
                 placeholder="Enter your Full Name"
                 required
@@ -118,8 +78,8 @@ const Register = () => {
               <input
                 type="tel"
                 className="form-control"
-                name="phoneNumber"
-                value={formData.phoneNumber}
+                name="phoneNum"
+                value={formData.phoneNum}
                 onChange={handleChange}
                 placeholder="Enter your Phone Number"
                 required
@@ -132,8 +92,8 @@ const Register = () => {
                 <input
                   type="number"
                   className="form-control"
-                  name="age"
-                  value={formData.age}
+                  name="Age"
+                  value={formData.Age}
                   onChange={handleChange}
                   placeholder="Enter your Age"
                   min="18"
@@ -189,6 +149,7 @@ const Register = () => {
                 >
                   <option value="">Select role</option>
                   <option>Donor</option>
+                  <option>Hospital</option>
                   <option>Recipient</option>
                   <option>Admin</option>
                 </select>
@@ -257,7 +218,6 @@ const Register = () => {
           </form>
         </div>
 
-        {/* RIGHT SIDE – IMAGE */}
         <div className="col-md-5 text-center d-none d-md-block">
           <img
             src={donorIllustration}
