@@ -2,7 +2,7 @@
 import express from 'express';
 import cors from 'cors';
 import mongoose from 'mongoose';
-import donorModel from './Donor.js';       // ⬅️ import the model (from Donor.js)
+//mport donorModel from './models/Donor.jsx';       // ⬅️ import the model (from Donor.js)
 
 const app = express();
 app.use(cors());
@@ -23,7 +23,7 @@ try {
 app.post('/api/donors', async (req, res) => {
   try {
     // req.body should contain: fullName, password, phoneNumber, age, gender, bloodType, role, email, address
-    const donor = new donorModel(req.body);
+   //const donor = new donorModel(req.body);
     await donor.save();
 
     res.status(201).json({ message: 'Donor registered successfully' });
