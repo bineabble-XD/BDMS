@@ -12,6 +12,9 @@ function App() {
       <h2>Khalid Sex</h2>
       <h2>Abbas Sex</h2>
       <h2>Hassan Sex</h2>
+      <h2>Hi</h2>
+      <h3>123324</h3>
+      <h3>fsdfjbdskjfhdsjk</h3>
     </>
   )
 }
