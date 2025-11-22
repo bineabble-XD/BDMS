@@ -1,22 +1,24 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
+//import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
+//import Login from './components/login';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import Login from './components/login.jsx';
+import Register from './components/Register.jsx';
 
 function App() {
-  const [count, setCount] = useState(0)
 
   return (
-    <>
-      <h1>hello</h1>
-      <h2>Khalid Sex</h2>
-      <h2>Abbas Sex</h2>
-      <h2>Hassan Sex</h2>
-      <h2>Hi</h2>
-      <h3>123324</h3>
-      <h3>fsdfjbdskjfhdsjk</h3>
-    </>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+      </Routes>
+    </BrowserRouter>
   )
 }
 
-export default App
+export default App;
