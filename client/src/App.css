@@ -1,10 +1,17 @@
+/* ROOT + GLOBAL */
 #root {
   max-width: 100%;
   margin: 0;
   padding: 0;
 }
 
-/* Shared */
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+/* ====== LOGIN & REGISTER (كودك القديم) ====== */
+
 .auth-page,
 .register-page {
   background-color: #ffffff;
@@ -21,7 +28,6 @@
   font-weight: 700;
 }
 
-/* Login */
 .auth-title {
   font-size: 2.4rem;
   font-weight: 600;
@@ -35,12 +41,10 @@
   padding: 10px 12px;
 }
 
-/* Illustration */
 .auth-illustration {
   max-width: 380px;
 }
 
-/* Register nav */
 .logo-icon {
   width: 32px;
   height: 32px;
@@ -66,3 +70,485 @@ nav .active-link {
   border-bottom: 2px solid #e63946;
   padding-bottom: 4px;
 }
+
+/* HOME NAVBAR */
+.bdms-navbar {
+  background-color: #ffffff;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+/* HERO مثل الصورة */
+.hero-section {
+  background-color: #ff4b4b;
+  padding: 60px 0;
+}
+
+.hero-section .container {
+  max-width: 1100px;
+}
+
+.hero-title {
+  font-size: 3.2rem;
+  font-weight: 800;
+  line-height: 1.1;
+  color: #111;
+}
+
+.hero-tagline {
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.75rem;
+  color: #111;
+}
+
+.hero-text {
+  max-width: 500px;
+  color: #111;
+}
+
+.hero-img {
+  max-height: 340px;
+}
+
+/* أزرار داخل الهيرو */
+.hero-section .btn-light {
+  color: #111;
+  background-color: #ffffff;
+  border-color: #ffffff;
+}
+
+.hero-section .btn-outline-light {
+  border-width: 2px;
+  border-color: #111;
+  color: #111;
+  background-color: transparent;
+}
+
+/* ABOUT & URGENT */
+.about-section {
+  background-color: #ffffff;
+}
+
+.urgent-section {
+  background-color: #f5f5f5;
+}
+
+.about-page {
+  background-color: #ffffff;
+}
+
+.about-hero {
+  background-color: #ff4b4b;
+  padding: 60px 0;
+  color: #ffffff;
+}
+
+.about-title {
+  font-size: 3rem;
+  font-weight: 700;
+}
+
+.about-title span {
+  color: #ffffff;
+}
+
+.about-text {
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.about-contact span {
+  font-weight: 500;
+}
+
+/* APPOINTMENT PAGE */
+
+.appt-page {
+  background-color: #ffffff;
+  min-height: 100vh;
+}
+
+.appt-main {
+  padding: 40px 0 50px;
+}
+
+.appt-title {
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.appt-illustration {
+  max-width: 280px;
+}
+
+.appt-form {
+  max-width: 520px;
+}
+
+.appt-form .form-control,
+.appt-form .form-select {
+  border-radius: 6px;
+}
+
+.appt-submit-btn {
+  font-weight: 500;
+}
+
+/* لو تبغى شريط أحمر تحت الصفحة زي الصورة */
+.appt-page::after {
+  content: "";
+  display: block;
+  height: 28px;
+  margin-top: 40px;
+  background: linear-gradient(to right, #b10000, #ff4b4b);
+}
+
+/* ============================
+   ADMIN DASHBOARD MAIN LAYOUT
+   ============================ */
+
+.admin-dashboard {
+  padding: 30px;
+  background: #ffffff;
+}
+
+/* ============================
+   NAVBAR (TOP AREA)
+   ============================ */
+
+.admin-navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 25px;
+  background: #fff;
+  border-bottom: 1px solid #ddd;
+}
+
+.admin-navbar .left {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.admin-navbar img {
+  width: 70px;
+  height: 70px;
+  border-radius: 12px;
+  object-fit: cover;
+}
+
+.admin-navbar .nav-links a {
+  margin-right: 20px;
+  font-weight: 500;
+  color: #222;
+  text-decoration: none;
+}
+
+.admin-navbar .nav-links a:hover,
+.admin-navbar .nav-links .active {
+  border-bottom: 2px solid #d62828;
+  padding-bottom: 4px;
+  color: #d62828;
+}
+
+.logout-btn {
+  background: #d62828;
+  border: none;
+  color: white;
+  padding: 8px 18px;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.logout-btn:hover {
+  background: #b71c1c;
+}
+
+/* ============================
+   SEARCH BAR
+   ============================ */
+
+.search-bar input {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid #bbb;
+  width: 180px;
+}
+
+/* ============================
+   LAST DONATIONS CARD
+   ============================ */
+
+.admin-card {
+  background: #fafafa;
+  padding: 25px;
+  border-radius: 14px;
+  width: 450px;
+  border: 1px solid #ddd;
+}
+
+.admin-card h4 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.admin-card .item-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  font-size: 0.95rem;
+  border-bottom: 1px solid #ddd;
+}
+
+.admin-card .item-row:last-child {
+  border-bottom: none;
+}
+
+/* ============================
+   URGENT REQUESTS LIST
+   ============================ */
+
+.urgent-list {
+  margin-top: 25px;
+}
+
+.urgent-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 10px;
+  align-items: center;
+  border-bottom: 1px solid #ccc;
+}
+
+.urgent-item .dot {
+  color: #d62828;
+  font-size: 1.3rem;
+}
+
+/* ============================
+   APPOINTMENTS CARD
+   ============================ */
+
+.appointments-card {
+  background: white;
+  padding: 25px;
+  border-radius: 14px;
+  width: 330px;
+  border: 1px solid #ddd;
+}
+
+.appointments-card h4 {
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.appointment-entry {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid #eee;
+  font-size: 0.95rem;
+}
+
+.appointment-entry:last-child {
+  border-bottom: none;
+}
+
+/* ============================
+   LAYOUT GRID
+   ============================ */
+
+.admin-layout {
+  margin-top: 35px;
+  display: flex;
+  justify-content: space-between;
+  gap: 25px;
+}
+
+/* IMAGE SECTION */
+.dashboard-illustration img {
+  width: 260px;
+  border-radius: 12px;
+}
+
+/* ============================
+   ADMIN APPOINTMENTS PAGE
+   ============================ */
+
+.admin-app-page {
+  background-color: #ffffff;
+  min-height: 100vh;
+}
+
+.admin-app-main {
+  padding: 20px 0 40px;
+}
+
+.admin-search-wrapper {
+  max-width: 220px;
+}
+
+/* الكرت الكبير على اليسار */
+.admin-app-card {
+  background-color: #f7f5f5;
+  border-radius: 20px;
+  border: 1px solid #e0e0e0;
+}
+
+.admin-app-card h5 {
+  font-weight: 600;
+}
+
+.admin-app-row {
+  display: grid;
+  grid-template-columns: 1.5fr 1.5fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  font-size: 0.95rem;
+}
+
+/* الصورة فوق يمين */
+.admin-app-illustration {
+  background-color: #ffffff;
+}
+
+.admin-app-img {
+  max-width: 220px;
+  border-radius: 16px;
+}
+
+/* كرت Requests */
+.admin-requests-card {
+  background-color: #f7f5f5;
+  border-radius: 20px;
+  border: 1px solid #e0e0e0;
+}
+
+.admin-requests-card h6 {
+  font-weight: 600;
+}
+
+.admin-req-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  padding-top: 6px;
+}
+
+.admin-link {
+  font-size: 0.85rem;
+  color: #333;
+  text-decoration: none;
+}
+
+.admin-link:hover {
+  text-decoration: underline;
+}
+
+/* الشريط الأحمر تحت */
+.admin-bottom-bar {
+  height: 28px;
+  background: linear-gradient(to right, #b10000, #ff4b4b);
+  margin-top: 24px;
+}
+
+/* ============================
+   ADMIN REPORT PAGE
+   ============================ */
+
+.admin-report-page {
+  background-color: #ffffff;
+  min-height: 100vh;
+}
+
+.admin-report-main {
+  padding: 20px 0 40px;
+}
+
+/* الفلاتر فوق (التاريخ + المستشفى) */
+.admin-report-filters {
+  display: flex;
+  gap: 12px;
+  max-width: 420px;
+}
+
+.admin-report-filters .form-select {
+  border-radius: 8px;
+}
+
+/* الكرت اللي فيه العنوان + الشارت */
+.admin-report-card-inner {
+  background-color: #f7f5f5;
+  border-radius: 20px;
+  border: 1px solid #e0e0e0;
+  padding: 24px;
+}
+
+.admin-report-btn {
+  background-color: #e63946;
+  color: #ffffff;
+  font-size: 0.9rem;
+  padding: 6px 20px;
+  border-radius: 4px;
+  border: none;
+}
+
+.admin-report-btn:hover {
+  background-color: #c7212f;
+}
+
+/* الشارت */
+.report-chart {
+  margin-top: 10px;
+  padding: 20px 10px 10px;
+  border-top: 1px solid #eee;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  align-items: flex-end;
+  gap: 14px;
+  height: 180px;
+}
+
+.report-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.report-bar {
+  width: 22px;
+  background-color: #e63946;
+  border-radius: 4px 4px 0 0;
+}
+
+.report-label {
+  font-size: 0.8rem;
+}
+
+/* صورة الجانب الأيمن */
+.admin-report-illustration {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 10px;
+}
+
+.admin-report-img {
+  max-width: 230px;
+  border-radius: 16px;
+}
+
+/* الشريط الأحمر في أسفل كل صفحات الأدمن (لو ما عندك قبله) */
+.admin-bottom-bar {
+  height: 28px;
+  background: linear-gradient(to right, #b10000, #ff4b4b);
+  margin-top: 24px;
+}
+
+

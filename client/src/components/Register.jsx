@@ -1,7 +1,7 @@
-// src/components/Register.jsx
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import donorIllustration from '../assets/donor.png';
+import mlogo from '../assets/mlogo.jpg';
 
 const Register = () => {
   const navigate = useNavigate();
@@ -54,10 +54,28 @@ const Register = () => {
   return (
     <div className="register-page container-fluid">
       <div className="row min-vh-100 align-items-center">
-        <div className="col-md-7">
-          {/* header/nav exactly as you already have */}
+        <div className="col-md-7 auth-left">
+          <div className="d-flex align-items-center gap-2 mb-4">
+            <img
+              src={mlogo}
+              alt="BDMS Logo"
+              style={{
+                width: '100px',
+                height: '100px',
+                borderRadius: '12px',
+                objectFit: 'cover',
+              }}
+            />
+            <div className="lh-1">
+              <h5 className="mb-0 fw-bold">
+                <span className="text-danger">BLOOD</span>{' '}
+                <span>DONATION</span>
+              </h5>
+              <small className="text-muted">MANAGEMENT SYSTEM</small>
+            </div>
+          </div>
 
-          <h3 className="mb-3 text-center fw-semibold">Registration</h3>
+          <h3 className="mb-3 fw-semibold">Registration</h3>
 
           <form className="register-form" onSubmit={handleSubmit}>
             <div className="mb-3">
@@ -100,6 +118,7 @@ const Register = () => {
                   required
                 />
               </div>
+
               <div className="col-md-6 mb-3">
                 <label className="form-label">Gender</label>
                 <select
@@ -138,6 +157,7 @@ const Register = () => {
                   <option>O-</option>
                 </select>
               </div>
+
               <div className="col-md-6 mb-3">
                 <label className="form-label">Role</label>
                 <select
@@ -206,13 +226,14 @@ const Register = () => {
                 I accept the terms &amp; condition
               </label>
             </div>
+
             <p className="small text-muted mb-3">
               <a href="#tc" className="text-decoration-underline">
                 Read our T&amp;Cs
               </a>
             </p>
 
-            <button type="submit" className="btn btn-dark w-100">
+            <button type="submit" className="btn btn-danger w-100">
               Register
             </button>
           </form>
