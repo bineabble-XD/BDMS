@@ -1,13 +1,54 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+// src/components/login.jsx
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { loginUser, clearAuthMessage } from '../features/authSlice';
 import donorIllustration from '../assets/donor.png';
 import mlogo from '../assets/mlogo.jpg';
 
 const Login = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  // 👇 this avoids crashes if state.auth is undefined for any reason
+  const auth = useSelector((state) => state.auth || {});
+  const { loading, error, message, user } = auth;
+
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+  });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('Login submitted');
+    dispatch(loginUser(formData));
   };
+
+  // ✅ after login, check verification
+  useEffect(() => {
+    if (!user) return;
+
+    if (user.isVerified) {
+      // go to main home page
+      navigate('/home');
+    } else {
+      alert('Please verify your email before logging in.');
+      // optional: logout / clear user here later
+    }
+  }, [user, navigate]);
+
+  // show errors as alerts for now
+  useEffect(() => {
+    if (error) {
+      alert(error);
+      dispatch(clearAuthMessage());
+    }
+  }, [error, dispatch]);
 
   return (
     <div className="auth-page container-fluid">
@@ -41,6 +82,9 @@ const Login = () => {
               <input
                 type="email"
                 className="form-control"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
                 placeholder="Email Address"
                 required
               />
@@ -51,13 +95,20 @@ const Login = () => {
               <input
                 type="password"
                 className="form-control"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
                 placeholder="Password"
                 required
               />
             </div>
 
-            <button type="submit" className="btn btn-danger w-100 mb-3">
-              Login
+            <button
+              type="submit"
+              className="btn btn-danger w-100 mb-3"
+              disabled={loading}
+            >
+              {loading ? 'Logging in...' : 'Login'}
             </button>
           </form>
 

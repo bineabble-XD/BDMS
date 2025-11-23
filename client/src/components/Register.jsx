@@ -1,11 +1,14 @@
-// src/components/Register.jsx
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { registerUser, clearAuthMessage } from '../features/authSlice';
 import donorIllustration from '../assets/donor.png';
 import mlogo from '../assets/mlogo.jpg';
 
 const Register = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { loading, error, message } = useSelector((state) => state.auth);
 
   const [formData, setFormData] = useState({
     fName: '',
@@ -52,14 +55,8 @@ const Register = () => {
     }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-
-    // block if password does not meet all conditions
-    if (!Object.values(passwordValidations).every(Boolean)) {
-      alert('Password does not meet the required conditions.');
-      return;
-    }
 
     try {
       const res = await fetch('http://localhost:5050/register', {
@@ -77,11 +74,16 @@ const Register = () => {
 
       alert(data.message || 'Registered successfully!');
       navigate('/login');
-    } catch (err) {
-      console.error(err);
-      alert('Something went wrong. Please try again.');
     }
-  };
+  }, [message, navigate, dispatch]);
+
+  // errors
+  useEffect(() => {
+    if (error) {
+      alert(error);
+      dispatch(clearAuthMessage());
+    }
+  }, [error, dispatch]);
 
   return (
     <div className="register-page container-fluid">
@@ -327,8 +329,12 @@ const Register = () => {
               </a>
             </p>
 
-            <button type="submit" className="btn btn-danger w-100">
-              Register
+            <button
+              type="submit"
+              className="btn btn-danger w-100"
+              disabled={loading}
+            >
+              {loading ? 'Registering...' : 'Register'}
             </button>
           </form>
         </div>
