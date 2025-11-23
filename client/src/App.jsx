@@ -10,6 +10,9 @@ import Appointment from "./components/Appointment.jsx";
 import AdminDash from "./components/AdminDash.jsx";
 import AdminAppoint from "./components/AdminAppoint.jsx";
 import AdminReport from "./components/AdminReport.jsx";
+import EmailVerified from "./components/EmailVerified.jsx";
+import LandingPage from "./components/LandingPage.jsx";
+
 
 
 
@@ -18,7 +21,8 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/home" element={<Home />} />
         <Route path="/about" element={<About />} />
         <Route path="/feedback" element={<Feedback />} />
         <Route path="/appointments" element={<Appointment />} />
@@ -27,6 +31,7 @@ function App() {
         <Route path="/dashboard" element={<AdminDash />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/verified" element={<EmailVerified />} />
       </Routes>
     </BrowserRouter>
   );
