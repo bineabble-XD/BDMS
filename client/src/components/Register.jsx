@@ -1,3 +1,4 @@
+// src/components/Register.jsx
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import donorIllustration from '../assets/donor.png';
@@ -18,8 +19,33 @@ const Register = () => {
     address: '',
   });
 
+  // password validation state
+  const [passwordValidations, setPasswordValidations] = useState({
+    lower: false,
+    upper: false,
+    number: false,
+    special: false,
+    length: false,
+  });
+
+  const validatePassword = (password) => {
+    setPasswordValidations({
+      lower: /[a-z]/.test(password),
+      upper: /[A-Z]/.test(password),
+      number: /[0-9]/.test(password),
+      special: /[^A-Za-z0-9]/.test(password), // special character
+      length: password.length >= 8,
+    });
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
+
+    // live password validation
+    if (name === 'password') {
+      validatePassword(value);
+    }
+
     setFormData((prev) => ({
       ...prev,
       [name]: value,
@@ -28,6 +54,12 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // block if password does not meet all conditions
+    if (!Object.values(passwordValidations).every(Boolean)) {
+      alert('Password does not meet the required conditions.');
+      return;
+    }
 
     try {
       const res = await fetch('http://localhost:5050/register', {
@@ -55,6 +87,7 @@ const Register = () => {
     <div className="register-page container-fluid">
       <div className="row min-vh-100 align-items-center">
         <div className="col-md-7 auth-left">
+          {/* Logo + Title */}
           <div className="d-flex align-items-center gap-2 mb-4">
             <img
               src={mlogo}
@@ -78,6 +111,7 @@ const Register = () => {
           <h3 className="mb-3 fw-semibold">Registration</h3>
 
           <form className="register-form" onSubmit={handleSubmit}>
+            {/* Full Name */}
             <div className="mb-3">
               <label className="form-label">Full Name</label>
               <input
@@ -91,6 +125,7 @@ const Register = () => {
               />
             </div>
 
+            {/* Phone */}
             <div className="mb-3">
               <label className="form-label">Phone Number</label>
               <input
@@ -104,6 +139,7 @@ const Register = () => {
               />
             </div>
 
+            {/* Age + Gender */}
             <div className="row">
               <div className="col-md-6 mb-3">
                 <label className="form-label">Age</label>
@@ -136,6 +172,7 @@ const Register = () => {
               </div>
             </div>
 
+            {/* Blood type + Role */}
             <div className="row">
               <div className="col-md-6 mb-3">
                 <label className="form-label">Blood Type</label>
@@ -176,6 +213,7 @@ const Register = () => {
               </div>
             </div>
 
+            {/* Email */}
             <div className="mb-3">
               <label className="form-label">Email</label>
               <input
@@ -189,6 +227,7 @@ const Register = () => {
               />
             </div>
 
+            {/* Password + Rules */}
             <div className="mb-3">
               <label className="form-label">Password</label>
               <input
@@ -200,8 +239,62 @@ const Register = () => {
                 placeholder="Enter a strong Password"
                 required
               />
+
+              {/* Password Rules */}
+              <div className="mt-2">
+                <strong>PASSWORD MUST CONTAIN:</strong>
+                <ul
+                  style={{
+                    listStyle: 'none',
+                    paddingLeft: 0,
+                    marginTop: '10px',
+                  }}
+                >
+                  <li
+                    style={{
+                      color: passwordValidations.lower ? 'green' : 'red',
+                    }}
+                  >
+                    {passwordValidations.lower ? '✔' : '✘'} At least one
+                    lowercase letter
+                  </li>
+                  <li
+                    style={{
+                      color: passwordValidations.upper ? 'green' : 'red',
+                    }}
+                  >
+                    {passwordValidations.upper ? '✔' : '✘'} At least one
+                    uppercase letter
+                  </li>
+                  <li
+                    style={{
+                      color: passwordValidations.number ? 'green' : 'red',
+                    }}
+                  >
+                    {passwordValidations.number ? '✔' : '✘'} At least one
+                    number
+                  </li>
+                  <li
+                    style={{
+                      color: passwordValidations.special ? 'green' : 'red',
+                    }}
+                  >
+                    {passwordValidations.special ? '✔' : '✘'} At least one
+                    special character
+                  </li>
+                  <li
+                    style={{
+                      color: passwordValidations.length ? 'green' : 'red',
+                    }}
+                  >
+                    {passwordValidations.length ? '✔' : '✘'} Minimum 8
+                    characters
+                  </li>
+                </ul>
+              </div>
             </div>
 
+            {/* Address */}
             <div className="mb-3">
               <label className="form-label">Address</label>
               <input
@@ -215,6 +308,7 @@ const Register = () => {
               />
             </div>
 
+            {/* Terms */}
             <div className="form-check mb-1">
               <input
                 className="form-check-input"
@@ -239,6 +333,7 @@ const Register = () => {
           </form>
         </div>
 
+        {/* Illustration */}
         <div className="col-md-5 text-center d-none d-md-block">
           <img
             src={donorIllustration}
