@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+// src/components/Register.jsx
+
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { registerUser, clearAuthMessage } from '../features/authSlice';
@@ -8,6 +10,7 @@ import mlogo from '../assets/mlogo.jpg';
 const Register = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
   const { loading, error, message } = useSelector((state) => state.auth);
 
   const [formData, setFormData] = useState({
@@ -55,35 +58,30 @@ const Register = () => {
     }));
   };
 
+  // Submit using Redux thunk
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    try {
-      const res = await fetch('http://localhost:5050/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
+    // You can also add client-side check that all password rules are met
+    dispatch(registerUser(formData));
+  };
 
-      const data = await res.json().catch(() => ({}));
-
-      if (!res.ok) {
-        alert(data.message || 'Failed to register');
-        return;
-      }
-
-      alert(data.message || 'Registered successfully!');
-      navigate('/login');
-    }
-  }, [message, navigate, dispatch]);
-
-  // errors
+  // When we get an error from auth slice, show it and clear it
   useEffect(() => {
     if (error) {
       alert(error);
       dispatch(clearAuthMessage());
     }
   }, [error, dispatch]);
+
+  // When registration succeeds (message from backend), show it and navigate
+  useEffect(() => {
+    if (message) {
+      alert(message);
+      dispatch(clearAuthMessage());
+      navigate('/login');
+    }
+  }, [message, dispatch, navigate]);
 
   return (
     <div className="register-page container-fluid">
@@ -337,6 +335,13 @@ const Register = () => {
               {loading ? 'Registering...' : 'Register'}
             </button>
           </form>
+
+          <p className="mt-3">
+            Already have an account?{' '}
+            <Link to="/login" className="text-decoration-underline">
+              Login
+            </Link>
+          </p>
         </div>
 
         {/* Illustration */}
