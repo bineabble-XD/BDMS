@@ -6,7 +6,7 @@ const donorSchema = new mongoose.Schema(
     fName: { type: String, required: true },
     password: { type: String, required: true },
     phoneNum: { type: Number, required: true },
-    Age: { type: String, required: true },          // Age as string, like "23"
+    Age: { type: String, required: true },          
     gender: { type: String, required: true },
     bloodType: { type: String, required: true },
     role: { type: String, required: true },
