@@ -12,6 +12,8 @@ import AdminAppoint from "./components/AdminAppoint.jsx";
 import AdminReport from "./components/AdminReport.jsx";
 import EmailVerified from "./components/EmailVerified.jsx";
 import LandingPage from "./components/LandingPage.jsx";
+import ForgetPassword from "./components/ForgetPassword.jsx";
+import ResetPassword from "./components/ResetPassword.jsx";
 
 
 
@@ -32,6 +34,8 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/verified" element={<EmailVerified />} />
+        <Route path="/forget-password" element={<ForgetPassword />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
       </Routes>
     </BrowserRouter>
   );

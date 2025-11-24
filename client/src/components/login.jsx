@@ -112,7 +112,12 @@ const Login = () => {
             </button>
           </form>
 
-          <p className="small text-muted mb-1">Forget password?</p>
+          <p className="small">Forget password?
+            {""}
+            <Link to="/forget-password" className='text-danger text-decoration-none'> 
+             Reset here
+            </Link>
+          </p>
           <p className="small">
             Don't have an account?{' '}
             <Link to="/register" className="text-danger text-decoration-none">

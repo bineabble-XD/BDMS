@@ -189,3 +189,86 @@ app.post("/login", async (req, res) => {
     });
   }
 });
+
+
+
+app.post("/forgot-password", async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    const user = await donorModel.findOne({ email });
+
+    // Always respond 200 to avoid leaking if the email exists or not
+    if (!user) {
+      return res.status(200).json({
+        message:
+          "If an account with that email exists, a password reset link has been sent.",
+      });
+    }
+
+    // Generate reset token
+    const token = crypto.randomBytes(32).toString("hex");
+    const expiry = new Date(Date.now() + 1000 * 60 * 60); // 1 hour
+
+    user.resetPasswordToken = token;
+    user.resetPasswordExpires = expiry;
+    await user.save();
+
+    // Frontend reset page link (Vite default port 5173)
+    const resetUrl = `http://localhost:5173/reset-password/${token}`;
+
+    await transporter.sendMail({
+      from: '"BDMS" <bdmsbtech@gmail.com>',
+      to: email,
+      subject: "BDMS Password Reset",
+      html: `
+        <h3>Password Reset Request</h3>
+        <p>You requested to reset your password for BDMS.</p>
+        <p>Click the link below to choose a new password (valid for 1 hour):</p>
+        <p><a href="${resetUrl}">${resetUrl}</a></p>
+        <p>If you did not request this, you can ignore this email.</p>
+      `,
+    });
+
+    return res.status(200).json({
+      message:
+        "If an account with that email exists, a password reset link has been sent.",
+    });
+  } catch (error) {
+    console.error("Forgot password error:", error);
+    return res.status(500).json({ message: "Server error." });
+  }
+});
+
+
+
+// -------- RESET PASSWORD --------
+app.post("/reset-password/:token", async (req, res) => {
+  const { token } = req.params;
+  const { password } = req.body;
+
+  try {
+    const user = await donorModel.findOne({
+      resetPasswordToken: token,
+      resetPasswordExpires: { $gt: new Date() }, // token still valid
+    });
+
+    if (!user) {
+      return res
+        .status(400)
+        .json({ message: "Reset link is invalid or has expired." });
+    }
+
+    const hashed = await bcrypt.hash(password, 10);
+
+    user.password = hashed;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+    await user.save();
+
+    return res.json({ message: "Password has been reset successfully." });
+  } catch (error) {
+    console.error("Reset password error:", error);
+    return res.status(500).json({ message: "Server error." });
+  }
+});

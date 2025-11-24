@@ -15,6 +15,10 @@ const donorSchema = new mongoose.Schema(
     isVerified: { type: Boolean, default: false },
     verificationToken: { type: String},
     verificationTokenExpires: { type: Date},
+    isAdmin: { type: Boolean, default: false },
+    isHospital: { type: Boolean, default: false },
+    resetPasswordToken: { type: String },
+    resetPasswordExpires: { type: Date },
   },
   { timestamps: true }
 );
