@@ -20,7 +20,6 @@ export const registerUser = createAsyncThunk(
         return rejectWithValue(data.message || 'Registration failed');
       }
 
-      // backend returns: { message: "..." }
       return data.message || 'Registered successfully!';
     } catch (err) {
       return rejectWithValue('Network error, please try again.');
@@ -53,10 +52,12 @@ export const loginUser = createAsyncThunk(
   }
 );
 
+const savedUser = JSON.parse(localStorage.getItem('bdmsUser') || 'null');
+
 const authSlice = createSlice({
   name: 'auth',
   initialState: {
-    user: null,
+    user: savedUser,       // ⬅️ rehydrate from localStorage
     loading: false,
     error: null,
     message: null,
@@ -66,6 +67,7 @@ const authSlice = createSlice({
       state.user = null;
       state.error = null;
       state.message = null;
+      localStorage.removeItem('bdmsUser');  // ⬅️ clear on logout
     },
     clearAuthMessage(state) {
       state.error = null;
@@ -100,6 +102,9 @@ const authSlice = createSlice({
         state.loading = false;
         state.user = action.payload.user;
         state.message = action.payload.message || 'Login success';
+
+        // ⬅️ save logged-in user
+        localStorage.setItem('bdmsUser', JSON.stringify(action.payload.user));
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;

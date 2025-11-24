@@ -1,9 +1,27 @@
+// src/pages/Home.jsx
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { logout } from "../features/authSlice";
 import heroImg from "../assets/2.png";
 import mlogo from "../assets/mlogo.jpg";
 
 const Home = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  // get logged in user from Redux
+  const user = useSelector((state) => state.auth.user);
+
+  // 👇 NEW: Safely pick the correct display name
+  const displayName =
+    user?.fName || user?.uname || user?.name || user?.email || "User";
+
+  const handleLogout = () => {
+    dispatch(logout());
+    navigate("/login");
+  };
+
   return (
     <div className="home-page">
       <header className="bdms-navbar shadow-sm">
@@ -31,19 +49,28 @@ const Home = () => {
             <a href="#hero" className="nav-link active-link">
               Home
             </a>
-            <Link to="/about" className="nav-link">
-              About Us
-            </Link>
+            <a href="#about" className="nav-link">
+              About
+            </a>
             <a href="#urgent" className="nav-link">
               Urgent Requests
             </a>
 
-            <Link to="/register" className="nav-link">
-              Register Now
-            </Link>
-            <Link to="/login" className="nav-link">
-              Log In
-            </Link>
+            {/* 🔥 Only show on Home: username + Logout */}
+            {user && (
+              <>
+                <span className="nav-link mb-0">
+                  Hi, <strong>{displayName}</strong>
+                </span>
+                <button
+                  type="button"
+                  className="btn btn-outline-light text-dark"
+                  onClick={handleLogout}
+                >
+                  Log Out
+                </button>
+              </>
+            )}
 
             <form className="d-flex ms-3 search-box">
               <input
@@ -73,14 +100,6 @@ const Home = () => {
                 Join a proud tradition that has made a difference for centuries.
                 Make an impact today with a simple, lifesaving act.
               </p>
-              <div className="d-flex flex-wrap gap-2">
-                <Link to="/register" className="btn btn-light fw-semibold">
-                  Become a Donor
-                </Link>
-                <a href="#urgent" className="btn btn-outline-light">
-                  View Urgent Requests
-                </a>
-              </div>
             </div>
 
             <div className="col-md-6 text-center">
