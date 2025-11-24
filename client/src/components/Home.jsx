@@ -1,8 +1,8 @@
-// src/pages/Home.jsx
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../features/authSlice";
+import { FaUserCircle } from "react-icons/fa"; // Import the profile icon
 import heroImg from "../assets/2.png";
 import mlogo from "../assets/mlogo.jpg";
 
@@ -20,6 +20,10 @@ const Home = () => {
   const handleLogout = () => {
     dispatch(logout());
     navigate("/login");
+  };
+
+  const goToProfile = () => {
+    navigate("/profile"); // This navigates to the user's profile page
   };
 
   return (
@@ -62,6 +66,18 @@ const Home = () => {
                 <span className="nav-link mb-0">
                   Hi, <strong>{displayName}</strong>
                 </span>
+
+                {/* Profile Button */}
+                <button
+                  type="button"
+                  className="btn btn-outline-light text-dark"
+                  onClick={goToProfile}
+                  style={{ marginRight: "10px" }}
+                >
+                  <FaUserCircle size={20} /> {/* Profile icon */}
+                </button>
+
+                {/* Logout Button */}
                 <button
                   type="button"
                   className="btn btn-outline-light text-dark"
