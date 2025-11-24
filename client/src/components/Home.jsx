@@ -52,6 +52,10 @@ const Home = () => {
             <a href="#about" className="nav-link">
               About
             </a>
+            <Link to="/appointments" className="nav-link">
+              Book An Appointment
+            </Link>
+
             <a href="#urgent" className="nav-link">
               Urgent Requests
             </a>
@@ -62,9 +66,19 @@ const Home = () => {
                 <span className="nav-link mb-0">
                   Hi, <strong>{displayName}</strong>
                 </span>
+
+                {/* Profile icon */}
+                <Link
+                  to="/profile"
+                  className="btn btn-light rounded-circle d-flex align-items-center justify-content-center profile-icon-btn ms-2"
+                  title="View Profile"
+                >
+                  {displayName.charAt(0).toUpperCase()}
+                </Link>
+
                 <button
                   type="button"
-                  className="btn btn-outline-light text-dark"
+                  className="btn btn-outline-light text-dark ms-2"
                   onClick={handleLogout}
                 >
                   Log Out
@@ -134,7 +148,7 @@ const Home = () => {
         <div className="container">
           <h4 className="mb-3 fw-semibold">Urgent Requests</h4>
           <p className="text-muted mb-0">
-            Here you can later show real-time urgent blood requests from
+            Here we later will show real-time urgent blood requests from
             hospitals. For now, this is a placeholder section.
           </p>
         </div>

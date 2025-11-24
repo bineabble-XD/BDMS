@@ -31,16 +31,21 @@ const Login = () => {
 
   // ✅ after login, check verification
   useEffect(() => {
-    if (!user) return;
+  if (!user) return;
 
-    if (user.isVerified) {
-      // go to main home page
-      navigate('/home');
-    } else {
-      alert('Please verify your email before logging in.');
-      // optional: logout / clear user here later
-    }
-  }, [user, navigate]);
+  if (!user.isVerified) {
+    alert('Please verify your email before logging in.');
+    return;
+  }
+
+  // ⭐ ADMIN REDIRECT
+  if (user.isAdmin === true) {
+    navigate('/reports');
+  } else {
+    navigate('/home');
+  }
+}, [user, navigate]);
+
 
   // show errors as alerts for now
   useEffect(() => {

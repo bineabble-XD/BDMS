@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import mlogo from "../assets/mlogo.jpg";
 import heroImg from "../assets/2.png";
+const admin = JSON.parse(localStorage.getItem("bdmsUser"));
 
 const AdminDash = () => {
   return (
@@ -27,16 +28,31 @@ const AdminDash = () => {
             </div>
           </div>
 
-          <nav className="d-none d-md-flex align-items-center gap-4">
-            <Link to="/reports" className="nav-link">
-              Reports
+          <nav className="d-flex align-items-center gap-4">
+            <Link to="/reports" className="nav-link">Reports</Link>
+            <Link to="/appointments" className="nav-link">Appointments</Link>
+            <Link to="/dashboard" className="nav-link">Dashboard</Link>
+            <span className="nav-link fw-bold">BDMS ADMIN</span>
+            <Link
+              to="/admin-profile"
+              className="admin-profile-icon d-flex align-items-center justify-content-center ms-2"
+              title="Admin Profile"
+            >
+              {admin.fName ? admin.fName.charAt(0).toUpperCase() : "A"}
             </Link>
-            <Link to="/appointments" className="nav-link">
-              Appointments
-            </Link>
-            <span className="nav-link active-link">Dashboard</span>
-            <span className="nav-link">BDMS ADMIN</span>
+
+
+            <button
+              className="btn btn-outline-danger ms-3"
+              onClick={() => {
+                localStorage.removeItem("bdmsUser"); // clear user
+                window.location.href = "/";      // redirect
+              }}
+            >
+              Log Out
+            </button>
           </nav>
+
         </div>
       </header>
 

@@ -14,8 +14,8 @@ import EmailVerified from "./components/EmailVerified.jsx";
 import LandingPage from "./components/LandingPage.jsx";
 import ForgetPassword from "./components/ForgetPassword.jsx";
 import ResetPassword from "./components/ResetPassword.jsx";
-
-
+import Profile from "./components/Profile.jsx";
+import AdminProfile from "./components/AdminProfile.jsx";
 
 
 
@@ -36,6 +36,9 @@ function App() {
         <Route path="/verified" element={<EmailVerified />} />
         <Route path="/forget-password" element={<ForgetPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/admin-profile" element={<AdminProfile />} />
+
       </Routes>
     </BrowserRouter>
   );

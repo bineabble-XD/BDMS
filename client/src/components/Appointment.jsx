@@ -1,9 +1,12 @@
+// src/components/Appointment.jsx
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import mlogo from "../assets/mlogo.jpg";
-import donorIllustration from "../assets/donor.png"; // غيّرها للصورة اللي تحبها لو حاب
+import donorIllustration from "../assets/donor.png";
 
 const Appointment = () => {
+  const navigate = useNavigate();
+
   const [form, setForm] = useState({
     hospital: "Khawla Hospital",
     appointmentMonth: "",
@@ -29,10 +32,32 @@ const Appointment = () => {
     e.preventDefault();
     console.log("Appointment data:", form);
     alert("Appointment request submitted!");
+    // here later you can send to backend with fetch()
+  };
+
+  const resetForm = () => {
+    setForm({
+      hospital: "Khawla Hospital",
+      appointmentMonth: "",
+      appointmentTime: "",
+      lastDonationMonth: "",
+      donatedBefore: false,
+      sickPast3Months: false,
+      medsRecently: "",
+      hasColdFluFever: "",
+      medicalRestriction: "",
+      confirmHealth: false,
+    });
+  };
+
+  const handleCancel = () => {
+    resetForm();
+    navigate("/home"); // go back to Home page
   };
 
   return (
     <div className="appt-page">
+      {/* NAVBAR */}
       <header className="bdms-navbar shadow-sm">
         <div className="container d-flex align-items-center justify-content-between py-3">
           <div className="d-flex align-items-center gap-2">
@@ -53,28 +78,27 @@ const Appointment = () => {
               <small className="text-muted">MANAGEMENT SYSTEM</small>
             </div>
           </div>
-
+          
           <nav className="d-none d-md-flex align-items-center gap-4">
-            <Link to="/" className="nav-link">
-              Dashboards
+            <Link to="/home" className="nav-link">
+              Home
             </Link>
-            <Link to="/urgent" className="nav-link">
+            <Link to="/home#urgent" className="nav-link">
               Urgent Requests
             </Link>
             <span className="nav-link active-link">Appointments</span>
-            <Link to="/reports" className="nav-link">
-              Reports
-            </Link>
-            <button className="btn btn-danger ms-3 px-4">Log out</button>
           </nav>
+          
         </div>
       </header>
 
+      {/* MAIN CONTENT */}
       <main className="appt-main">
         <div className="container">
           <h2 className="text-center mb-4 appt-title">Book an Appointment</h2>
 
           <div className="row justify-content-center">
+            {/* LEFT ILLUSTRATION */}
             <div className="col-md-4 text-center mb-4 mb-md-0">
               <img
                 src={donorIllustration}
@@ -83,6 +107,7 @@ const Appointment = () => {
               />
             </div>
 
+            {/* RIGHT FORM */}
             <div className="col-md-6">
               <form className="appt-form" onSubmit={handleSubmit}>
                 <h5 className="mb-3">Appointment Details</h5>
@@ -311,20 +336,7 @@ const Appointment = () => {
                   <button
                     type="button"
                     className="btn btn-outline-secondary flex-grow-1"
-                    onClick={() =>
-                      setForm({
-                        hospital: "Khawla Hospital",
-                        appointmentMonth: "",
-                        appointmentTime: "",
-                        lastDonationMonth: "",
-                        donatedBefore: false,
-                        sickPast3Months: false,
-                        medsRecently: "",
-                        hasColdFluFever: "",
-                        medicalRestriction: "",
-                        confirmHealth: false,
-                      })
-                    }
+                    onClick={handleCancel}
                   >
                     Cancel
                   </button>
