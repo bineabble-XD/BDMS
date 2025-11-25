@@ -1,7 +1,7 @@
 // src/components/Appointment.jsx
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import mlogo from "../assets/mlogo.jpg";
+import bdmslogo from "../assets/bdmslogo.png";
 import donorIllustration from "../assets/donor.png";
 
 const Appointment = () => {
@@ -30,43 +30,25 @@ const Appointment = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Appointment data:", form);
     alert("Appointment request submitted!");
-    // here later you can send to backend with fetch()
-  };
-
-  const resetForm = () => {
-    setForm({
-      hospital: "Khawla Hospital",
-      appointmentMonth: "",
-      appointmentTime: "",
-      lastDonationMonth: "",
-      donatedBefore: false,
-      sickPast3Months: false,
-      medsRecently: "",
-      hasColdFluFever: "",
-      medicalRestriction: "",
-      confirmHealth: false,
-    });
   };
 
   const handleCancel = () => {
-    resetForm();
-    navigate("/home"); // go back to Home page
+    navigate("/home");
   };
 
   return (
-    <div className="appt-page">
+    <div className="appointment-page container-fluid">
       {/* NAVBAR */}
-      <header className="bdms-navbar shadow-sm">
+      <header className="bdms-navbar shadow-sm mb-4">
         <div className="container d-flex align-items-center justify-content-between py-3">
           <div className="d-flex align-items-center gap-2">
             <img
-              src={mlogo}
+              src={bdmslogo}
               alt="BDMS Logo"
               style={{
-                width: "70px",
-                height: "70px",
+                width: "60px",
+                height: "60px",
                 borderRadius: "12px",
                 objectFit: "cover",
               }}
@@ -78,7 +60,7 @@ const Appointment = () => {
               <small className="text-muted">MANAGEMENT SYSTEM</small>
             </div>
           </div>
-          
+
           <nav className="d-none d-md-flex align-items-center gap-4">
             <Link to="/home" className="nav-link">
               Home
@@ -88,264 +70,244 @@ const Appointment = () => {
             </Link>
             <span className="nav-link active-link">Appointments</span>
           </nav>
-          
         </div>
       </header>
 
       {/* MAIN CONTENT */}
-      <main className="appt-main">
-        <div className="container">
-          <h2 className="text-center mb-4 appt-title">Book an Appointment</h2>
+      <div className="row min-vh-100 align-items-start">
+        {/* LEFT SIDE (matches login style, no scroll) */}
+        <div className="col-md-7" style={{ paddingRight: "10px" }}>
+          <h3 className="fw-semibold mb-4 mt-3" style={{ color: "#d10000" }}>
+            Book an Appointment
+          </h3>
 
-          <div className="row justify-content-center">
-            {/* LEFT ILLUSTRATION */}
-            <div className="col-md-4 text-center mb-4 mb-md-0">
-              <img
-                src={donorIllustration}
-                alt="Donor illustration"
-                className="img-fluid appt-illustration"
-              />
-            </div>
+          {/* Centered Form Container */}
+          <div style={{ maxWidth: "400px", margin: "0 auto" }}>
+            <form onSubmit={handleSubmit}>
+              <h5 className="mb-3">Appointment Details</h5>
 
-            {/* RIGHT FORM */}
-            <div className="col-md-6">
-              <form className="appt-form" onSubmit={handleSubmit}>
-                <h5 className="mb-3">Appointment Details</h5>
+              <div className="mb-4">
+                <label className="form-label fw-semibold">Preferred Hospital</label>
+                <select
+                  className="form-select"
+                  name="hospital"
+                  value={form.hospital}
+                  onChange={handleChange}
+                >
+                  <option>Khawla Hospital</option>
+                  <option>Royal Hospital</option>
+                  <option>Sultan Qaboos University Hospital</option>
+                  <option>Armed Forces Hospital</option>
+                </select>
+              </div>
 
-                <div className="mb-3">
-                  <label className="form-label">Preferred Hospital</label>
+              <div className="row mb-4">
+                <div className="col-md-6">
+                  <label className="form-label fw-semibold">Appointment Month</label>
                   <select
                     className="form-select"
-                    name="hospital"
-                    value={form.hospital}
-                    onChange={handleChange}
-                  >
-                    <option>Khawla Hospital</option>
-                    <option>Royal Hospital</option>
-                    <option>Sultan Qaboos University Hospital</option>
-                    <option>Armed Forces Hospital</option>
-                  </select>
-                </div>
-
-                <div className="row">
-                  <div className="col-md-6 mb-3">
-                    <label className="form-label">Appointment Month</label>
-                    <select
-                      className="form-select"
-                      name="appointmentMonth"
-                      value={form.appointmentMonth}
-                      onChange={handleChange}
-                    >
-                      <option value="">Select month</option>
-                      <option>January</option>
-                      <option>February</option>
-                      <option>March</option>
-                      <option>April</option>
-                      <option>May</option>
-                      <option>June</option>
-                      <option>July</option>
-                      <option>August</option>
-                      <option>September</option>
-                      <option>October</option>
-                      <option>November</option>
-                      <option>December</option>
-                    </select>
-                  </div>
-                  <div className="col-md-6 mb-3">
-                    <label className="form-label">Time</label>
-                    <input
-                      type="time"
-                      className="form-control"
-                      name="appointmentTime"
-                      value={form.appointmentTime}
-                      onChange={handleChange}
-                    />
-                  </div>
-                </div>
-
-                <div className="mb-3">
-                  <label className="form-label">Last Donation Month</label>
-                  <select
-                    className="form-select"
-                    name="lastDonationMonth"
-                    value={form.lastDonationMonth}
+                    name="appointmentMonth"
+                    value={form.appointmentMonth}
                     onChange={handleChange}
                   >
                     <option value="">Select month</option>
-                    <option>January</option>
-                    <option>February</option>
-                    <option>March</option>
-                    <option>April</option>
-                    <option>May</option>
-                    <option>June</option>
-                    <option>July</option>
-                    <option>August</option>
-                    <option>September</option>
-                    <option>October</option>
-                    <option>November</option>
-                    <option>December</option>
+                    {[
+                      "January","February","March","April","May","June",
+                      "July","August","September","October","November","December",
+                    ].map((m) => (
+                      <option key={m}>{m}</option>
+                    ))}
                   </select>
                 </div>
 
-                <div className="mb-3">
-                  <div className="form-check">
-                    <input
-                      className="form-check-input"
-                      type="checkbox"
-                      id="donatedBefore"
-                      name="donatedBefore"
-                      checked={form.donatedBefore}
-                      onChange={handleChange}
-                    />
-                    <label className="form-check-label" htmlFor="donatedBefore">
-                      I have donated blood before
-                    </label>
-                  </div>
-                  <div className="form-check">
-                    <input
-                      className="form-check-input"
-                      type="checkbox"
-                      id="sickPast3Months"
-                      name="sickPast3Months"
-                      checked={form.sickPast3Months}
-                      onChange={handleChange}
-                    />
-                    <label
-                      className="form-check-label"
-                      htmlFor="sickPast3Months"
-                    >
-                      I was sick past 3 months
-                    </label>
-                  </div>
+                <div className="col-md-6">
+                  <label className="form-label fw-semibold">Time</label>
+                  <input
+                    type="time"
+                    className="form-control"
+                    name="appointmentTime"
+                    value={form.appointmentTime}
+                    onChange={handleChange}
+                  />
                 </div>
+              </div>
 
-                <h5 className="mb-2">Health &amp; Eligibility Screening</h5>
+              <div className="mb-4">
+                <label className="form-label fw-semibold">Last Donation Month</label>
+                <select
+                  className="form-select"
+                  name="lastDonationMonth"
+                  value={form.lastDonationMonth}
+                  onChange={handleChange}
+                >
+                  <option value="">Select month</option>
+                  {[
+                    "January","February","March","April","May","June",
+                    "July","August","September","October","November","December",
+                  ].map((m) => (
+                    <option key={m}>{m}</option>
+                  ))}
+                </select>
+              </div>
 
-                <div className="mb-2">
-                  <p className="mb-1">
-                    Have you taken any medication recently?
-                  </p>
-                  <div className="d-flex gap-3">
-                    <label className="form-check-label">
-                      <input
-                        type="radio"
-                        className="form-check-input me-1"
-                        name="medsRecently"
-                        value="yes"
-                        checked={form.medsRecently === "yes"}
-                        onChange={handleChange}
-                      />
-                      Yes
-                    </label>
-                    <label className="form-check-label">
-                      <input
-                        type="radio"
-                        className="form-check-input me-1"
-                        name="medsRecently"
-                        value="no"
-                        checked={form.medsRecently === "no"}
-                        onChange={handleChange}
-                      />
-                      No
-                    </label>
-                  </div>
-                </div>
+              <h5 className="mb-3 mt-4">Eligibility Screening</h5>
 
-                <div className="mb-2">
-                  <p className="mb-1">
-                    Do you currently have cold, flu, or fever?
-                  </p>
-                  <div className="d-flex gap-3">
-                    <label className="form-check-label">
-                      <input
-                        type="radio"
-                        className="form-check-input me-1"
-                        name="hasColdFluFever"
-                        value="yes"
-                        checked={form.hasColdFluFever === "yes"}
-                        onChange={handleChange}
-                      />
-                      Yes
-                    </label>
-                    <label className="form-check-label">
-                      <input
-                        type="radio"
-                        className="form-check-input me-1"
-                        name="hasColdFluFever"
-                        value="no"
-                        checked={form.hasColdFluFever === "no"}
-                        onChange={handleChange}
-                      />
-                      No
-                    </label>
-                  </div>
-                </div>
-
-                <div className="mb-3">
-                  <p className="mb-1">
-                    Are you under any medical restrictions for donating blood?
-                  </p>
-                  <div className="d-flex gap-3">
-                    <label className="form-check-label">
-                      <input
-                        type="radio"
-                        className="form-check-input me-1"
-                        name="medicalRestriction"
-                        value="yes"
-                        checked={form.medicalRestriction === "yes"}
-                        onChange={handleChange}
-                      />
-                      Yes
-                    </label>
-                    <label className="form-check-label">
-                      <input
-                        type="radio"
-                        className="form-check-input me-1"
-                        name="medicalRestriction"
-                        value="no"
-                        checked={form.medicalRestriction === "no"}
-                        onChange={handleChange}
-                      />
-                      No
-                    </label>
-                  </div>
-                </div>
-
-                <div className="form-check mb-4">
+              {/* CHECKBOXES WITH BETTER SPACING */}
+              <div className="mb-4">
+                <div className="form-check mb-2">
                   <input
                     className="form-check-input"
                     type="checkbox"
-                    id="confirmHealth"
-                    name="confirmHealth"
-                    checked={form.confirmHealth}
+                    name="donatedBefore"
+                    checked={form.donatedBefore}
                     onChange={handleChange}
-                    required
                   />
-                  <label className="form-check-label" htmlFor="confirmHealth">
-                    I confirm that the above health information is accurate.
+                  <label className="form-check-label ms-1">
+                    I have donated blood before
                   </label>
                 </div>
 
-                <div className="d-flex gap-3">
-                  <button
-                    type="submit"
-                    className="btn btn-danger flex-grow-1 appt-submit-btn"
-                  >
-                    Book Appointment
-                  </button>
-                  <button
-                    type="button"
-                    className="btn btn-outline-secondary flex-grow-1"
-                    onClick={handleCancel}
-                  >
-                    Cancel
-                  </button>
+                <div className="form-check mb-2">
+                  <input
+                    className="form-check-input"
+                    type="checkbox"
+                    name="sickPast3Months"
+                    checked={form.sickPast3Months}
+                    onChange={handleChange}
+                  />
+                  <label className="form-check-label ms-1">
+                    I was sick in the past 3 months
+                  </label>
                 </div>
-              </form>
-            </div>
+              </div>
+
+              {/* RADIO GROUPS WITH SPACING */}
+              <div className="mb-4">
+                <p className="fw-semibold mb-2">Medication recently?</p>
+                <div className="d-flex flex-column gap-2">
+                  <label>
+                    <input
+                      type="radio"
+                      className="me-1"
+                      name="medsRecently"
+                      value="yes"
+                      checked={form.medsRecently === "yes"}
+                      onChange={handleChange}
+                    />
+                    Yes
+                  </label>
+
+                  <label>
+                    <input
+                      type="radio"
+                      className="me-1"
+                      name="medsRecently"
+                      value="no"
+                      checked={form.medsRecently === "no"}
+                      onChange={handleChange}
+                    />
+                    No
+                  </label>
+                </div>
+              </div>
+
+              <div className="mb-4">
+                <p className="fw-semibold mb-2">Cold, flu, or fever?</p>
+                <div className="d-flex flex-column gap-2">
+                  <label>
+                    <input
+                      type="radio"
+                      className="me-1"
+                      name="hasColdFluFever"
+                      value="yes"
+                      checked={form.hasColdFluFever === "yes"}
+                      onChange={handleChange}
+                    />
+                    Yes
+                  </label>
+
+                  <label>
+                    <input
+                      type="radio"
+                      className="me-1"
+                      name="hasColdFluFever"
+                      value="no"
+                      checked={form.hasColdFluFever === "no"}
+                      onChange={handleChange}
+                    />
+                    No
+                  </label>
+                </div>
+              </div>
+
+              <div className="mb-4">
+                <p className="fw-semibold mb-2">Any medical restrictions?</p>
+                <div className="d-flex flex-column gap-2">
+                  <label>
+                    <input
+                      type="radio"
+                      className="me-1"
+                      name="medicalRestriction"
+                      value="yes"
+                      checked={form.medicalRestriction === "yes"}
+                      onChange={handleChange}
+                    />
+                    Yes
+                  </label>
+
+                  <label>
+                    <input
+                      type="radio"
+                      className="me-1"
+                      name="medicalRestriction"
+                      value="no"
+                      checked={form.medicalRestriction === "no"}
+                      onChange={handleChange}
+                    />
+                    No
+                  </label>
+                </div>
+              </div>
+
+              <div className="form-check mb-5">
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  name="confirmHealth"
+                  checked={form.confirmHealth}
+                  onChange={handleChange}
+                  required
+                />
+                <label className="form-check-label ms-1">
+                  I confirm that the above health information is accurate.
+                </label>
+              </div>
+
+              <div className="d-flex gap-3">
+                <button type="submit" className="btn btn-danger flex-grow-1">
+                  Book Appointment
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-outline-secondary flex-grow-1"
+                  onClick={handleCancel}
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
           </div>
         </div>
-      </main>
+
+        {/* RIGHT SIDE */}
+        <div className="col-md-5 text-center d-none d-md-block">
+          <img
+            src={donorIllustration}
+            alt="Donor illustration"
+            className="img-fluid"
+          />
+        </div>
+      </div>
     </div>
   );
 };

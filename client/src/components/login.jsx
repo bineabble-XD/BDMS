@@ -1,22 +1,22 @@
-// src/components/login.jsx
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { loginUser, clearAuthMessage } from '../features/authSlice';
-import donorIllustration from '../assets/donor.png';
-import mlogo from '../assets/mlogo.jpg';
+// src/components/Login.jsx
+
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { loginUser, clearAuthMessage } from "../features/authSlice";
+import donorIllustration from "../assets/donor.png";
+import bdmslogo from "../assets/bdmslogo.png";
 
 const Login = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  // 👇 this avoids crashes if state.auth is undefined for any reason
   const auth = useSelector((state) => state.auth || {});
-  const { loading, error, message, user } = auth;
+  const { loading, error, user } = auth;
 
   const [formData, setFormData] = useState({
-    email: '',
-    password: '',
+    email: "",
+    password: "",
   });
 
   const handleChange = (e) => {
@@ -29,25 +29,20 @@ const Login = () => {
     dispatch(loginUser(formData));
   };
 
-  // ✅ after login, check verification
+  // Redirect after login
   useEffect(() => {
-  if (!user) return;
+    if (!user) return;
 
-  if (!user.isVerified) {
-    alert('Please verify your email before logging in.');
-    return;
-  }
+    if (!user.isVerified) {
+      alert("Please verify your email before logging in.");
+      return;
+    }
 
-  // ⭐ ADMIN REDIRECT
-  if (user.isAdmin === true) {
-    navigate('/reports');
-  } else {
-    navigate('/home');
-  }
-}, [user, navigate]);
+    if (user.isAdmin === true) navigate("/reports");
+    else navigate("/home");
+  }, [user, navigate]);
 
-
-  // show errors as alerts for now
+  // Show error
   useEffect(() => {
     if (error) {
       alert(error);
@@ -56,82 +51,107 @@ const Login = () => {
   }, [error, dispatch]);
 
   return (
-    <div className="auth-page container-fluid">
-      <div className="row align-items-center min-vh-100">
-        <div className="col-md-6 auth-left">
+    <div className="register-page container-fluid">
+      <div className="row min-vh-100 align-items-start">
+        <div
+          className="col-md-7 auth-left"
+          style={{
+            maxHeight: "100vh",
+            overflowY: "auto",
+            paddingRight: "10px",
+          }}
+        >
+          {/* Logo */}
           <div className="d-flex align-items-center gap-2 mb-4">
             <img
-              src={mlogo}
+              src={bdmslogo}
               alt="BDMS Logo"
               style={{
-                width: '100px',
-                height: '100px',
-                borderRadius: '12px',
-                objectFit: 'cover',
+                width: "60px",
+                height: "60px",
+                borderRadius: "12px",
+                objectFit: "cover",
               }}
             />
             <div className="lh-1">
               <h5 className="mb-0 fw-bold">
-                <span className="text-danger">BLOOD</span>{' '}
-                <span>DONATION</span>
+                <span className="text-danger">BLOOD</span> <span>DONATION</span>
               </h5>
               <small className="text-muted">MANAGEMENT SYSTEM</small>
             </div>
           </div>
 
-          <h2 className="auth-title mb-4">Login</h2>
+          {/* Page Title */}
+          <h3 className="fw-semibold mb-4" style={{ color: "#d10000" }}>
+            Login
+          </h3>
 
-          <form className="auth-form" onSubmit={handleSubmit}>
-            <div className="mb-3">
-              <label className="form-label">Email Address</label>
-              <input
-                type="email"
-                className="form-control"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                placeholder="Email Address"
-                required
-              />
-            </div>
+          {/* Centered form */}
+          <div
+            style={{
+              maxWidth: "400px",
+              margin: "0 auto",
+            }}
+          >
+            <form onSubmit={handleSubmit}>
+              {/* Email */}
+              <div className="mb-3">
+                <label className="form-label">Email Address</label>
+                <input
+                  type="email"
+                  className="form-control"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
 
-            <div className="mb-3">
-              <label className="form-label">Password</label>
-              <input
-                type="password"
-                className="form-control"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                placeholder="Password"
-                required
-              />
-            </div>
+              {/* Password */}
+              <div className="mb-3">
+                <label className="form-label">Password</label>
+                <input
+                  type="password"
+                  className="form-control"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
 
-            <button
-              type="submit"
-              className="btn btn-danger w-100 mb-3"
-              disabled={loading}
-            >
-              {loading ? 'Logging in...' : 'Login'}
-            </button>
-          </form>
+              {/* Submit */}
+              <button
+                type="submit"
+                className="btn btn-danger w-100 mb-3"
+                disabled={loading}
+              >
+                {loading ? "Logging in..." : "Login"}
+              </button>
+            </form>
 
-          <p className="small">Forget password?
-            {""}
-            <Link to="/forget-password" className='text-danger text-decoration-none'> 
-             Reset here
-            </Link>
-          </p>
-          <p className="small">
-            Don't have an account?{' '}
-            <Link to="/register" className="text-danger text-decoration-none">
-              Sign up
-            </Link>
-          </p>
+            {/* Links */}
+            <p className="small">
+              Forget password?{" "}
+              <Link
+                to="/forget-password"
+                className="text-danger text-decoration-none"
+              >
+                Reset here
+              </Link>
+            </p>
+
+            <p className="small">
+              Don’t have an account?{" "}
+              <Link to="/register" className="text-danger text-decoration-none">
+                Sign up
+              </Link>
+            </p>
+          </div>
         </div>
 
-        <div className="col-md-6 auth-right text-center">
+        {/* Right Illustration */}
+        <div className="col-md-5 text-center d-none d-md-block">
           <img
             src={donorIllustration}
             alt="Blood donor"

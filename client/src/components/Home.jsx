@@ -4,7 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../features/authSlice";
 import heroImg from "../assets/2.png";
-import mlogo from "../assets/mlogo.jpg";
+import bdmslogo from "../assets/bdmslogo.png";
 
 const Home = () => {
   const dispatch = useDispatch();
@@ -28,11 +28,11 @@ const Home = () => {
         <div className="container d-flex align-items-center justify-content-between py-3">
           <div className="d-flex align-items-center gap-2">
             <img
-              src={mlogo}
+              src={bdmslogo}
               alt="BDMS Logo"
               style={{
-                width: "80px",
-                height: "80px",
+                width: "60px",
+                height: "60px",
                 borderRadius: "12px",
                 objectFit: "cover",
               }}

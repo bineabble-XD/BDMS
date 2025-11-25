@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import mlogo from "../assets/mlogo.jpg";
+import bdmslogo from "../assets/bdmslogo.png";
 import heroImg from "../assets/2.png";
 
 const AdminAppoint = () => {
@@ -11,11 +11,11 @@ const AdminAppoint = () => {
         <div className="container d-flex align-items-center justify-content-between py-3">
           <div className="d-flex align-items-center gap-2">
             <img
-              src={mlogo}
+              src={bdmslogo}
               alt="BDMS Logo"
               style={{
-                width: "70px",
-                height: "70px",
+                width: "60px",
+                height: "60px",
                 borderRadius: "12px",
                 objectFit: "cover",
               }}
