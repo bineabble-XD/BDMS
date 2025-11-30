@@ -46,28 +46,29 @@ const Home = () => {
           </div>
 
           <nav className="d-none d-md-flex align-items-center gap-4">
-            <a href="#hero" className="nav-link active-link">
+            <Link to="/home" className="nav-link active-link">
               Home
-            </a>
-            <a href="#about" className="nav-link">
+            </Link>
+
+            <Link to="/about" className="nav-link">
               About
-            </a>
+            </Link>
+
             <Link to="/appointments" className="nav-link">
               Book An Appointment
             </Link>
 
-            <a href="#urgent" className="nav-link">
+            {/* ✅ Go to /urgent page, not #urgent */}
+            <Link to="/urgent" className="nav-link">
               Urgent Requests
-            </a>
+            </Link>
 
-            {/* 🔥 Only show on Home: username + Logout */}
             {user && (
               <>
                 <span className="nav-link mb-0">
                   Hi, <strong>{displayName}</strong>
                 </span>
 
-                {/* Profile icon */}
                 <Link
                   to="/profile"
                   className="btn btn-light rounded-circle d-flex align-items-center justify-content-center profile-icon-btn ms-2"

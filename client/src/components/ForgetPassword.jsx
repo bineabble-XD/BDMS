@@ -78,7 +78,7 @@ const ForgetPassword = () => {
             className="fw-semibold mb-2"
             style={{ color: "#d10000" }}
           >
-            Forgot / Reset Password
+            Update Password
           </h3>
 
           <p className="small text-muted mb-4">
