@@ -1,6 +1,6 @@
-// App.jsx
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
+import "./App.css"; // make sure this line exists
 
 import Home from "./components/Home.jsx";
 import Login from "./components/login.jsx";
@@ -17,14 +17,14 @@ import ForgetPassword from "./components/ForgetPassword.jsx";
 import ResetPassword from "./components/ResetPassword.jsx";
 import Profile from "./components/Profile.jsx";
 import AdminProfile from "./components/AdminProfile.jsx";
-import UrgentRequests from "./components/UrgentRequests.jsx";
 import Footer from "./components/Footer.jsx";
 
 function App() {
   return (
     <BrowserRouter>
-      {/* App shell that controls layout */}
-        <div className="main-content">
+      {/* this whole div is a flex column */}
+      <div className="app-shell">
+        <div className="page-content">
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/home" element={<Home />} />
@@ -41,12 +41,11 @@ function App() {
             <Route path="/reset-password/:token" element={<ResetPassword />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/admin-profile" element={<AdminProfile />} />
-            <Route path="/urgent" element={<UrgentRequests />} />
           </Routes>
         </div>
 
         <Footer />
-
+      </div>
     </BrowserRouter>
   );
 }
