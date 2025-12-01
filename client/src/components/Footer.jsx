@@ -3,6 +3,7 @@ import React from "react";
 const Footer = () => {
   return (
     <footer
+      className="bdms-footer"
       style={{
         background: "linear-gradient(90deg, #FA4848 0%, #820000 100%)",
         padding: "20px 0",
