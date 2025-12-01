@@ -1,3 +1,4 @@
+// App.jsx
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 
@@ -12,27 +13,40 @@ import AdminAppoint from "./components/AdminAppoint.jsx";
 import AdminReport from "./components/AdminReport.jsx";
 import EmailVerified from "./components/EmailVerified.jsx";
 import LandingPage from "./components/LandingPage.jsx";
-
-
-
-
+import ForgetPassword from "./components/ForgetPassword.jsx";
+import ResetPassword from "./components/ResetPassword.jsx";
+import Profile from "./components/Profile.jsx";
+import AdminProfile from "./components/AdminProfile.jsx";
+import UrgentRequests from "./components/UrgentRequests.jsx";
+import Footer from "./components/Footer.jsx";
 
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/home" element={<Home />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/feedback" element={<Feedback />} />
-        <Route path="/appointments" element={<Appointment />} />
-        <Route path="/reports" element={<AdminReport />} />
-        <Route path="/admin-appointments" element={<AdminAppoint />} />
-        <Route path="/dashboard" element={<AdminDash />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/verified" element={<EmailVerified />} />
-      </Routes>
+      {/* App shell that controls layout */}
+        <div className="main-content">
+          <Routes>
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/home" element={<Home />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/feedback" element={<Feedback />} />
+            <Route path="/appointments" element={<Appointment />} />
+            <Route path="/reports" element={<AdminReport />} />
+            <Route path="/admin-appointments" element={<AdminAppoint />} />
+            <Route path="/dashboard" element={<AdminDash />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/verified" element={<EmailVerified />} />
+            <Route path="/forget-password" element={<ForgetPassword />} />
+            <Route path="/reset-password/:token" element={<ResetPassword />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/admin-profile" element={<AdminProfile />} />
+            <Route path="/urgent" element={<UrgentRequests />} />
+          </Routes>
+        </div>
+
+        <Footer />
+
     </BrowserRouter>
   );
 }

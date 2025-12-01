@@ -1,11 +1,11 @@
 // src/components/Register.jsx
 
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { registerUser, clearAuthMessage } from '../features/authSlice';
-import donorIllustration from '../assets/donor.png';
-import mlogo from '../assets/mlogo.jpg';
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { registerUser, clearAuthMessage } from "../features/authSlice";
+import donorIllustration from "../assets/donor.png";
+import bdmslogo from "../assets/bdmslogo.png";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -14,15 +14,15 @@ const Register = () => {
   const { loading, error, message } = useSelector((state) => state.auth);
 
   const [formData, setFormData] = useState({
-    fName: '',
-    phoneNum: '',
-    Age: '',
-    gender: '',
-    bloodType: '',
-    role: '',
-    email: '',
-    password: '',
-    address: '',
+    fName: "",
+    phoneNum: "",
+    Age: "",
+    gender: "",
+    bloodType: "",
+    role: "",
+    email: "",
+    password: "",
+    address: "",
   });
 
   // password validation state
@@ -33,6 +33,9 @@ const Register = () => {
     special: false,
     length: false,
   });
+
+  // popup state
+  const [showPasswordHints, setShowPasswordHints] = useState(false);
 
   const validatePassword = (password) => {
     setPasswordValidations({
@@ -47,8 +50,7 @@ const Register = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    // live password validation
-    if (name === 'password') {
+    if (name === "password") {
       validatePassword(value);
     }
 
@@ -58,15 +60,11 @@ const Register = () => {
     }));
   };
 
-  // Submit using Redux thunk
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    // You can also add client-side check that all password rules are met
     dispatch(registerUser(formData));
   };
 
-  // When we get an error from auth slice, show it and clear it
   useEffect(() => {
     if (error) {
       alert(error);
@@ -74,277 +72,300 @@ const Register = () => {
     }
   }, [error, dispatch]);
 
-  // When registration succeeds (message from backend), show it and navigate
   useEffect(() => {
     if (message) {
       alert(message);
       dispatch(clearAuthMessage());
-      navigate('/login');
+      navigate("/login");
     }
   }, [message, dispatch, navigate]);
 
   return (
     <div className="register-page container-fluid">
       <div className="row min-vh-100 align-items-center">
-        <div className="col-md-7 auth-left">
-          {/* Logo + Title */}
+        <div
+          className="col-md-7 auth-left"    //remove the style to remove the scroll in registeration
+          style={{
+            maxHeight: "100vh",
+            overflowY: "auto",
+            paddingRight: "10px",
+          }}
+        >
           <div className="d-flex align-items-center gap-2 mb-4">
             <img
-              src={mlogo}
+              src={bdmslogo}
               alt="BDMS Logo"
               style={{
-                width: '100px',
-                height: '100px',
-                borderRadius: '12px',
-                objectFit: 'cover',
+                width: "60px",
+                height: "60px",
+                borderRadius: "12px",
+                objectFit: "cover",
               }}
             />
             <div className="lh-1">
               <h5 className="mb-0 fw-bold">
-                <span className="text-danger">BLOOD</span>{' '}
-                <span>DONATION</span>
+                <span className="text-danger">BLOOD</span> <span>DONATION</span>
               </h5>
               <small className="text-muted">MANAGEMENT SYSTEM</small>
             </div>
           </div>
 
-          <h3 className="mb-3 fw-semibold">Registration</h3>
+          <h3 className="mb-3 fw-semibold" style={{ color: "#d10000" }}>Registration</h3>
 
-          <form className="register-form" onSubmit={handleSubmit}>
-            {/* Full Name */}
-            <div className="mb-3">
-              <label className="form-label">Full Name</label>
-              <input
-                type="text"
-                className="form-control"
-                name="fName"
-                value={formData.fName}
-                onChange={handleChange}
-                placeholder="Enter your Full Name"
-                required
-              />
-            </div>
-
-            {/* Phone */}
-            <div className="mb-3">
-              <label className="form-label">Phone Number</label>
-              <input
-                type="tel"
-                className="form-control"
-                name="phoneNum"
-                value={formData.phoneNum}
-                onChange={handleChange}
-                placeholder="Enter your Phone Number"
-                required
-              />
-            </div>
-
-            {/* Age + Gender */}
-            <div className="row">
-              <div className="col-md-6 mb-3">
-                <label className="form-label">Age</label>
+          <div
+            style={{
+              maxWidth: "400px",
+              margin: "0 auto",
+            }}
+          >
+            <form className="register-form" onSubmit={handleSubmit}>
+              {/* Full Name */}
+              <div className="mb-3">
+                <label className="form-label">Full Name</label>
                 <input
-                  type="number"
+                  type="text"
                   className="form-control"
-                  name="Age"
-                  value={formData.Age}
+                  name="fName"
+                  value={formData.fName}
                   onChange={handleChange}
-                  placeholder="Enter your Age"
-                  min="18"
                   required
                 />
               </div>
 
-              <div className="col-md-6 mb-3">
-                <label className="form-label">Gender</label>
-                <select
-                  className="form-select"
-                  name="gender"
-                  value={formData.gender}
+              {/* Phone */}
+              <div className="mb-3">
+                <label className="form-label">Phone Number</label>
+                <input
+                  type="tel"
+                  className="form-control"
+                  name="phoneNum"
+                  value={formData.phoneNum}
                   onChange={handleChange}
                   required
-                >
-                  <option value="">Select gender</option>
-                  <option>Male</option>
-                  <option>Female</option>
-                  <option>Other</option>
-                </select>
+                />
               </div>
-            </div>
 
-            {/* Blood type + Role */}
-            <div className="row">
-              <div className="col-md-6 mb-3">
-                <label className="form-label">Blood Type</label>
-                <select
-                  className="form-select"
-                  name="bloodType"
-                  value={formData.bloodType}
+              {/* Age + Gender */}
+              <div className="row">
+                <div className="col-md-6 mb-3">
+                  <label className="form-label">Age</label>
+                  <input
+                    type="number"
+                    className="form-control"
+                    name="Age"
+                    value={formData.Age}
+                    onChange={handleChange}
+                    min="18"
+                    required
+                  />
+                </div>
+
+                <div className="col-md-6 mb-3">
+                  <label className="form-label">Gender</label>
+                  <select
+                    className="form-select"
+                    name="gender"
+                    value={formData.gender}
+                    onChange={handleChange}
+                    required
+                  >
+                    <option value="">Select gender</option>
+                    <option>Male</option>
+                    <option>Female</option>
+                    <option>Other</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Blood Type + Role */}
+              <div className="row">
+                <div className="col-md-6 mb-3">
+                  <label className="form-label">Blood Type</label>
+                  <select
+                    className="form-select"
+                    name="bloodType"
+                    value={formData.bloodType}
+                    onChange={handleChange}
+                    required
+                  >
+                    <option value="">Select blood type</option>
+                    <option>A+</option>
+                    <option>A-</option>
+                    <option>B+</option>
+                    <option>B-</option>
+                    <option>AB+</option>
+                    <option>AB-</option>
+                    <option>O+</option>
+                    <option>O-</option>
+                  </select>
+                </div>
+
+                <div className="col-md-6 mb-3">
+                  <label className="form-label">Role</label>
+                  <select
+                    className="form-select"
+                    name="role"
+                    value={formData.role}
+                    onChange={handleChange}
+                    required
+                  >
+                    <option value="">Select role</option>
+                    <option>Donor</option>
+                    <option>other</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Email */}
+              <div className="mb-3">
+                <label className="form-label">Email</label>
+                <input
+                  type="email"
+                  className="form-control"
+                  name="email"
+                  value={formData.email}
                   onChange={handleChange}
                   required
-                >
-                  <option value="">Select blood type</option>
-                  <option>A+</option>
-                  <option>A-</option>
-                  <option>B+</option>
-                  <option>B-</option>
-                  <option>AB+</option>
-                  <option>AB-</option>
-                  <option>O+</option>
-                  <option>O-</option>
-                </select>
+                />
               </div>
 
-              <div className="col-md-6 mb-3">
-                <label className="form-label">Role</label>
-                <select
-                  className="form-select"
-                  name="role"
-                  value={formData.role}
+              {/* Password + Popup */}
+              <div className="mb-3 position-relative">
+                <label className="form-label">Password</label>
+                <input
+                  type="password"
+                  className="form-control"
+                  name="password"
+                  value={formData.password}
                   onChange={handleChange}
                   required
-                >
-                  <option value="">Select role</option>
-                  <option>Donor</option>
-                  <option>Hospital</option>
-                  <option>Recipient</option>
-                  <option>Admin</option>
-                </select>
+                  onFocus={() => setShowPasswordHints(true)}
+                  onBlur={() => setShowPasswordHints(false)}
+                />
+
+                {showPasswordHints && (
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: "100%",
+                      left: 0,
+                      marginTop: "6px",
+                      padding: "8px 10px",
+                      backgroundColor: "#fff",
+                      border: "1px solid #ddd",
+                      borderRadius: "6px",
+                      boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
+                      fontSize: "12px",
+                      zIndex: 10,
+                      minWidth: "250px",
+                    }}
+                  >
+                    <strong style={{ fontSize: "11px" }}>
+                      PASSWORD MUST CONTAIN:
+                    </strong>
+                    <ul
+                      style={{
+                        listStyle: "none",
+                        paddingLeft: 0,
+                        marginTop: "6px",
+                        marginBottom: 0,
+                      }}
+                    >
+                      <li
+                        style={{
+                          color: passwordValidations.lower ? "green" : "red",
+                        }}
+                      >
+                        {passwordValidations.lower ? "✔" : "✘"} At least one
+                        lowercase letter
+                      </li>
+                      <li
+                        style={{
+                          color: passwordValidations.upper ? "green" : "red",
+                        }}
+                      >
+                        {passwordValidations.upper ? "✔" : "✘"} At least one
+                        uppercase letter
+                      </li>
+                      <li
+                        style={{
+                          color: passwordValidations.number ? "green" : "red",
+                        }}
+                      >
+                        {passwordValidations.number ? "✔" : "✘"} At least one
+                        number
+                      </li>
+                      <li
+                        style={{
+                          color: passwordValidations.special ? "green" : "red",
+                        }}
+                      >
+                        {passwordValidations.special ? "✔" : "✘"} At least one
+                        special character
+                      </li>
+                      <li
+                        style={{
+                          color: passwordValidations.length ? "green" : "red",
+                        }}
+                      >
+                        {passwordValidations.length ? "✔" : "✘"} Minimum 8
+                        characters
+                      </li>
+                    </ul>
+                  </div>
+                )}
               </div>
-            </div>
 
-            {/* Email */}
-            <div className="mb-3">
-              <label className="form-label">Email</label>
-              <input
-                type="email"
-                className="form-control"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                placeholder="Enter your Email"
-                required
-              />
-            </div>
-
-            {/* Password + Rules */}
-            <div className="mb-3">
-              <label className="form-label">Password</label>
-              <input
-                type="password"
-                className="form-control"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                placeholder="Enter a strong Password"
-                required
-              />
-
-              {/* Password Rules */}
-              <div className="mt-2">
-                <strong>PASSWORD MUST CONTAIN:</strong>
-                <ul
-                  style={{
-                    listStyle: 'none',
-                    paddingLeft: 0,
-                    marginTop: '10px',
-                  }}
-                >
-                  <li
-                    style={{
-                      color: passwordValidations.lower ? 'green' : 'red',
-                    }}
-                  >
-                    {passwordValidations.lower ? '✔' : '✘'} At least one
-                    lowercase letter
-                  </li>
-                  <li
-                    style={{
-                      color: passwordValidations.upper ? 'green' : 'red',
-                    }}
-                  >
-                    {passwordValidations.upper ? '✔' : '✘'} At least one
-                    uppercase letter
-                  </li>
-                  <li
-                    style={{
-                      color: passwordValidations.number ? 'green' : 'red',
-                    }}
-                  >
-                    {passwordValidations.number ? '✔' : '✘'} At least one
-                    number
-                  </li>
-                  <li
-                    style={{
-                      color: passwordValidations.special ? 'green' : 'red',
-                    }}
-                  >
-                    {passwordValidations.special ? '✔' : '✘'} At least one
-                    special character
-                  </li>
-                  <li
-                    style={{
-                      color: passwordValidations.length ? 'green' : 'red',
-                    }}
-                  >
-                    {passwordValidations.length ? '✔' : '✘'} Minimum 8
-                    characters
-                  </li>
-                </ul>
+              {/* Address */}
+              <div className="mb-3">
+                <label className="form-label">Address</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  name="address"
+                  value={formData.address}
+                  onChange={handleChange}
+                  required
+                />
               </div>
-            </div>
 
-            {/* Address */}
-            <div className="mb-3">
-              <label className="form-label">Address</label>
-              <input
-                type="text"
-                className="form-control"
-                name="address"
-                value={formData.address}
-                onChange={handleChange}
-                placeholder="Enter your Address"
-                required
-              />
-            </div>
+              {/* Terms */}
+              <div className="form-check mb-1">
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  id="terms"
+                  required
+                />
+                <label className="form-check-label" htmlFor="terms">
+                  I accept the terms & condition
+                </label>
+              </div>
 
-            {/* Terms */}
-            <div className="form-check mb-1">
-              <input
-                className="form-check-input"
-                type="checkbox"
-                id="terms"
-                required
-              />
-              <label className="form-check-label" htmlFor="terms">
-                I accept the terms &amp; condition
-              </label>
-            </div>
+              <p className="small text-muted mb-3">
+                <a href="#tc" className="text-decoration-underline">
+                  Read our T&Cs
+                </a>
+              </p>
 
-            <p className="small text-muted mb-3">
-              <a href="#tc" className="text-decoration-underline">
-                Read our T&amp;Cs
-              </a>
-            </p>
-
-            <button
-              type="submit"
-              className="btn btn-danger w-100"
-              disabled={loading}
-            >
-              {loading ? 'Registering...' : 'Register'}
-            </button>
-          </form>
+              <button
+                type="submit"
+                className="btn btn-danger w-100"
+                disabled={loading}
+              >
+                {loading ? "Registering..." : "Register"}
+              </button>
+            </form>
+          </div>
 
           <p className="mt-3">
-            Already have an account?{' '}
+            Already have an account?{" "}
             <Link to="/login" className="text-decoration-underline">
               Login
             </Link>
           </p>
         </div>
 
-        {/* Illustration */}
         <div className="col-md-5 text-center d-none d-md-block">
           <img
             src={donorIllustration}

@@ -552,34 +552,28 @@ nav .active-link {
 }
 
 
-.report-page .bdms-navbar {
-  background-color: #ff0000;
-  color: white;
-}
-
-.report-main .container {
-  margin-top: 20px;
-}
-
-.report-search-wrapper input {
-  max-width: 200px;
-}
-
-.chart-container {
-  background-color: #f8f9fa;
-  padding: 20px;
-  border-radius: 10px;
-}
-
-.chart-header {
-  display: flex;
-  justify-content: space-between;
-  font-size: 16px;
+.profile-icon-btn,
+.profile-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
   font-weight: 600;
-  margin-bottom: 20px;
+  border: 1px solid #ddd;
 }
 
-.report-bottom-bar {
-  background-color: #ff0000;
-  height: 60px;
+.profile-icon-btn {
+  padding: 0;
+}
+
+
+.admin-profile-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 1px solid #ccc;
+  font-weight: bold;
+  cursor: pointer;
+  text-decoration: none;
+  color: black;
 }

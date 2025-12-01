@@ -4,7 +4,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../features/authSlice";
 import { FaUserCircle } from "react-icons/fa"; // Import the profile icon
 import heroImg from "../assets/2.png";
-import mlogo from "../assets/mlogo.jpg";
+import bdmslogo from "../assets/bdmslogo.png";
 
 const Home = () => {
   const dispatch = useDispatch();
@@ -32,11 +32,11 @@ const Home = () => {
         <div className="container d-flex align-items-center justify-content-between py-3">
           <div className="d-flex align-items-center gap-2">
             <img
-              src={mlogo}
+              src={bdmslogo}
               alt="BDMS Logo"
               style={{
-                width: "80px",
-                height: "80px",
+                width: "60px",
+                height: "60px",
                 borderRadius: "12px",
                 objectFit: "cover",
               }}
@@ -50,37 +50,40 @@ const Home = () => {
           </div>
 
           <nav className="d-none d-md-flex align-items-center gap-4">
-            <a href="#hero" className="nav-link active-link">
+            <Link to="/home" className="nav-link active-link">
               Home
-            </a>
-            <a href="#about" className="nav-link">
-              About
-            </a>
-            <a href="#urgent" className="nav-link">
-              Urgent Requests
-            </a>
+            </Link>
 
-            {/* 🔥 Only show on Home: username + Logout */}
+            <Link to="/about" className="nav-link">
+              About
+            </Link>
+
+            <Link to="/appointments" className="nav-link">
+              Book An Appointment
+            </Link>
+
+            {/* ✅ Go to /urgent page, not #urgent */}
+            <Link to="/urgent" className="nav-link">
+              Urgent Requests
+            </Link>
+
             {user && (
               <>
                 <span className="nav-link mb-0">
                   Hi, <strong>{displayName}</strong>
                 </span>
 
-                {/* Profile Button */}
-                <button
-                  type="button"
-                  className="btn btn-outline-light text-dark"
-                  onClick={goToProfile}
-                  style={{ marginRight: "10px" }}
+                <Link
+                  to="/profile"
+                  className="btn btn-light rounded-circle d-flex align-items-center justify-content-center profile-icon-btn ms-2"
+                  title="View Profile"
                 >
-                  <FaUserCircle size={20} /> {/* Profile icon */}
-                </button>
+                  {displayName.charAt(0).toUpperCase()}
+                </Link>
 
-                {/* Logout Button */}
                 <button
                   type="button"
-                  className="btn btn-outline-light text-dark"
+                  className="btn btn-outline-light text-dark ms-2"
                   onClick={handleLogout}
                 >
                   Log Out
@@ -150,7 +153,7 @@ const Home = () => {
         <div className="container">
           <h4 className="mb-3 fw-semibold">Urgent Requests</h4>
           <p className="text-muted mb-0">
-            Here you can later show real-time urgent blood requests from
+            Here we later will show real-time urgent blood requests from
             hospitals. For now, this is a placeholder section.
           </p>
         </div>
