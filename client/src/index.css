@@ -21,3 +21,40 @@ a {
 a:hover {
   text-decoration: underline;
 }
+
+/* Make footer stick to bottom */
+html, body, #root {
+  height: 100%;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content {
+  flex: 1; /* pushes footer to bottom */
+}
+
+/* Make the whole app a column: content + footer */
+.app-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* This grows and pushes footer to the bottom */
+.main-content {
+  flex: 1;
+}
+
+.profile-page {
+  min-height: calc(100vh - 80px); /* 80px = footer height + navbar */
+  display: flex;
+  flex-direction: column;
+}
+
+.profile-page main {
+  flex: 1;
+}
+

@@ -2,7 +2,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import donorIllustration from '../assets/donor.png';
-import mlogo from '../assets/mlogo.jpg';
+import bdmslogo from '../assets/bdmslogo.png';
 
 const EmailVerified = () => {
   return (
@@ -12,11 +12,11 @@ const EmailVerified = () => {
         <div className="col-md-6 auth-left">
           <div className="d-flex align-items-center gap-2 mb-4">
             <img
-              src={mlogo}
+              src={bdmslogo}
               alt="BDMS Logo"
               style={{
-                width: '100px',
-                height: '100px',
+                width: '60px',
+                height: '60px',
                 borderRadius: '12px',
                 objectFit: 'cover',
               }}

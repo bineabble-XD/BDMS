@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import mlogo from "../assets/mlogo.jpg";
+import bdmslogo from "../assets/bdmslogo.png";
 
 const AdminProfile = () => {
   const admin = JSON.parse(localStorage.getItem("bdmsUser"));
@@ -12,11 +12,11 @@ const AdminProfile = () => {
       <header className="d-flex justify-content-between align-items-center mb-4">
         <div className="d-flex align-items-center gap-2">
           <img
-            src={mlogo}
+            src={bdmslogo}
             alt="BDMS Logo"
             style={{
-              width: "70px",
-              height: "70px",
+              width: "60px",
+              height: "60px",
               objectFit: "cover",
               borderRadius: "12px",
             }}

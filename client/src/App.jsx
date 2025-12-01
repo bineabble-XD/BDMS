@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
+import "./App.css"; // make sure this line exists
 
 import Home from "./components/Home.jsx";
 import Login from "./components/login.jsx";
@@ -16,30 +17,35 @@ import ForgetPassword from "./components/ForgetPassword.jsx";
 import ResetPassword from "./components/ResetPassword.jsx";
 import Profile from "./components/Profile.jsx";
 import AdminProfile from "./components/AdminProfile.jsx";
-
-
+import Footer from "./components/Footer.jsx";
 
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/home" element={<Home />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/feedback" element={<Feedback />} />
-        <Route path="/appointments" element={<Appointment />} />
-        <Route path="/reports" element={<AdminReport />} />
-        <Route path="/admin-appointments" element={<AdminAppoint />} />
-        <Route path="/dashboard" element={<AdminDash />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/verified" element={<EmailVerified />} />
-        <Route path="/forget-password" element={<ForgetPassword />} />
-        <Route path="/reset-password/:token" element={<ResetPassword />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/admin-profile" element={<AdminProfile />} />
+      {/* this whole div is a flex column */}
+      <div className="app-shell">
+        <div className="page-content">
+          <Routes>
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/home" element={<Home />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/feedback" element={<Feedback />} />
+            <Route path="/appointments" element={<Appointment />} />
+            <Route path="/reports" element={<AdminReport />} />
+            <Route path="/admin-appointments" element={<AdminAppoint />} />
+            <Route path="/dashboard" element={<AdminDash />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/verified" element={<EmailVerified />} />
+            <Route path="/forget-password" element={<ForgetPassword />} />
+            <Route path="/reset-password/:token" element={<ResetPassword />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/admin-profile" element={<AdminProfile />} />
+          </Routes>
+        </div>
 
-      </Routes>
+        <Footer />
+      </div>
     </BrowserRouter>
   );
 }

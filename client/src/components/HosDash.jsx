@@ -1,21 +1,20 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import bdmslogo from "../assets/bdmslogo.png";
-import heroImg from "../assets/2.png";
-const admin = JSON.parse(localStorage.getItem("bdmsUser"));
+import mlogo from "../assets/mlogo.jpg";  // Ensure this is the correct path for your logo
+import heroImg from "../assets/2.png";  // Path for your hero image (illustration)
 
-const AdminDash = () => {
+const HosDash = () => {
   return (
     <div className="dashboard-page">
       <header className="bdms-navbar shadow-sm">
         <div className="container d-flex align-items-center justify-content-between py-3">
           <div className="d-flex align-items-center gap-2">
             <img
-              src={bdmslogo}
+              src={mlogo}
               alt="BDMS Logo"
               style={{
-                width: "60px",
-                height: "60px",
+                width: "70px",
+                height: "70px",
                 borderRadius: "12px",
                 objectFit: "cover",
               }}
@@ -28,31 +27,16 @@ const AdminDash = () => {
             </div>
           </div>
 
-          <nav className="d-flex align-items-center gap-4">
-            <Link to="/reports" className="nav-link">Reports</Link>
-            <Link to="/appointments" className="nav-link">Appointments</Link>
-            <Link to="/dashboard" className="nav-link">Dashboard</Link>
-            <span className="nav-link fw-bold">BDMS ADMIN</span>
-            <Link
-              to="/admin-profile"
-              className="admin-profile-icon d-flex align-items-center justify-content-center ms-2"
-              title="Admin Profile"
-            >
-              {admin.fName ? admin.fName.charAt(0).toUpperCase() : "A"}
+          <nav className="d-none d-md-flex align-items-center gap-4">
+            <Link to="/reports" className="nav-link">
+              Reports
             </Link>
-
-
-            <button
-              className="btn btn-outline-danger ms-3"
-              onClick={() => {
-                localStorage.removeItem("bdmsUser"); // clear user
-                window.location.href = "/";      // redirect
-              }}
-            >
-              Log Out
-            </button>
+            <Link to="/appointments" className="nav-link">
+              Appointments
+            </Link>
+            <span className="nav-link active-link">Dashboard</span>
+            <span className="nav-link">BDMS ADMIN</span>
           </nav>
-
         </div>
       </header>
 
@@ -147,4 +131,4 @@ const AdminDash = () => {
   );
 };
 
-export default AdminDash;
+export default HosDash;
