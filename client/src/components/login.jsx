@@ -21,24 +21,60 @@ const Login = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    dispatch(loginUser(formData));
+    if (loading) return;
+
+    const email = formData.email.trim();
+    const password = formData.password;
+
+    // ✅ basic email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!email) {
+      alert("Please enter your email address.");
+      return;
+    }
+
+    if (!emailRegex.test(email)) {
+      alert("Please enter a valid email address.");
+      return;
+    }
+
+    if (!password) {
+      alert("Please enter your password.");
+      return;
+    }
+
+    if (password.length < 8) {
+      alert("Password must be at least 8 characters.");
+      return;
+    }
+
+    // send trimmed email
+    dispatch(loginUser({ email, password }));
   };
 
   // Redirect after login
   useEffect(() => {
     if (!user) return;
 
+    // backend already blocks unverified (for non-hospital),
+    // but this is an extra safety check
     if (!user.isVerified) {
       alert("Please verify your email before logging in.");
       return;
     }
 
     if (user.isAdmin === true) navigate("/reports");
+    else if (user.isHospital === true) navigate("/hospital-dash");
     else navigate("/home");
   }, [user, navigate]);
 
@@ -89,8 +125,13 @@ const Login = () => {
           {/* Centered form */}
           <div
             style={{
-              maxWidth: "400px",
+              maxWidth: "420px",
               margin: "0 auto",
+              border: "1px solid #ddd",
+              padding: "25px 20px",
+              borderRadius: "10px",
+              boxShadow: "0 3px 10px rgba(0,0,0,0.08)",
+              backgroundColor: "#fff",
             }}
           >
             <form onSubmit={handleSubmit}>

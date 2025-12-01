@@ -1,8 +1,8 @@
-// src/pages/Home.jsx
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../features/authSlice";
+import { FaUserCircle } from "react-icons/fa"; // Import the profile icon
 import heroImg from "../assets/2+.png";
 import bdmslogo from "../assets/bdmslogo.png";
 
@@ -20,6 +20,10 @@ const Home = () => {
   const handleLogout = () => {
     dispatch(logout());
     navigate("/login");
+  };
+
+  const goToProfile = () => {
+    navigate("/profile"); // This navigates to the user's profile page
   };
 
   return (

@@ -1,34 +1,31 @@
-// src/components/Register.jsx
+// src/components/HospitalRegister.jsx
 
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { registerUser, clearAuthMessage } from "../features/authSlice";
-import donorIllustration from "../assets/donor.png";
+import { registerHospital, resetHospitalState } from "../features/hospitalSlice";
 import bdmslogo from "../assets/bdmslogo.png";
+import donorIllustration from "../assets/donor.png"; // or your hospital illustration
 
-const Register = () => {
+const HospitalRegister = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const { loading, error, message } = useSelector((state) => state.auth);
+  // 🔗 Redux hospital state
+  const { loading, error, success } = useSelector((state) => state.hospital);
 
-  const [formData, setFormData] = useState({
-    fName: "",
-    phoneNum: "",
-    Age: "",
-    gender: "",
-    bloodType: "",
-    role: "Donor", // always donor
-    email: "",
-    password: "",
-    address: "",
+  const [form, setForm] = useState({
+    hospitalName: "",
+    city: "",
+    type: "",
+    contactPerson: "",
+    contactEmail: "",
+    contactPhone: "",
+    email: "", // login email
+    password: "", // login password
   });
 
-  // country code (for phone)
-  const [countryCode, setCountryCode] = useState("+968"); // default Oman
-
-  // password validation state
+  // ✅ password validation state (same as Register)
   const [passwordValidations, setPasswordValidations] = useState({
     lower: false,
     upper: false,
@@ -37,80 +34,113 @@ const Register = () => {
     length: false,
   });
 
-  // popup state
+  // ✅ popup state for password hints
   const [showPasswordHints, setShowPasswordHints] = useState(false);
 
-  const validatePassword = (password) => {
+  // clear old success/error when opening this page
+  useEffect(() => {
+    dispatch(resetHospitalState());
+  }, [dispatch]);
+
+  const validatePassword = (value) => {
     setPasswordValidations({
-      lower: /[a-z]/.test(password),
-      upper: /[A-Z]/.test(password),
-      number: /[0-9]/.test(password),
-      special: /[^A-Za-z0-9]/.test(password), // special character
-      length: password.length >= 8,
+      lower: /[a-z]/.test(value),
+      upper: /[A-Z]/.test(value),
+      number: /[0-9]/.test(value),
+      special: /[^A-Za-z0-9]/.test(value),
+      length: value.length >= 8,
     });
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    // ✅ Name validation: only letters + spaces, max 20 chars
-    if (name === "fName") {
+    // ✅ Contact person: letters + spaces only, max 20 chars (like user name)
+    if (name === "contactPerson") {
       const onlyLetters = /^[A-Za-z\s]*$/;
-
-      // block numbers/symbols
-      if (!onlyLetters.test(value)) return;
-
-      // limit to 20 characters
-      if (value.length > 20) return;
+      if (!onlyLetters.test(value)) return; // block numbers/symbols
+      if (value.length > 20) return; // limit length
     }
 
+    // ✅ track password rules
     if (name === "password") {
       validatePassword(value);
     }
 
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setForm((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (loading) return; // prevent double submit
 
-    // ✅ combine country code + phone for backend
-    const numericCode = countryCode.replace("+", "");
-    const payload = {
-      ...formData,
-      phoneNum: numericCode + formData.phoneNum,
-      role: "Donor", // enforce donor
-    };
+    // ✅ basic validations before sending
 
-    dispatch(registerUser(payload));
+    // email regex
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    const contactEmail = form.contactEmail.trim();
+    const loginEmail = form.email.trim();
+    const password = form.password;
+    const phone = form.contactPhone.trim();
+
+    if (!emailRegex.test(contactEmail)) {
+      alert("Please enter a valid contact email.");
+      return;
+    }
+
+    if (!emailRegex.test(loginEmail)) {
+      alert("Please enter a valid login email.");
+      return;
+    }
+
+    if (!password) {
+      alert("Please enter a password.");
+      return;
+    }
+
+    const rulesPassed = Object.values(passwordValidations).every((x) => x);
+    if (!rulesPassed) {
+      alert("Password does not meet the required criteria.");
+      return;
+    }
+
+    if (!/^[0-9]+$/.test(phone)) {
+      alert("Contact phone must contain digits only.");
+      return;
+    }
+
+    // 🧠 Dispatch Redux thunk instead of local fetch
+    dispatch(
+      registerHospital({
+        ...form,
+        contactEmail,
+        email: loginEmail,
+      })
+    )
+      .unwrap()
+      .then((data) => {
+        alert(
+          data?.message ||
+            "Hospital registration submitted and pending admin approval."
+        );
+        navigate("/login");
+      })
+      .catch(() => {
+        // error message is already in Redux `error`, we can also alert if you like:
+        if (error) {
+          alert(error);
+        }
+      });
   };
-
-  useEffect(() => {
-    if (error) {
-      alert(error);
-      dispatch(clearAuthMessage());
-    }
-  }, [error, dispatch]);
-
-  useEffect(() => {
-    if (message) {
-      alert(message);
-      dispatch(clearAuthMessage());
-      navigate("/login");
-    }
-  }, [message, dispatch, navigate]);
 
   return (
     <div className="register-page container-fluid">
       <div className="row min-vh-100 align-items-center">
+        {/* LEFT SIDE (form) */}
         <div
-          className="col-md-7 auth-left" //remove the style to remove the scroll in registeration
+          className="col-md-7 auth-left"
           style={{
-            maxHeight: "100vh",
-            overflowY: "auto",
             paddingRight: "10px",
           }}
         >
@@ -134,152 +164,135 @@ const Register = () => {
           </div>
 
           <h3 className="mb-3 fw-semibold" style={{ color: "#d10000" }}>
-            Registration
+            Hospital Registration
           </h3>
 
           <div
             style={{
-              maxWidth: "400px",
+              width: "100%",
+              maxWidth: "550px",
               margin: "0 auto",
+              padding: "20px",
+              border: "1px solid #ddd",
+              borderRadius: "10px",
+              backgroundColor: "#fff",
+              boxShadow: "0 4px 10px rgba(0,0,0,0.08)",
             }}
           >
-            <form className="register-form" onSubmit={handleSubmit}>
-              {/* Full Name */}
+            {/* 🔴 show server error from Redux */}
+            {error && (
+              <div className="alert alert-danger py-2">{error}</div>
+            )}
+
+            <form onSubmit={handleSubmit}>
+              {/* Hospital Name */}
               <div className="mb-3">
-                <label className="form-label">Full Name</label>
+                <label className="form-label">Hospital Name</label>
                 <input
                   type="text"
                   className="form-control"
-                  name="fName"
-                  value={formData.fName}
+                  name="hospitalName"
+                  value={form.hospitalName}
                   onChange={handleChange}
                   required
-                  maxLength={20}
                 />
-                <small className="text-muted">Max 20 letters.</small>
               </div>
 
-              {/* Phone with country code */}
-              <div className="mb-3">
-                <label className="form-label">Phone Number</label>
-                <div className="row g-2">
-                  <div className="col-3">
-                    <select
-                      className="form-select"
-                      value={countryCode}
-                      onChange={(e) => setCountryCode(e.target.value)}
-                    >
-                      <option value="+968">+968</option>
-                      <option value="+971">+971</option>
-                      <option value="+966">+966</option>
-                      <option value="+974">+974</option>
-                      <option value="+973">+973</option>
-                      <option value="+965">+965</option>
-                    </select>
-                  </div>
-                  <div className="col-9">
-                    <input
-                      type="tel"
-                      className="form-control"
-                      name="phoneNum"
-                      value={formData.phoneNum}
-                      onChange={handleChange}
-                      required
-                      placeholder="91234567"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Age + Gender */}
+              {/* City + Type */}
               <div className="row">
                 <div className="col-md-6 mb-3">
-                  <label className="form-label">Age</label>
+                  <label className="form-label">City</label>
                   <input
-                    type="number"
+                    type="text"
                     className="form-control"
-                    name="Age"
-                    value={formData.Age}
+                    name="city"
+                    value={form.city}
                     onChange={handleChange}
-                    min="18"
                     required
                   />
                 </div>
 
                 <div className="col-md-6 mb-3">
-                  <label className="form-label">Gender</label>
+                  <label className="form-label">Hospital Type</label>
                   <select
                     className="form-select"
-                    name="gender"
-                    value={formData.gender}
+                    name="type"
+                    value={form.type}
                     onChange={handleChange}
-                    required
                   >
-                    <option value="">Select gender</option>
-                    <option>Male</option>
-                    <option>Female</option>
+                    <option value="">Select type</option>
+                    <option>Government</option>
+                    <option>Private</option>
+                    <option>Military</option>
                     <option>Other</option>
                   </select>
                 </div>
               </div>
 
-              {/* Blood Type + Role (fixed) */}
+              {/* Contact Person */}
+              <div className="mb-3">
+                <label className="form-label">Contact Person</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  name="contactPerson"
+                  value={form.contactPerson}
+                  onChange={handleChange}
+                  required
+                />
+                <small className="text-muted">
+                  Name only (letters, max 20 characters).
+                </small>
+              </div>
+
+              {/* Contact Phone + Contact Email */}
               <div className="row">
                 <div className="col-md-6 mb-3">
-                  <label className="form-label">Blood Type</label>
-                  <select
-                    className="form-select"
-                    name="bloodType"
-                    value={formData.bloodType}
+                  <label className="form-label">Contact Phone</label>
+                  <input
+                    type="tel"
+                    className="form-control"
+                    name="contactPhone"
+                    value={form.contactPhone}
                     onChange={handleChange}
                     required
-                  >
-                    <option value="">Select blood type</option>
-                    <option>A+</option>
-                    <option>A-</option>
-                    <option>B+</option>
-                    <option>B-</option>
-                    <option>AB+</option>
-                    <option>AB-</option>
-                    <option>O+</option>
-                    <option>O-</option>
-                  </select>
+                  />
                 </div>
 
-                {/* Role fixed as Donor */}
                 <div className="col-md-6 mb-3">
-                  <label className="form-label">Role</label>
+                  <label className="form-label">Contact Email</label>
                   <input
-                    type="text"
+                    type="email"
                     className="form-control"
-                    value="Donor"
-                    disabled
-                    readOnly
+                    name="contactEmail"
+                    value={form.contactEmail}
+                    onChange={handleChange}
+                    required
                   />
                 </div>
               </div>
 
-              {/* Email */}
+              {/* Login Email */}
               <div className="mb-3">
-                <label className="form-label">Email</label>
+                <label className="form-label">Login Email</label>
                 <input
                   type="email"
                   className="form-control"
                   name="email"
-                  value={formData.email}
+                  value={form.email}
                   onChange={handleChange}
                   required
                 />
               </div>
 
-              {/* Password + Popup */}
+              {/* Login Password with popup hints */}
               <div className="mb-3 position-relative">
-                <label className="form-label">Password</label>
+                <label className="form-label">Login Password</label>
                 <input
                   type="password"
                   className="form-control"
                   name="password"
-                  value={formData.password}
+                  value={form.password}
                   onChange={handleChange}
                   required
                   onFocus={() => setShowPasswordHints(true)}
@@ -359,71 +372,31 @@ const Register = () => {
                 )}
               </div>
 
-              {/* Address */}
-              <div className="mb-3">
-                <label className="form-label">Address</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  name="address"
-                  value={formData.address}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-
-              {/* Terms */}
-              <div className="form-check mb-1">
-                <input
-                  className="form-check-input"
-                  type="checkbox"
-                  id="terms"
-                  required
-                />
-                <label className="form-check-label" htmlFor="terms">
-                  I accept the terms & condition
-                </label>
-              </div>
-
-              <p className="small text-muted mb-3">
-                <a href="#tc" className="text-decoration-underline">
-                  Read our T&Cs
-                </a>
-              </p>
-
               <button
                 type="submit"
                 className="btn btn-danger w-100"
                 disabled={loading}
               >
-                {loading ? "Registering..." : "Register"}
+                {loading ? "Submitting..." : "Register Hospital"}
               </button>
             </form>
           </div>
 
           <p className="mt-3">
-            Already have an account?{" "}
+            Already registered?{" "}
             <Link to="/login" className="text-decoration-underline">
               Login
             </Link>
           </p>
-
-          <p className="mt-3">
-            Are you a hospital?{" "}
-            <Link
-              to="/register-hospital"
-              className="text-decoration-underline"
-            >
-              Register your hospital here
-            </Link>
-          </p>
         </div>
 
+        {/* RIGHT SIDE ILLUSTRATION */}
         <div className="col-md-5 text-center d-none d-md-block">
           <img
             src={donorIllustration}
-            alt="Blood donor"
+            alt="Hospital"
             className="auth-illustration img-fluid"
+            style={{ maxWidth: "70%", height: "auto" }}
           />
         </div>
       </div>
@@ -431,4 +404,4 @@ const Register = () => {
   );
 };
 
-export default Register;
+export default HospitalRegister;

@@ -17,6 +17,8 @@ import ForgetPassword from "./components/ForgetPassword.jsx";
 import ResetPassword from "./components/ResetPassword.jsx";
 import Profile from "./components/Profile.jsx";
 import AdminProfile from "./components/AdminProfile.jsx";
+import HospitalRegister from "./components/HospitalRegister.jsx";
+import HosDash from "./components/HosDash.jsx";
 import Footer from "./components/Footer.jsx";
 
 function App() {
@@ -25,6 +27,9 @@ function App() {
       {/* this whole div is a flex column */}
       <div className="app-shell">
         <div className="page-content">
+          <div>
+            {/*NavBar in the future*/ }
+          </div>
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/home" element={<Home />} />
@@ -34,6 +39,7 @@ function App() {
             <Route path="/reports" element={<AdminReport />} />
             <Route path="/admin-appointments" element={<AdminAppoint />} />
             <Route path="/dashboard" element={<AdminDash />} />
+            <Route path="/hospital-dash" element={<HosDash />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/verified" element={<EmailVerified />} />
@@ -41,6 +47,7 @@ function App() {
             <Route path="/reset-password/:token" element={<ResetPassword />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/admin-profile" element={<AdminProfile />} />
+            <Route path="/register-hospital" element={<HospitalRegister />} />
           </Routes>
         </div>
 
