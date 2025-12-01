@@ -20,6 +20,11 @@ import AdminProfile from "./components/AdminProfile.jsx";
 import HospitalRegister from "./components/HospitalRegister.jsx";
 import HosDash from "./components/HosDash.jsx";
 import Footer from "./components/Footer.jsx";
+import Community from "./components/Community.jsx";
+import Settings from "./components/Settings";
+import UrgentRequests from "./components/UrgentRequests";
+
+
 
 function App() {
   return (
@@ -28,7 +33,7 @@ function App() {
       <div className="app-shell">
         <div className="page-content">
           <div>
-            {/*NavBar in the future*/ }
+            {/*NavBar in the future*/}
           </div>
           <Routes>
             <Route path="/" element={<LandingPage />} />
@@ -47,7 +52,11 @@ function App() {
             <Route path="/reset-password/:token" element={<ResetPassword />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/admin-profile" element={<AdminProfile />} />
+            <Route path="/community" element={<Community />} />
             <Route path="/register-hospital" element={<HospitalRegister />} />
+            <Route path="/settings" element={<Settings />} />
+            <Route path="/urgent-requests" element={<UrgentRequests />} />
+
           </Routes>
         </div>
 

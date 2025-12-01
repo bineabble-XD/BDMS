@@ -134,33 +134,35 @@ nav .active-link {
   background-color: #f5f5f5;
 }
 
+/* === ABOUT PAGE (new design) === */
+
 .about-page {
   background-color: #ffffff;
 }
 
+/* red gradient hero section */
 .about-hero {
-  background-color: #ff4b4b;
+  background: linear-gradient(180deg, #ff4b4b 0%, #ff3b3b 60%, #ff4b4b 100%);
   padding: 60px 0;
   color: #ffffff;
 }
 
-.about-title {
-  font-size: 3rem;
-  font-weight: 700;
+/* white content area under the hero */
+.about-content {
+  background-color: #ffffff;
 }
 
-.about-title span {
-  color: #ffffff;
+/* reusable white cards */
+.about-card {
+  background-color: #ffffff;
+  border-radius: 16px;
+  padding: 18px 20px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  border: 1px solid #f2f2f2;
 }
 
-.about-text {
-  max-width: 480px;
-  margin: 0 auto;
-}
 
-.about-contact span {
-  font-weight: 500;
-}
+
 
 /* APPOINTMENT PAGE */
 
@@ -604,4 +606,314 @@ body,
 /* footer naturally goes to bottom because of margin-top:auto */
 .bdms-footer {
   margin-top: auto;
+}
+
+/* Full-page background similar to your Pulse prototype */
+.community-page {
+  min-height: 100vh;
+  background: radial-gradient(circle at top, #e73827 0, #1a1a1a 45%, #000 100%);
+  color: #fff;
+}
+
+/* Make navbar transparent on top of dark background */
+.community-navbar {
+  background: transparent !important;
+  border-bottom: none;
+}
+
+/* Card style with improved readability */
+.community-card {
+  background: rgba(28, 28, 28, 0.92); /* slightly brighter */
+  border-radius: 24px;
+  padding: 18px 20px;
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.65);
+}
+
+/* Improve title clarity */
+.community-card h6 {
+  color: #ffffff !important;
+  font-weight: 600;
+}
+
+/* Improve body text visibility */
+.community-card p {
+  color: #d6d6d6 !important;
+}
+
+/* Improve the faded timestamp color */
+.community-card .text-muted,
+.community-card span.text-muted {
+  color: #c0c0c0 !important;
+}
+
+/* Avatar circle with initial letter */
+.community-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #e73827;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: #fff;
+  font-size: 18px;
+}
+
+/* Role badge (Hospital / Blood Bank) */
+.community-role-badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.15); /* brighter */
+  font-size: 11px;
+  color: #ffffff;
+  font-weight: 500;
+}
+
+/* Like / Reply buttons at the bottom */
+.community-icon-btn {
+  background: transparent;
+  border: none;
+  color: #f5f5f5;
+  font-size: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  padding: 0;
+}
+
+.community-icon-btn:hover {
+  color: #ffb09a; /* soft highlight */
+}
+
+
+/* ============================= */
+/* SETTINGS PAGE STYLING */
+/* ============================= */
+
+.settings-page {
+  background-color: #ffffff;
+  min-height: 100vh;
+}
+
+/* Dark mode wrapper */
+.settings-page.dark-mode {
+  background-color: #1b1b1b;
+  color: white;
+}
+
+/* Header (with logo + back button) */
+.settings-header {
+  border-bottom: 1px solid #ddd;
+  background: #ffffff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Back button on the left */
+.settings-back-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px 10px;
+  color: #333;
+}
+
+.settings-back-btn:hover {
+  color: #e63946;
+}
+
+/* BDMS Logo in header */
+.settings-logo {
+  width: 55px;
+  height: 55px;
+}
+
+/* Main white box */
+.settings-box {
+  max-width: 650px;
+  margin: auto;
+  background: white;
+  border-radius: 14px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+}
+
+/* Each row in settings */
+.setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.setting-row:last-child {
+  border-bottom: none;
+}
+
+.setting-label {
+  font-weight: 600;
+  font-size: 1rem;
+  width: 180px;
+}
+
+.setting-value {
+  font-size: 1rem;
+  color: #555;
+}
+
+/* Toggle buttons (Dark mode / Color blindness) */
+.toggle-group {
+  display: inline-flex;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.toggle-btn {
+  padding: 4px 12px;
+  cursor: pointer;
+  background: #f3f3f3;
+  font-size: 0.85rem;
+}
+
+.toggle-btn.active {
+  background: #d62828;
+  color: white;
+}
+
+/* Small cog icon at end of dark mode row */
+.setting-icon {
+  font-size: 20px;
+  color: gray;
+  margin-left: 10px;
+}
+
+/* Language switch (EN / ع) */
+.lang-toggle {
+  display: inline-flex;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.lang-btn {
+  padding: 4px 10px;
+  cursor: pointer;
+  background: #eee;
+  border: none;
+}
+
+.lang-btn.active {
+  background: #d62828;
+  color: #fff;
+}
+
+/* Font size button */
+.font-btn {
+  padding: 4px 12px;
+  border-radius: 6px;
+  border: 1px solid #555;
+  background: transparent;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+/* Dark mode overrides */
+.settings-page.dark-mode .settings-box {
+  background: #1f1f1f;
+  border-color: #333;
+}
+
+.settings-page.dark-mode .setting-value {
+  color: #e0e0e0;
+}
+
+.settings-page.dark-mode .toggle-btn {
+  background: #333;
+  color: #f5f5f5;
+}
+
+.settings-page.dark-mode .toggle-btn.active {
+  background: #e63946;
+  color: #fff;
+}
+
+.settings-page.dark-mode .settings-header {
+  background: #222;
+  border-bottom-color: #444;
+}
+
+.settings-page.dark-mode .settings-back-btn {
+  color: #f0f0f0;
+}
+
+
+/* ============================= */
+/* URGENT REQUESTS PAGE STYLING */
+/* ============================= */
+
+.urgent-page {
+  background-color: #ffffff;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.urgent-main {
+  flex: 1;
+}
+
+/* Cards grid */
+.urgent-card {
+  background-color: #f7f5f5;
+  border-radius: 20px;
+  padding: 18px 20px;
+  border: 1px solid #e5e5e5;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+.urgent-drop-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #ff4b4b1a;
+  color: #d62828;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  font-size: 18px;
+}
+
+/* Line-style rows inside the card */
+.urgent-field-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  padding: 4px 0;
+  border-bottom: 1px solid #ddd;
+}
+
+.urgent-field-row:last-child {
+  border-bottom: none;
+}
+
+.urgent-field-label {
+  color: #888;
+}
+
+.urgent-field-value {
+  font-weight: 500;
+  color: #333;
+}
+
+/* bottom red bar like Figma */
+.urgent-bottom-bar {
+  height: 26px;
+  background: linear-gradient(to right, #b10000, #ff4b4b);
 }

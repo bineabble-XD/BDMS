@@ -34,7 +34,7 @@ const LandingPage = () => {
             <Link to="/about" className="nav-link">
               About Us
             </Link>
-            <a href="#urgent" className="nav-link">
+            <a href="/urgent-requests" className="nav-link">
               Urgent Requests
             </a>
 
@@ -44,7 +44,12 @@ const LandingPage = () => {
             <Link to="/login" className="nav-link">
               Log In
             </Link>
-
+            <Link to="/community" className="nav-link">
+              Community
+            </Link>
+            <Link to="/settings" className="nav-link">
+              Settings
+            </Link>
             <form className="d-flex ms-3 search-box">
               <input
                 type="search"

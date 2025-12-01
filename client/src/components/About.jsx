@@ -1,3 +1,4 @@
+// src/components/About.jsx
 import React from "react";
 import { Link } from "react-router-dom";
 import bdmslogo from "../assets/bdmslogo.png";
@@ -5,73 +6,117 @@ import bdmslogo from "../assets/bdmslogo.png";
 const About = () => {
   return (
     <div className="about-page">
-      <header className="bdms-navbar shadow-sm">
-        <div className="container d-flex align-items-center justify-content-between py-3">
-          <div className="d-flex align-items-center gap-2">
-            <img
-              src={bdmslogo}
-              alt="BDMS Logo"
-              style={{
-                width: "60px",
-                height: "60px",
-                borderRadius: "12px",
-                objectFit: "cover",
-              }}
-            />
-            <div className="lh-1">
-              <h5 className="mb-0 fw-bold">
-                <span className="text-danger">BLOOD</span>{" "}
-                <span>DONATION</span>
-              </h5>
-              <small className="text-muted">MANAGEMENT SYSTEM</small>
-            </div>
-          </div>
-
-          <nav className="d-none d-md-flex align-items-center gap-4">
-            <Link to="/" className="nav-link">
-              Home
-            </Link>
-            <Link to="/about" className="nav-link active-link">
-              About Us
-            </Link>
-            <a href="#urgent" className="nav-link">
-              Urgent Requests
-            </a>
-            <Link to="/register" className="nav-link">
-              Register Now
-            </Link>
-            <Link to="/login" className="nav-link">
-              Log In
-            </Link>
-          </nav>
-        </div>
-      </header>
-
-      <section className="about-hero">
-        <div className="container text-center">
-          <h1 className="about-title mb-3">
-            About <span>Us</span>
-          </h1>
-          <p className="about-text mb-4">
-            BDMS is a non profit platform connecting blood donors with hospitals
-            in need across Oman.
+      {/* Top hero strip (your existing navbar stays outside this) */}
+      <section className="about-hero text-center text-white">
+        <div className="container py-5">
+          <h1 className="fw-bold mb-3">About Us</h1>
+          <p className="lead mb-4">
+            BDMS is a non-profit platform that connects blood donors with
+            hospitals in need across Oman.  
+            Our goal is to make every critical request reach the right donor at
+            the right time.
           </p>
 
-          <h5 className="mb-3">Contact Info</h5>
-
-          <div className="about-contact d-flex flex-wrap justify-content-center gap-4">
-            <div className="d-flex align-items-center gap-2">
-              <span>+968 9982 9982</span>
+          <div className="d-flex justify-content-center gap-3 flex-wrap">
+            <div className="badge bg-light text-danger px-3 py-2">
+              🎯 Save lives faster
             </div>
-            <div className="d-flex align-items-center gap-2">
-              <span>BDMS@gmail.com</span>
+            <div className="badge bg-light text-danger px-3 py-2">
+              🤝 Donors &amp; hospitals together
             </div>
-            <div className="d-flex align-items-center gap-2">
-              <span>Muscat</span>
+            <div className="badge bg-light text-danger px-3 py-2">
+              📍 Focused on Oman
             </div>
           </div>
         </div>
       </section>
+
+      {/* White content section */}
+      <section className="about-content py-5">
+        <div className="container">
+          {/* three cards */}
+          <div className="row g-4 mb-4">
+            <div className="col-md-4">
+              <div className="about-card h-100">
+                <h5 className="fw-semibold mb-2">Our Mission</h5>
+                <p className="mb-0 text-muted">
+                  To bridge the gap between hospitals and blood donors through a
+                  simple, reliable and secure platform – ensuring that no
+                  emergency is delayed due to lack of blood.
+                </p>
+              </div>
+            </div>
+
+            <div className="col-md-4">
+              <div className="about-card h-100">
+                <h5 className="fw-semibold mb-2">Our Vision</h5>
+                <p className="mb-0 text-muted">
+                  Support Oman&apos;s 2040 health vision by building a culture
+                  of regular donation, better stock management, and faster
+                  response to urgent cases.
+                </p>
+              </div>
+            </div>
+
+            <div className="col-md-4">
+              <div className="about-card h-100">
+                <h5 className="fw-semibold mb-2">How BDMS Helps</h5>
+                <ul className="mb-0 text-muted small ps-3">
+                  <li>Donors can register and manage their profiles.</li>
+                  <li>Hospitals can post urgent blood requests.</li>
+                  <li>
+                    Blood banks can update stock and coordinate with hospitals.
+                  </li>
+                  <li>
+                    Smart notifications help reach the right donors quickly.
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          {/* Contact + quick links */}
+          <div className="row align-items-center g-4">
+            <div className="col-md-6">
+              <div className="about-card h-100">
+                <h5 className="fw-semibold mb-3">Contact Info</h5>
+                <p className="mb-2">
+                  <span className="fw-semibold me-1">📞 Phone:</span>
+                  +968 9982 9982
+                </p>
+                <p className="mb-2">
+                  <span className="fw-semibold me-1">✉ Email:</span>
+                  BDMS@gmail.com
+                </p>
+                <p className="mb-0">
+                  <span className="fw-semibold me-1">📍 Location:</span>
+                  Muscat, Oman
+                </p>
+              </div>
+            </div>
+
+            <div className="col-md-6">
+              <div className="about-card text-center h-100">
+                <img
+                  src={bdmslogo}
+                  alt="BDMS logo"
+                  className="mb-3"
+                  style={{ width: 90, height: 90, objectFit: "contain" }}
+                />
+                <h6 className="fw-semibold mb-2">Want to get involved?</h6>
+                <p className="text-muted small mb-3">
+                  You can register as a donor, partner with us as a hospital or
+                  blood bank, or help by spreading awareness about regular blood
+                  donation.
+                </p>
+                
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      
     </div>
   );
 };
