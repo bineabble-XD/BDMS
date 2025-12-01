@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import bdmslogo from "../assets/bdmslogo.png";
-import donorIllustration from "../assets/donor.png";
+import donorIllustration from "../assets/Patienttt.png";
 
 const Appointment = () => {
   const navigate = useNavigate();
@@ -38,7 +38,7 @@ const Appointment = () => {
   };
 
   return (
-    <div className="appointment-page container-fluid">
+    <div className="appointment-page container-fluid"  style={{ paddingBottom: "80px" }}>
       {/* NAVBAR */}
       <header className="bdms-navbar shadow-sm mb-4">
         <div className="container d-flex align-items-center justify-content-between py-3">
@@ -73,21 +73,33 @@ const Appointment = () => {
         </div>
       </header>
 
-      {/* MAIN CONTENT */}
-      <div className="row min-vh-100 align-items-start">
-        {/* LEFT SIDE (matches login style, no scroll) */}
-        <div className="col-md-7" style={{ paddingRight: "10px" }}>
+      {/* MAIN CONTENT (same idea as Register.jsx) */}
+      <div className="row min-vh-100 align-items-center">
+        {/* LEFT SIDE – form column */}
+        <div
+          className="col-md-7 auth-left"
+          style={{
+            paddingRight: "10px",
+          }}
+        >
           <h3 className="fw-semibold mb-4 mt-3" style={{ color: "#d10000" }}>
             Book an Appointment
           </h3>
 
           {/* Centered Form Container */}
-          <div style={{ maxWidth: "400px", margin: "0 auto" }}>
+          <div style={{ maxWidth: "700px",
+    margin: "0 auto",
+    padding: "20px",
+    border: "1px solid #ddd",
+    borderRadius: "10px",
+    backgroundColor: "#fff", }}>
             <form onSubmit={handleSubmit}>
               <h5 className="mb-3">Appointment Details</h5>
 
               <div className="mb-4">
-                <label className="form-label fw-semibold">Preferred Hospital</label>
+                <label className="form-label fw-semibold">
+                  Preferred Hospital
+                </label>
                 <select
                   className="form-select"
                   name="hospital"
@@ -103,7 +115,9 @@ const Appointment = () => {
 
               <div className="row mb-4">
                 <div className="col-md-6">
-                  <label className="form-label fw-semibold">Appointment Month</label>
+                  <label className="form-label fw-semibold">
+                    Appointment Month
+                  </label>
                   <select
                     className="form-select"
                     name="appointmentMonth"
@@ -112,8 +126,18 @@ const Appointment = () => {
                   >
                     <option value="">Select month</option>
                     {[
-                      "January","February","March","April","May","June",
-                      "July","August","September","October","November","December",
+                      "January",
+                      "February",
+                      "March",
+                      "April",
+                      "May",
+                      "June",
+                      "July",
+                      "August",
+                      "September",
+                      "October",
+                      "November",
+                      "December",
                     ].map((m) => (
                       <option key={m}>{m}</option>
                     ))}
@@ -133,7 +157,9 @@ const Appointment = () => {
               </div>
 
               <div className="mb-4">
-                <label className="form-label fw-semibold">Last Donation Month</label>
+                <label className="form-label fw-semibold">
+                  Last Donation Month
+                </label>
                 <select
                   className="form-select"
                   name="lastDonationMonth"
@@ -142,8 +168,18 @@ const Appointment = () => {
                 >
                   <option value="">Select month</option>
                   {[
-                    "January","February","March","April","May","June",
-                    "July","August","September","October","November","December",
+                    "January",
+                    "February",
+                    "March",
+                    "April",
+                    "May",
+                    "June",
+                    "July",
+                    "August",
+                    "September",
+                    "October",
+                    "November",
+                    "December",
                   ].map((m) => (
                     <option key={m}>{m}</option>
                   ))}
@@ -152,7 +188,7 @@ const Appointment = () => {
 
               <h5 className="mb-3 mt-4">Eligibility Screening</h5>
 
-              {/* CHECKBOXES WITH BETTER SPACING */}
+              {/* CHECKBOXES */}
               <div className="mb-4">
                 <div className="form-check mb-2">
                   <input
@@ -181,7 +217,7 @@ const Appointment = () => {
                 </div>
               </div>
 
-              {/* RADIO GROUPS WITH SPACING */}
+              {/* RADIO GROUPS */}
               <div className="mb-4">
                 <p className="fw-semibold mb-2">Medication recently?</p>
                 <div className="d-flex flex-column gap-2">
@@ -299,12 +335,13 @@ const Appointment = () => {
           </div>
         </div>
 
-        {/* RIGHT SIDE */}
+        {/* RIGHT SIDE – smaller illustration, same idea as Register */}
         <div className="col-md-5 text-center d-none d-md-block">
           <img
             src={donorIllustration}
             alt="Donor illustration"
-            className="img-fluid"
+            className="auth-illustration img-fluid"
+            style={{ maxWidth: "70%", height: "auto" }}
           />
         </div>
       </div>

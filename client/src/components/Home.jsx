@@ -3,7 +3,7 @@ import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../features/authSlice";
-import heroImg from "../assets/2.png";
+import heroImg from "../assets/2+.png";
 import bdmslogo from "../assets/bdmslogo.png";
 
 const Home = () => {
