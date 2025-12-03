@@ -144,8 +144,7 @@ const AdminReport = () => {
         </div>
       </main>
 
-      {/* الشريط الأحمر تحت الصفحة */}
-      <div className="admin-bottom-bar" />
+      
     </div>
   );
 };

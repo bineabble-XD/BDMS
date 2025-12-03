@@ -77,6 +77,38 @@ nav .active-link {
   border-bottom: 1px solid #e5e5e5;
 }
 
+/* keep everything in ONE line and tighter like Figma */
+.bdms-navbar .container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+}
+
+.bdms-navbar nav {
+  display: flex;
+  align-items: center;
+  gap: 16px;          /* reduce gap so all links fit */
+  white-space: nowrap;
+  flex-wrap: nowrap;  /* no wrapping */
+}
+
+/* slightly tighter padding for links inside navbar */
+.bdms-navbar nav .nav-link {
+  padding: 0 6px;
+}
+
+/* compact search box so it doesn't push links down */
+.bdms-navbar .search-box input {
+  width: 120px;
+}
+
+/* let items shrink a bit instead of wrapping */
+.bdms-navbar nav *,
+.bdms-navbar .search-box {
+  flex-shrink: 1;
+}
+
 /* HERO مثل الصورة */
 .hero-section {
   background-color: #ff4b4b;
@@ -160,9 +192,6 @@ nav .active-link {
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
   border: 1px solid #f2f2f2;
 }
-
-
-
 
 /* APPOINTMENT PAGE */
 
@@ -386,64 +415,79 @@ nav .active-link {
   min-height: 100vh;
 }
 
+/* main background + spacing */
 .admin-app-main {
-  padding: 20px 0 40px;
+  background-color: #f5f5f8;
+  min-height: calc(100vh - 80px);
+  padding: 24px 0 40px;
 }
 
+/* search box on top-right */
 .admin-search-wrapper {
-  max-width: 220px;
+  width: 260px;
+  max-width: 100%;
 }
 
-/* الكرت الكبير على اليسار */
-.admin-app-card {
-  background-color: #f7f5f5;
-  border-radius: 20px;
-  border: 1px solid #e0e0e0;
+/* big cards (appointments + requests) */
+.admin-app-card,
+.admin-requests-card {
+  background-color: #ffffff;
+  border-radius: 18px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 14px 35px rgba(15, 23, 42, 0.06);
 }
 
-.admin-app-card h5 {
+.admin-app-card h5,
+.admin-requests-card h6 {
   font-weight: 600;
 }
 
+/* rows inside appointments list */
 .admin-app-row {
   display: grid;
   grid-template-columns: 1.5fr 1.5fr auto;
   align-items: center;
   gap: 12px;
-  padding: 8px 0;
+  padding: 8px 12px;
   font-size: 0.95rem;
+  border-radius: 10px;
 }
 
-/* الصورة فوق يمين */
-.admin-app-illustration {
-  background-color: #ffffff;
-}
-
-.admin-app-img {
-  max-width: 220px;
-  border-radius: 16px;
-}
-
-/* كرت Requests */
-.admin-requests-card {
-  background-color: #f7f5f5;
-  border-radius: 20px;
-  border: 1px solid #e0e0e0;
-}
-
-.admin-requests-card h6 {
-  font-weight: 600;
-}
-
+/* rows inside requests card */
 .admin-req-row {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   font-size: 0.9rem;
-  padding-top: 6px;
+  padding: 6px 10px;
+  border-radius: 10px;
 }
 
+/* subtle hover highlight */
+.admin-app-row:hover,
+.admin-req-row:hover {
+  background-color: #fafafc;
+}
+
+/* illustration container – remove extra white space */
+.admin-app-illustration {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* image fills the card nicely */
+.admin-app-img {
+  width: 100% !important;
+  height: auto !important;
+  display: block;
+  border-radius: 16px;
+  object-fit: cover;
+}
+
+/* small inline link buttons (View / Manage) */
 .admin-link {
   font-size: 0.85rem;
+  font-weight: 500;
   color: #333;
   text-decoration: none;
 }
@@ -452,11 +496,13 @@ nav .active-link {
   text-decoration: underline;
 }
 
-/* الشريط الأحمر تحت */
-.admin-bottom-bar {
-  height: 28px;
-  background: linear-gradient(to right, #b10000, #ff4b4b);
-  margin-top: 24px;
+/* Add spacing between the illustration and the requests card */
+.admin-app-illustration {
+  margin-bottom: 14px !important; /* small clean space */
+}
+
+.col-lg-4 > .admin-requests-card {
+  margin-top: 10px !important;
 }
 
 /* ============================
@@ -553,7 +599,6 @@ nav .active-link {
   margin-top: 24px;
 }
 
-
 .profile-icon-btn,
 .profile-icon {
   width: 40px;
@@ -566,7 +611,6 @@ nav .active-link {
 .profile-icon-btn {
   padding: 0;
 }
-
 
 .admin-profile-icon {
   width: 40px;
@@ -688,7 +732,6 @@ body,
 .community-icon-btn:hover {
   color: #ffb09a; /* soft highlight */
 }
-
 
 /* ============================= */
 /* SETTINGS PAGE STYLING */
@@ -852,7 +895,6 @@ body,
   color: #f0f0f0;
 }
 
-
 /* ============================= */
 /* URGENT REQUESTS PAGE STYLING */
 /* ============================= */
@@ -916,4 +958,294 @@ body,
 .urgent-bottom-bar {
   height: 26px;
   background: linear-gradient(to right, #b10000, #ff4b4b);
+}
+
+/* ===================================== */
+/* LOGIN PAGE — BIGGER LIKE FIGMA        */
+/* ===================================== */
+
+.login-page .row {
+  max-width: 1000px;        /* make layout tighter */
+  margin: 0 auto;
+  padding-top: 40px !important;
+  padding-bottom: 60px !important;
+}
+
+/* Make form column wider */
+.login-page .col-md-7 {
+  justify-content: flex-end;
+}
+
+/* Make image column wider */
+.login-page .col-md-5 {
+  justify-content: flex-start;
+}
+
+/* Increase form card size */
+.login-page .form-wrapper {
+  max-width: 600px;           /* was 500 */
+  padding: 40px 36px;         /* bigger padding */
+  border-radius: 16px;
+}
+
+/* Make inputs bigger */
+.login-page .form-control {
+  padding: 16px 16px;
+  font-size: 1.05rem;
+}
+
+/* Bigger login button */
+.login-page .btn-danger {
+  height: 56px;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+/* Enlarge the illustration */
+.login-page .auth-illustration {
+  max-width: 580px;       /* was 460 */
+  max-height: 580px;
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 10px 24px rgba(0,0,0,0.14));
+}
+
+/* Bring columns closer together */
+.login-page .col-md-7,
+.login-page .col-md-5 {
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.manage-req-page {
+  background-color: #ffffff;
+  padding-bottom: 40px;
+}
+
+.manage-header {
+  border-bottom: 1px solid #ddd;
+  background: white;
+}
+
+.manage-card {
+  background: #f7f5f5;
+  border-radius: 20px;
+  padding: 30px;
+  border: 1px solid #e0e0e0;
+  margin-top: 20px;
+}
+
+.manage-card input {
+  border-radius: 10px;
+}
+
+.manage-bottom-bar {
+  height: 28px;
+  background: linear-gradient(to right, #b10000, #ff4b4b);
+  margin-top: 40px;
+}
+
+/* ============================= */
+/* GLOBAL DARK MODE (body based) */
+/* ============================= */
+
+body.bdms-dark {
+  background-color: #121212;
+  color: #f5f5f5;
+}
+
+/* navbar in dark mode */
+body.bdms-dark .bdms-navbar {
+  background-color: #1e1e1e;
+  border-bottom-color: #333;
+}
+
+body.bdms-dark .bdms-navbar .nav-link {
+  color: #f5f5f5;
+}
+
+body.bdms-dark .bdms-navbar .nav-link:hover,
+body.bdms-dark .bdms-navbar .active-link {
+  color: #ff4b4b;
+}
+
+/* cards / white boxes adjust a bit */
+body.bdms-dark .settings-box,
+body.bdms-dark .about-card,
+body.bdms-dark .urgent-card,
+body.bdms-dark .admin-card,
+body.bdms-dark .appointments-card,
+body.bdms-dark .admin-app-card,
+body.bdms-dark .admin-requests-card,
+body.bdms-dark .admin-report-card-inner {
+  background-color: #1f1f1f;
+  border-color: #333;
+  color: #f5f5f5;
+}
+
+/* hero text readability */
+body.bdms-dark .hero-text,
+body.bdms-dark .hero-title,
+body.bdms-dark .hero-tagline {
+  color: #111; /* hero section is already red, keep text dark there */
+}
+ 
+/* Admin appointments page polish */
+.admin-app-main {
+  background-color: #f5f5f8;
+  min-height: calc(100vh - 80px);
+  padding: 24px 0 40px;
+}
+
+.admin-app-card,
+.admin-requests-card {
+  border-radius: 18px;
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 14px 35px rgba(15, 23, 42, 0.06);
+}
+
+.admin-app-row,
+.admin-req-row {
+  font-size: 0.95rem;
+}
+
+.admin-app-row:hover,
+.admin-req-row:hover {
+  background-color: #fafafc;
+}
+
+.admin-link {
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.admin-link:hover {
+  text-decoration: underline;
+}
+
+.admin-search-wrapper {
+  width: 260px;
+  max-width: 100%;
+}
+
+
+/* ============================================= */
+/* ADMIN DASH – PROFESSIONAL UI POLISH           */
+/* ============================================= */
+
+/* Dashboard main layout */
+.dashboard-main {
+  background: #f5f5f8;
+  padding: 32px 0 60px;
+}
+
+/* Top search wrapper */
+.dashboard-search-wrapper {
+  width: 260px;
+}
+
+/* Dashboard cards */
+.dashboard-card,
+.dashboard-side-card {
+  background: #ffffff;
+  border-radius: 18px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.06);
+  padding: 24px;
+}
+
+/* Hover rows inside dashboard */
+.dashboard-card .item-row:hover,
+.dashboard-side-card .appointment-row:hover {
+  background: #f9f9fb;
+}
+
+/* Urgent request dot */
+.urgent-dot {
+  width: 10px;
+  height: 10px;
+  background-color: #e63946;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+/* Illustration spacing fix */
+.dashboard-illustration img {
+  width: 100%;
+  max-width: 260px;
+  display: block;
+  margin: 0 auto 16px;
+  border-radius: 16px;
+}
+
+/* View button alignment */
+.dashboard-view-link {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #444;
+}
+
+.dashboard-view-link:hover {
+  text-decoration: underline;
+}
+
+/* ============================================= */
+/* ADMIN MANAGE REQUEST / APPOINTMENT PAGE       */
+/* ============================================= */
+
+.manage-req-page {
+  background: #f5f5f8;
+  min-height: 100vh;
+  padding-bottom: 50px;
+}
+
+.manage-card {
+  background: #ffffff;
+  border-radius: 20px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.06);
+  padding: 28px 30px;
+  margin-top: 18px;
+}
+
+/* Name + donor details left area */
+.manage-card .left-details strong {
+  font-size: 1rem;
+}
+
+.manage-card input {
+  border-radius: 10px;
+  padding: 10px 14px;
+  background: #fafafa;
+}
+
+/* Right details (age, email, eligibility) */
+.manage-card .right-details {
+  font-size: 0.95rem;
+}
+
+.manage-card .right-details .eligible {
+  color: #1b8f39;
+  font-weight: 700;
+}
+
+.manage-card .right-details .not-eligible {
+  color: #c1121f;
+  font-weight: 700;
+}
+
+/* Back button */
+.manage-back-btn {
+  font-size: 1rem;
+  font-weight: 500;
+  padding: 8px 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: #444;
+}
+
+.manage-back-btn:hover {
+  color: #e63946;
 }

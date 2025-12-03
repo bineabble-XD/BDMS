@@ -7,7 +7,6 @@ const admin = JSON.parse(localStorage.getItem("bdmsUser"));
 
 const API_BASE = "http://localhost:5050";
 
-
 const AdminDash = () => {
   const [hospitalRequests, setHospitalRequests] = useState([]);
   const [loadingRequests, setLoadingRequests] = useState(false);
@@ -33,16 +32,15 @@ const AdminDash = () => {
 
   const handleDecision = async (id, action) => {
     try {
-const url =
-  action === "approve"
-    ? `${API_BASE}/hospitals/${id}/approve`
-    : `${API_BASE}/hospitals/${id}/reject`;
+      const url =
+        action === "approve"
+          ? `${API_BASE}/hospitals/${id}/approve`
+          : `${API_BASE}/hospitals/${id}/reject`;
 
-const res = await fetch(url, {
-  method: "PATCH",
-  headers: { "Content-Type": "application/json" },
-});
-
+      const res = await fetch(url, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+      });
 
       const data = await res.json();
 
@@ -91,7 +89,7 @@ const res = await fetch(url, {
             <Link to="/reports" className="nav-link">
               Reports
             </Link>
-            <Link to="/appointments" className="nav-link">
+            <Link to="/admin-appointments" className="nav-link">
               Appointments
             </Link>
             <Link to="/dashboard" className="nav-link">
@@ -157,9 +155,13 @@ const res = await fetch(url, {
                     <span className="urgent-dot" />
                     <span>City Hospital</span>
                   </div>
-                  <button className="btn btn-link p-0 dashboard-view-link">
+                  {/* Link to Urgent Requests page */}
+                  <Link
+                    to="/urgent-requests"
+                    className="btn btn-link p-0 dashboard-view-link"
+                  >
                     View &gt;
-                  </button>
+                  </Link>
                 </div>
 
                 <hr className="my-2" />
@@ -169,9 +171,13 @@ const res = await fetch(url, {
                     <span className="urgent-dot" />
                     <span>Star Hospital</span>
                   </div>
-                  <button className="btn btn-link p-0 dashboard-view-link">
+                  {/* Link to Urgent Requests page */}
+                  <Link
+                    to="/urgent-requests"
+                    className="btn btn-link p-0 dashboard-view-link"
+                  >
                     View &gt;
-                  </button>
+                  </Link>
                 </div>
               </div>
 
@@ -228,7 +234,8 @@ const res = await fetch(url, {
 
             {/* RIGHT SIDE */}
             <div className="col-lg-4">
-              <div className="dashboard-side-top text-center mb-3">
+              <div className="dashboard-side-top mb-2">
+
                 <img
                   src={heroImg}
                   alt="Dashboard illustration"

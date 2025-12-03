@@ -39,7 +39,7 @@ const Appointment = () => {
 
   return (
     <div className="appointment-page container-fluid"  style={{ paddingBottom: "80px" }}>
-      {/* NAVBAR */}
+      {/* NAVBAR 
       <header className="bdms-navbar shadow-sm mb-4">
         <div className="container d-flex align-items-center justify-content-between py-3">
           <div className="d-flex align-items-center gap-2">
@@ -72,6 +72,7 @@ const Appointment = () => {
           </nav>
         </div>
       </header>
+      */}
 
       {/* MAIN CONTENT (same idea as Register.jsx) */}
       <div className="row min-vh-100 align-items-center">

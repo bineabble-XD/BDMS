@@ -79,21 +79,12 @@ const Community = () => {
           </div>
 
           <nav className="d-none d-md-flex align-items-center gap-4">
-            <Link to="/home" className="nav-link text-white">
-              Home
-            </Link>
-            <span className="nav-link fw-bold text-danger">Community</span>
-            <Link to="/appointments" className="nav-link text-white">
-              Appointments
-            </Link>
-            <Link to="/reports" className="nav-link text-white">
-              Reports
-            </Link>
+            
 
             {/* simple logout – you can wire it to Redux if you want */}
             <button
               className="btn btn-outline-light ms-3"
-              onClick={() => (window.location.href = "/home")}
+              onClick={() => (window.location.href = "/")}
             >
               Log Out
             </button>

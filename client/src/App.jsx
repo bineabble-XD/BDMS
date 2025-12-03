@@ -23,8 +23,12 @@ import Footer from "./components/Footer.jsx";
 import Community from "./components/Community.jsx";
 import Settings from "./components/Settings";
 import UrgentRequests from "./components/UrgentRequests";
-
-
+import MainLayout from "./components/MainLayout";
+import HospitalManageRequest from "./components/HospitalManageRequest"
+import AdminManageRequest from "./components/AdminManageRequest"
+import Inventory from "./components/Inventory.jsx";
+import HosAppoint from "./components/HosAppoint.jsx";
+import HosReport from "./components/HosReport.jsx";
 
 function App() {
   return (
@@ -36,26 +40,39 @@ function App() {
             {/*NavBar in the future*/}
           </div>
           <Routes>
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/home" element={<Home />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/feedback" element={<Feedback />} />
-            <Route path="/appointments" element={<Appointment />} />
             <Route path="/reports" element={<AdminReport />} />
             <Route path="/admin-appointments" element={<AdminAppoint />} />
             <Route path="/dashboard" element={<AdminDash />} />
+
             <Route path="/hospital-dash" element={<HosDash />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/verified" element={<EmailVerified />} />
-            <Route path="/forget-password" element={<ForgetPassword />} />
-            <Route path="/reset-password/:token" element={<ResetPassword />} />
-            <Route path="/profile" element={<Profile />} />
+            <Route path="/hospital-appointments" element={<HosAppoint />} />
+            <Route path="/hospital-reports" element={<HosReport />} />            
             <Route path="/admin-profile" element={<AdminProfile />} />
             <Route path="/community" element={<Community />} />
-            <Route path="/register-hospital" element={<HospitalRegister />} />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="/urgent-requests" element={<UrgentRequests />} />
+            <Route path="/HosManRequest" element={<HospitalManageRequest />} />
+            <Route path="/AdminManRequest" element={<AdminManageRequest />} />
+            <Route path="/inventory" element={<Inventory />} />
+
+
+            <Route path="/profile" element={<Profile />} />
+
+            <Route element={<MainLayout />}>
+              <Route path="/home" element={<Home />} />
+
+              <Route path="/about" element={<About />} />
+              <Route path="/feedback" element={<Feedback />} />
+              <Route path="/appointments" element={<Appointment />} />
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/verified" element={<EmailVerified />} />
+              <Route path="/forget-password" element={<ForgetPassword />} />
+              <Route path="/reset-password/:token" element={<ResetPassword />} />
+
+              <Route path="/register-hospital" element={<HospitalRegister />} />
+              <Route path="/settings" element={<Settings />} />
+              <Route path="/urgent-requests" element={<UrgentRequests />} />
+            </Route>
 
           </Routes>
         </div>

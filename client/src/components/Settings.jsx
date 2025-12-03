@@ -1,16 +1,32 @@
-import React, { useState } from "react";
+// src/components/Settings.jsx
+
+import React, { useState, useEffect } from "react";
 import { FaCog } from "react-icons/fa";
 import { FiArrowLeft } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
-import bdmslogo from "../assets/bdmslogo.png";
 
 const Settings = () => {
   const navigate = useNavigate();
 
-  const [darkMode, setDarkMode] = useState(false);
+  // initialize from localStorage so dark mode persists
+  const [darkMode, setDarkMode] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return localStorage.getItem("bdms_dark_mode") === "true";
+  });
+
   const [language, setLanguage] = useState("EN");
   const [fontSize, setFontSize] = useState("Medium");
   const [colorBlind, setColorBlind] = useState(false);
+
+  // 🔥 hook dark mode to the whole app (body class + persistence)
+  useEffect(() => {
+    if (darkMode) {
+      document.body.classList.add("bdms-dark");
+    } else {
+      document.body.classList.remove("bdms-dark");
+    }
+    localStorage.setItem("bdms_dark_mode", darkMode ? "true" : "false");
+  }, [darkMode]);
 
   // Back button logic
   const goBack = () => {
@@ -20,102 +36,92 @@ const Settings = () => {
 
   return (
     <div className={`settings-page ${darkMode ? "dark-mode" : ""}`}>
+      <div className="container py-4">
+        {/* Top row: back arrow + title */}
+        <div className="d-flex align-items-center mb-4">
+          <button className="settings-back-btn me-3" onClick={goBack}>
+            <FiArrowLeft size={22} />
+          </button>
 
-      {/* ======= HEADER WITH LOGO + BACK BUTTON ======= */}
-      <header className="settings-header d-flex justify-content-between align-items-center px-4 py-3">
-
-        {/* Back button (left) */}
-        <button className="settings-back-btn" onClick={goBack}>
-          <FiArrowLeft size={22} />
-        </button>
-
-        {/* Logo + title */}
-        <div className="d-flex align-items-center gap-3">
-          <img src={bdmslogo} alt="BDMS Logo" className="settings-logo" />
-          <h4 className="fw-bold m-0">
-            BLOOD <span className="text-danger">DONATION</span>
-            <div className="small text-muted">MANAGEMENT SYSTEM</div>
-          </h4>
+          <div className="d-flex align-items-center">
+            <FaCog size={22} className="me-2" />
+            <h5 className="fw-bold mb-0">Settings</h5>
+          </div>
         </div>
 
-        {/* Spacer for alignment */}
-        <div style={{ width: "32px" }}></div>
-      </header>
-
-      {/* ======= SETTINGS CONTENT ======= */}
-      <div className="container mt-4">
-        <div className="d-flex align-items-center mb-2">
-          <FaCog size={22} className="me-2" />
-          <h5 className="fw-bold">Settings</h5>
-        </div>
-
+        {/* Main white card */}
         <div className="settings-box p-4">
-
-          {/* ========== DARK MODE ========== */}
+          {/* DARK MODE */}
           <div className="setting-row">
-            <label className="setting-label">Dark Mode :</label>
+            <span className="setting-label">Dark Mode :</span>
 
-            <div className="toggle-group">
-              <span
-                className={`toggle-btn ${!darkMode ? "active" : ""}`}
-                onClick={() => setDarkMode(false)}
-              >
-                OFF
-              </span>
-              <span
-                className={`toggle-btn ${darkMode ? "active" : ""}`}
-                onClick={() => setDarkMode(true)}
-              >
-                ON
-              </span>
-            </div>
+            <div className="d-flex align-items-center gap-3">
+              <div className="toggle-group">
+                <span
+                  className={`toggle-btn ${!darkMode ? "active" : ""}`}
+                  onClick={() => setDarkMode(false)}
+                >
+                  OFF
+                </span>
+                <span
+                  className={`toggle-btn ${darkMode ? "active" : ""}`}
+                  onClick={() => setDarkMode(true)}
+                >
+                  ON
+                </span>
+              </div>
 
-            <FaCog className="setting-icon" />
-          </div>
-
-          {/* ========== LANGUAGE ========== */}
-          <div className="setting-row">
-            <label className="setting-label">Language :</label>
-
-            <span className="setting-value">
-              {language === "EN" ? "English" : "Arabic"}
-            </span>
-
-            <div className="lang-toggle ms-3">
-              <button
-                className={`lang-btn ${language === "EN" ? "active" : ""}`}
-                onClick={() => setLanguage("EN")}
-              >
-                EN
-              </button>
-              <button
-                className={`lang-btn ${language === "AR" ? "active" : ""}`}
-                onClick={() => setLanguage("AR")}
-              >
-                ع
-              </button>
+              <FaCog className="setting-icon" />
             </div>
           </div>
 
-          {/* ========== FONT SIZE ========== */}
+          {/* LANGUAGE */}
           <div className="setting-row">
-            <label className="setting-label">Font Size :</label>
+            <span className="setting-label">Language :</span>
 
-            <span className="setting-value">{fontSize}</span>
+            <div className="d-flex align-items-center gap-3">
+              <span className="setting-value">
+                {language === "EN" ? "English" : "Arabic"}
+              </span>
 
-            <button
-              className="font-btn ms-3"
-              onClick={() =>
-                setFontSize(fontSize === "Medium" ? "Large" : "Medium")
-              }
-            >
-              Tt
-            </button>
+              <div className="lang-toggle">
+                <button
+                  className={`lang-btn ${language === "EN" ? "active" : ""}`}
+                  onClick={() => setLanguage("EN")}
+                >
+                  EN
+                </button>
+                <button
+                  className={`lang-btn ${language === "AR" ? "active" : ""}`}
+                  onClick={() => setLanguage("AR")}
+                >
+                  ع
+                </button>
+              </div>
+            </div>
           </div>
 
-          {/* ========== COLOR BLINDNESS ========== */}
+          {/* FONT SIZE */}
           <div className="setting-row">
-            <label className="setting-label">Color Blindness :</label>
+            <span className="setting-label">Font Size :</span>
+
+            <div className="d-flex align-items-center gap-3">
+              <span className="setting-value">{fontSize}</span>
+
+              <button
+                className="font-btn"
+                onClick={() =>
+                  setFontSize(fontSize === "Medium" ? "Large" : "Medium")
+                }
+              >
+                Tt
+              </button>
+            </div>
+          </div>
+
+          {/* COLOR BLINDNESS */}
+          <div className="setting-row">
+            <span className="setting-label">Color Blindness :</span>
 
             <div className="toggle-group">
               <span
@@ -132,7 +138,6 @@ const Settings = () => {
               </span>
             </div>
           </div>
-
         </div>
       </div>
     </div>

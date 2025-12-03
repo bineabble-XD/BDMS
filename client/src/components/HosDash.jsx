@@ -31,7 +31,7 @@ const HosDash = () => {
             <Link to="/reports" className="nav-link">
               Reports
             </Link>
-            <Link to="/appointments" className="nav-link">
+            <Link to="/admin-appointments" className="nav-link">
               Appointments
             </Link>
             <span className="nav-link active-link">Dashboard</span>
@@ -77,9 +77,12 @@ const HosDash = () => {
                     <span className="urgent-dot" />
                     <span>City Hospital</span>
                   </div>
-                  <button className="btn btn-link p-0 dashboard-view-link">
+                  <Link
+                    to="/urgent-requests"
+                    className="btn btn-link p-0 dashboard-view-link"
+                  >
                     View &gt;
-                  </button>
+                  </Link>
                 </div>
 
                 <hr className="my-2" />
@@ -89,9 +92,12 @@ const HosDash = () => {
                     <span className="urgent-dot" />
                     <span>Star Hospital</span>
                   </div>
-                  <button className="btn btn-link p-0 dashboard-view-link">
+                  <Link
+                    to="/urgent-requests"
+                    className="btn btn-link p-0 dashboard-view-link"
+                  >
                     View &gt;
-                  </button>
+                  </Link>
                 </div>
               </div>
             </div>

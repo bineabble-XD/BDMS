@@ -1,102 +1,20 @@
-// src/components/UrgentRequests.jsx
 import React from "react";
 import { Link } from "react-router-dom";
 import { FaTint } from "react-icons/fa";
 import bdmslogo from "../assets/bdmslogo.png";
 
 const urgentData = [
-  {
-    id: 1,
-    name: "Mohammed Salim",
-    type: "B+",
-    date: "2025-12-12",
-    location: "City Hospital",
-  },
-  {
-    id: 2,
-    name: "xx",
-    type: "O+",
-    date: "2025-xx-xx",
-    location: "xxx",
-  },
-  {
-    id: 3,
-    name: "xx",
-    type: "O+",
-    date: "2025-xx-xx",
-    location: "xxx",
-  },
-  {
-    id: 4,
-    name: "xx",
-    type: "O-",
-    date: "2025-xx-xx",
-    location: "xxx",
-  },
-  {
-    id: 5,
-    name: "xx",
-    type: "AB+",
-    date: "2025-xx-xx",
-    location: "xxx",
-  },
-  {
-    id: 6,
-    name: "xx",
-    type: "A-",
-    date: "2025-xx-xx",
-    location: "xxx",
-  },
+  { id: 1, name: "Mohammed Salim", type: "B+", date: "2025-12-12", location: "City Hospital" },
+  { id: 2, name: "xx", type: "O+", date: "2025-xx-xx", location: "xxx" },
+  { id: 3, name: "xx", type: "O+", date: "2025-xx-xx", location: "xxx" },
+  { id: 4, name: "xx", type: "O-", date: "2025-xx-xx", location: "xxx" },
+  { id: 5, name: "xx", type: "AB+", date: "2025-xx-xx", location: "xxx" },
+  { id: 6, name: "xx", type: "A-", date: "2025-xx-xx", location: "xxx" },
 ];
 
 const UrgentRequests = () => {
   return (
     <div className="urgent-page">
-      {/* ===== TOP NAVBAR (like Figma) ===== */}
-      <header className="bdms-navbar shadow-sm">
-        <div className="container d-flex align-items-center justify-content-between py-3">
-          {/* Logo + brand */}
-          <div className="d-flex align-items-center gap-2">
-            <img
-              src={bdmslogo}
-              alt="BDMS Logo"
-              style={{
-                width: "70px",
-                height: "70px",
-                borderRadius: "12px",
-                objectFit: "cover",
-              }}
-            />
-            <div className="lh-1">
-              <h5 className="mb-0 fw-bold">
-                <span className="text-danger">BLOOD</span> <span>DONATION</span>
-              </h5>
-              <small className="text-muted">MANAGEMENT SYSTEM</small>
-            </div>
-          </div>
-
-          {/* Nav links */}
-          <nav className="d-none d-md-flex align-items-center gap-4">
-            <Link to="/home" className="nav-link">
-              Home
-            </Link>
-            <Link to="/about" className="nav-link">
-              About Us
-            </Link>
-            <span className="nav-link active-link">Urgent Requests</span>
-            <Link to="/login" className="nav-link">
-              Log In
-            </Link>
-            <form className="d-flex ms-3 search-box">
-              <input
-                type="search"
-                className="form-control form-control-sm"
-                placeholder="Search"
-              />
-            </form>
-          </nav>
-        </div>
-      </header>
 
       {/* ===== MAIN CONTENT ===== */}
       <main className="urgent-main">
@@ -111,9 +29,11 @@ const UrgentRequests = () => {
             {urgentData.map((item) => (
               <div key={item.id} className="col-md-4">
                 <div className="urgent-card text-center">
+                  
                   <div className="urgent-drop-icon mb-2">
                     <FaTint />
                   </div>
+
                   <h6 className="mb-2 fw-semibold">Emergency blood needed</h6>
 
                   <div className="urgent-field-row">
@@ -139,10 +59,12 @@ const UrgentRequests = () => {
                   <button className="btn btn-danger btn-sm px-4">
                     Details
                   </button>
+
                 </div>
               </div>
             ))}
           </div>
+
         </div>
       </main>
 

@@ -21,7 +21,7 @@ const AdminProfile = () => {
               borderRadius: "12px",
             }}
           />
-          <h4 className="fw-bold">BDMS Admin Panel</h4>
+          <h4 className="fw-bold">BDMS Admin</h4>
         </div>
 
         <Link to="/dashboard" className="btn btn-outline-secondary">

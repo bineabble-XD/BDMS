@@ -66,15 +66,43 @@ const HosReport = () => {
           </div>
 
           <nav className="d-none d-md-flex align-items-center gap-4">
-            <span className="nav-link active-link">Reports</span>
-            <Link to="/appointments" className="nav-link">
-              Appointments
-            </Link>
-            <Link to="/dashboard" className="nav-link">
-              Dashboard
-            </Link>
-            <span className="nav-link">BDMS ADMIN</span>
-          </nav>
+  <Link to="/hos-reports" className="nav-link">
+    Reports
+  </Link>
+
+  <Link to="/hospital-appointments" className="nav-link">
+    Appointments
+  </Link>
+
+  <span className="nav-link active-link">Dashboard</span>
+
+  {/* Hospital Name */}
+  <span className="nav-link fw-bold">
+    {hospital?.fName || "Hospital User"}
+  </span>
+
+  {/* Profile Icon */}
+  <Link
+    to="/admin-profile"   // or /hospital-profile if you want later
+    className="admin-profile-icon d-flex align-items-center justify-content-center"
+    title="Profile"
+  >
+    {hospital?.fName?.charAt(0).toUpperCase() || "H"}
+  </Link>
+
+  {/* Logout Button */}
+  <button
+    className="btn btn-outline-danger btn-sm ms-2"
+    onClick={() => {
+      localStorage.removeItem("bdmsUser");
+      window.location.href = "/";
+    }}
+  >
+    Log Out
+  </button>
+</nav>
+
+
         </div>
       </header>
 
