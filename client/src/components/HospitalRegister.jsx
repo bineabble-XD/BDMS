@@ -5,7 +5,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { registerHospital, resetHospitalState } from "../features/hospitalSlice";
 import bdmslogo from "../assets/bdmslogo.png";
-import donorIllustration from "../assets/donor.png"; // or your hospital illustration
+import donorIllustration from "../assets/1+.png"; // or your hospital illustration
 
 const HospitalRegister = () => {
   const navigate = useNavigate();

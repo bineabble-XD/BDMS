@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import bdmslogo from "../assets/bdmslogo.png";
-import heroImg from "../assets/2.png";
+import heroImg from "../assets/9+.png";
 
 const admin = JSON.parse(localStorage.getItem("bdmsUser"));
 
@@ -120,13 +120,7 @@ const AdminDash = () => {
       <main className="dashboard-main">
         <div className="container">
           <div className="d-flex justify-content-between align-items-center mb-3">
-            <div className="dashboard-search-wrapper">
-              <input
-                type="search"
-                className="form-control form-control-sm"
-                placeholder="Search"
-              />
-            </div>
+            
           </div>
 
           <div className="row g-4">

@@ -29,6 +29,8 @@ import AdminManageRequest from "./components/AdminManageRequest"
 import Inventory from "./components/Inventory.jsx";
 import HosAppoint from "./components/HosAppoint.jsx";
 import HosReport from "./components/HosReport.jsx";
+import HospitalProfile from "./components/HospitalProfile.jsx";
+
 
 function App() {
   return (
@@ -52,6 +54,7 @@ function App() {
             <Route path="/HosManRequest" element={<HospitalManageRequest />} />
             <Route path="/AdminManRequest" element={<AdminManageRequest />} />
             <Route path="/inventory" element={<Inventory />} />
+            <Route path="/HospitalProfile" element={<HospitalProfile />} />
 
 
             <Route path="/profile" element={<Profile />} />

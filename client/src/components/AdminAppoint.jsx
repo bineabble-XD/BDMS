@@ -2,7 +2,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import bdmslogo from "../assets/bdmslogo.png";
-import heroImg from "../assets/2.png";
+import heroImg from "../assets/11+.png";
 
 const AdminAppoint = () => {
   return (
@@ -55,13 +55,7 @@ const AdminAppoint = () => {
               </p>
             </div>
 
-            <div className="admin-search-wrapper">
-              <input
-                type="search"
-                className="form-control form-control-sm"
-                placeholder="Search by name or date"
-              />
-            </div>
+            
           </div>
 
           <div className="row g-4">

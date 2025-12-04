@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import bdmslogo from "../assets/bdmslogo.png";
-import donorIllustration from "../assets/Patienttt.png";
+import donorIllustration from "../assets/11+.png";
 
 const Appointment = () => {
   const navigate = useNavigate();

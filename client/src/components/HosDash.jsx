@@ -1,13 +1,17 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import mlogo from "../assets/bdmslogo.png";  // Ensure this is the correct path for your logo
-import heroImg from "../assets/2.png";  // Path for your hero image (illustration)
+import mlogo from "../assets/bdmslogo.png";
+import heroImg from "../assets/9+.png";
+
+// get logged-in hospital user
+const hospital = JSON.parse(localStorage.getItem("bdmsUser"));
 
 const HosDash = () => {
   return (
     <div className="dashboard-page">
       <header className="bdms-navbar shadow-sm">
         <div className="container d-flex align-items-center justify-content-between py-3">
+          {/* Logo + title */}
           <div className="d-flex align-items-center gap-2">
             <img
               src={mlogo}
@@ -27,31 +31,48 @@ const HosDash = () => {
             </div>
           </div>
 
+          {/* NAVBAR LINKS + PROFILE + LOGOUT */}
           <nav className="d-none d-md-flex align-items-center gap-4">
-            <Link to="/reports" className="nav-link">
+            <Link to="/hospital-reports" className="nav-link">
               Reports
             </Link>
-            <Link to="/admin-appointments" className="nav-link">
+
+            <Link to="/hospital-appointments" className="nav-link">
               Appointments
             </Link>
+
             <span className="nav-link active-link">Dashboard</span>
-            <span className="nav-link">Hospital Page</span>
+
+            {/* Hospital name */}
+            <span className="nav-link fw-bold">
+              {hospital?.fName || "Hospital Page"}
+            </span>
+
+            {/* Profile icon */}
+            <Link
+              to="/HospitalProfile" // later you can create /hospital-profile
+              className="admin-profile-icon d-flex align-items-center justify-content-center"
+              title="Profile"
+            >
+              {hospital?.fName?.charAt(0).toUpperCase() || "H"}
+            </Link>
+
+            {/* Logout button */}
+            <button
+              className="btn btn-outline-danger btn-sm ms-2"
+              onClick={() => {
+                localStorage.removeItem("bdmsUser");
+                window.location.href = "/";
+              }}
+            >
+              Log Out
+            </button>
           </nav>
         </div>
       </header>
 
       <main className="dashboard-main">
         <div className="container">
-          <div className="d-flex justify-content-between align-items-center mb-3">
-            <div className="dashboard-search-wrapper">
-              <input
-                type="search"
-                className="form-control form-control-sm"
-                placeholder="Search"
-              />
-            </div>
-          </div>
-
           <div className="row g-4">
             <div className="col-lg-8">
               <div className="dashboard-card p-4 mb-4">
@@ -132,7 +153,6 @@ const HosDash = () => {
         </div>
       </main>
 
-      <div className="dashboard-bottom-bar" />
     </div>
   );
 };

@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { registerUser, clearAuthMessage } from "../features/authSlice";
-import donorIllustration from "../assets/donor.png";
+import donorIllustration from "../assets/9+.png";
 import bdmslogo from "../assets/bdmslogo.png";
 
 const Register = () => {

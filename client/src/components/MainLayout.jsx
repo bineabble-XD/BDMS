@@ -130,17 +130,7 @@ const MainLayout = () => {
               </>
             )}
 
-            {/* Search box */}
-            <form className="d-flex ms-3 search-box">
-              <input
-                type="search"
-                className="form-control form-control-sm"
-                placeholder="Search"
-              />
-              <button className="btn btn-sm btn-light ms-1" type="submit">
-                🔍
-              </button>
-            </form>
+            
           </nav>
         </div>
       </header>
