@@ -122,7 +122,7 @@ const HospitalRegister = () => {
       .then((data) => {
         alert(
           data?.message ||
-            "Hospital registration submitted and pending admin approval."
+          "Hospital registration submitted and pending admin approval."
         );
         navigate("/login");
       })
@@ -144,7 +144,7 @@ const HospitalRegister = () => {
             paddingRight: "10px",
           }}
         >
-          
+
 
           <h3 className="mb-3 fw-semibold" style={{ color: "#d10000" }}>
             Hospital Registration
@@ -207,6 +207,7 @@ const HospitalRegister = () => {
                     <option>Government</option>
                     <option>Private</option>
                     <option>Military</option>
+                    <option>Blood Inventory</option>
                     <option>Other</option>
                   </select>
                 </div>

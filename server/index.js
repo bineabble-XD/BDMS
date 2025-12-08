@@ -382,6 +382,25 @@ app.patch("/hospitals/:id/reject", requireAdmin, async (req, res) => {
   }
 });
 
+
+// Get a hospital profile by user ID
+app.get("/hospitals/profile/:userId", async (req, res) => {
+  try {
+    const profile = await HospitalProfileModel.findOne({
+      userId: req.params.userId
+    });
+
+    if (!profile) {
+      return res.status(404).json({ message: "Hospital profile not found" });
+    }
+
+    res.json(profile);
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
+  }
+});
+
+
 // ===================== DB CONNECT & SERVER START ===================== //
 mongoose
   .connect(connectionString)
@@ -394,3 +413,5 @@ mongoose
   .catch((error) => {
     console.log("Database connection error: " + error);
   });
+
+

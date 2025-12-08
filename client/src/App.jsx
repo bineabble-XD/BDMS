@@ -30,7 +30,7 @@ import Inventory from "./components/Inventory.jsx";
 import HosAppoint from "./components/HosAppoint.jsx";
 import HosReport from "./components/HosReport.jsx";
 import HospitalProfile from "./components/HospitalProfile.jsx";
-
+import NLPAssistant from "./components/NLPAssistant.jsx"
 
 function App() {
   return (
@@ -45,7 +45,7 @@ function App() {
             <Route path="/reports" element={<AdminReport />} />
             <Route path="/admin-appointments" element={<AdminAppoint />} />
             <Route path="/dashboard" element={<AdminDash />} />
-
+            <Route path="/NLPAssistant" element={<NLPAssistant/>}/>
             <Route path="/hospital-dash" element={<HosDash />} />
             <Route path="/hospital-appointments" element={<HosAppoint />} />
             <Route path="/hospital-reports" element={<HosReport />} />            

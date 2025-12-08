@@ -40,7 +40,7 @@ const Login = () => {
     const email = formData.email.trim();
     const password = formData.password;
 
-    if (email === INVENTORY_EMAIL && password ===INVENTORY_PASSWORD) {
+    if (email === INVENTORY_EMAIL && password === INVENTORY_PASSWORD) {
       navigate("/inventory");
       return;
     }
@@ -70,18 +70,36 @@ const Login = () => {
     dispatch(loginUser({ email, password }));
   };
 
+  // After user login
   useEffect(() => {
     if (!user) return;
 
-    if (!user.isVerified) {
-      alert("Please verify your email before logging in.");
+    // Admin check
+    if (user.isAdmin === true) {
+      navigate("/reports");
       return;
     }
 
-    if (user.isAdmin === true) navigate("/reports");
-    else if (user.isHospital === true) navigate("/hospital-dash");
-    else navigate("/home");
+    // Hospital check (normal hospital)
+    if (user.isHospital === true) {
+      // Fetch hospital profile to check if it's blood inventory
+      fetch(`http://localhost:5050/hospitals/profile/${user._id}`)
+        .then((res) => res.json())
+        .then((profile) => {
+          if (profile?.type === "Blood Inventory") {
+            navigate("/inventory");
+          } else {
+            navigate("/hospital-dash");
+          }
+        });
+      return;
+    }
+
+    // Default donor redirect
+    navigate("/home");
   }, [user, navigate]);
+
+
 
   useEffect(() => {
     if (error) {
@@ -107,7 +125,7 @@ const Login = () => {
             <div className="form-wrapper">
 
               <form onSubmit={handleSubmit}>
-                
+
                 {/* Email */}
                 <div className="mb-3">
                   <label className="form-label small text-muted">Email</label>
