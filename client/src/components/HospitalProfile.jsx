@@ -2,10 +2,10 @@ import React from "react";
 import { Link } from "react-router-dom";
 import bdmslogo from "../assets/bdmslogo.png";
 
-const AdminProfile = () => {
-  const admin = JSON.parse(localStorage.getItem("bdmsUser"));
+const HospitalProfile = () => {
+  const hospital = JSON.parse(localStorage.getItem("bdmsUser"));
 
-  if (!admin) return <h3>No admin logged in</h3>;
+  if (!hospital) return <h3>No hospital logged in</h3>;
 
   return (
     <div className="container py-5">
@@ -21,40 +21,40 @@ const AdminProfile = () => {
               borderRadius: "12px",
             }}
           />
-          <h4 className="fw-bold">BDMS Admin</h4>
+          <h4 className="fw-bold">Hospital Profile</h4>
         </div>
 
-        <Link to="/dashboard" className="btn btn-outline-secondary">
+        <Link to="/hospital-dash" className="btn btn-outline-secondary">
           Back
         </Link>
       </header>
 
       <div className="card shadow p-4">
-        <h3>Admin Profile</h3>
+        <h3>Hospital Information</h3>
         <hr />
 
         <dl className="row">
-          <dt className="col-sm-3">Full Name</dt>
-          <dd className="col-sm-9">{admin.fName}</dd>
+          <dt className="col-sm-3">Hospital Name</dt>
+          <dd className="col-sm-9">{hospital.fName || "City Hospital"}</dd>
 
           <dt className="col-sm-3">Email</dt>
-          <dd className="col-sm-9">{admin.email}</dd>
+          <dd className="col-sm-9">{hospital.email || "hospital2@gmail.com"}</dd>
 
           <dt className="col-sm-3">Phone</dt>
-          <dd className="col-sm-9">{admin.phoneNum}</dd>
+          <dd className="col-sm-9">{hospital.phoneNum || "91177010"}</dd>
 
           <dt className="col-sm-3">Role</dt>
-          <dd className="col-sm-9">{admin.role}</dd>
+          <dd className="col-sm-9">Hospital</dd>
 
           <dt className="col-sm-3">Blood Type</dt>
-          <dd className="col-sm-9">{admin.bloodType}</dd>
+          <dd className="col-sm-9">N/A</dd>
 
           <dt className="col-sm-3">Address</dt>
-          <dd className="col-sm-9">{admin.address}</dd>
+          <dd className="col-sm-9">{hospital.address || "Amerat"}</dd>
 
-          <dt className="col-sm-3">Admin Status</dt>
+          <dt className="col-sm-3">Status</dt>
           <dd className="col-sm-9">
-            {admin.isAdmin ? "Administrator" : "Standard User"}
+            {hospital.isAdmin ? "Administrator" : "Standard User"}
           </dd>
         </dl>
       </div>
@@ -62,4 +62,4 @@ const AdminProfile = () => {
   );
 };
 
-export default AdminProfile;
+export default HospitalProfile;

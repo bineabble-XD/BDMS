@@ -5,7 +5,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { registerHospital, resetHospitalState } from "../features/hospitalSlice";
 import bdmslogo from "../assets/bdmslogo.png";
-import donorIllustration from "../assets/donor.png"; // or your hospital illustration
+import donorIllustration from "../assets/1+.png"; // or your hospital illustration
 
 const HospitalRegister = () => {
   const navigate = useNavigate();
@@ -144,24 +144,7 @@ const HospitalRegister = () => {
             paddingRight: "10px",
           }}
         >
-          <div className="d-flex align-items-center gap-2 mb-4">
-            <img
-              src={bdmslogo}
-              alt="BDMS Logo"
-              style={{
-                width: "60px",
-                height: "60px",
-                borderRadius: "12px",
-                objectFit: "cover",
-              }}
-            />
-            <div className="lh-1">
-              <h5 className="mb-0 fw-bold">
-                <span className="text-danger">BLOOD</span> <span>DONATION</span>
-              </h5>
-              <small className="text-muted">MANAGEMENT SYSTEM</small>
-            </div>
-          </div>
+          
 
           <h3 className="mb-3 fw-semibold" style={{ color: "#d10000" }}>
             Hospital Registration

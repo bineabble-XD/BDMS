@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import bdmslogo from "../assets/bdmslogo.png";
-import heroImg from "../assets/2.png";
+import heroImg from "../assets/10+.png";
 
 const AdminReport = () => {
   const [date, setDate] = useState("Nov 22, 2025");
@@ -144,8 +144,7 @@ const AdminReport = () => {
         </div>
       </main>
 
-      {/* الشريط الأحمر تحت الصفحة */}
-      <div className="admin-bottom-bar" />
+      
     </div>
   );
 };

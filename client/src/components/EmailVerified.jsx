@@ -1,7 +1,7 @@
 // EmailVerified.jsx
 import React from 'react';
 import { Link } from 'react-router-dom';
-import donorIllustration from '../assets/donor.png';
+import donorIllustration from '../assets/9+.png';
 import bdmslogo from '../assets/bdmslogo.png';
 
 const EmailVerified = () => {

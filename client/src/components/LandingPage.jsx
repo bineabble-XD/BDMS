@@ -1,69 +1,15 @@
+// src/components/LandingPage.jsx
 import React from "react";
 import { Link } from "react-router-dom";
-import heroImg from "../assets/2.png";
+import heroImg from "../assets/2+.png";
 import bdmslogo from "../assets/bdmslogo.png";
 
 const LandingPage = () => {
   return (
     <div className="home-page">
-      <header className="bdms-navbar shadow-sm">
-        <div className="container d-flex align-items-center justify-content-between py-3">
-          <div className="d-flex align-items-center gap-2">
-            <img
-              src={bdmslogo}
-              alt="BDMS Logo"
-              style={{
-                width: "60px",
-                height: "60px",
-                borderRadius: "12px",
-                objectFit: "cover",
-              }}
-            />
-            <div className="lh-1">
-              <h5 className="mb-0 fw-bold">
-                <span className="text-danger">BLOOD</span> <span>DONATION</span>
-              </h5>
-              <small className="text-muted">MANAGEMENT SYSTEM</small>
-            </div>
-          </div>
+      
 
-          <nav className="d-none d-md-flex align-items-center gap-4">
-            <a href="#hero" className="nav-link active-link">
-              Home
-            </a>
-            <Link to="/about" className="nav-link">
-              About Us
-            </Link>
-            <a href="/urgent-requests" className="nav-link">
-              Urgent Requests
-            </a>
-
-            <Link to="/register" className="nav-link">
-              Register Now
-            </Link>
-            <Link to="/login" className="nav-link">
-              Log In
-            </Link>
-            <Link to="/community" className="nav-link">
-              Community
-            </Link>
-            <Link to="/settings" className="nav-link">
-              Settings
-            </Link>
-            <form className="d-flex ms-3 search-box">
-              <input
-                type="search"
-                className="form-control form-control-sm"
-                placeholder="Search"
-              />
-              <button className="btn btn-sm btn-light ms-1" type="submit">
-                🔍
-              </button>
-            </form>
-          </nav>
-        </div>
-      </header>
-
+      {/* HERO with CTA buttons */}
       <section id="hero" className="hero-section">
         <div className="container h-100">
           <div className="row align-items-center h-100">
@@ -82,9 +28,9 @@ const LandingPage = () => {
                 <Link to="/register" className="btn btn-light fw-semibold">
                   Become a Donor
                 </Link>
-                <a href="#urgent" className="btn btn-outline-light">
+                <Link to="/urgent-requests" className="btn btn-outline-light">
                   View Urgent Requests
-                </a>
+                </Link>
               </div>
             </div>
 
@@ -99,6 +45,7 @@ const LandingPage = () => {
         </div>
       </section>
 
+      {/* ABOUT (public) */}
       <section id="about" className="about-section py-5">
         <div className="container">
           <h3 className="mb-3 fw-semibold">About</h3>
@@ -116,12 +63,13 @@ const LandingPage = () => {
         </div>
       </section>
 
+      {/* Social / Announcement area */}
       <section id="urgent" className="urgent-section py-5 bg-light">
         <div className="container">
-          <h4 className="mb-3 fw-semibold">Urgent Requests</h4>
+          <h4 className="mb-3 fw-semibold">Social Media - Announcement</h4>
           <p className="text-muted mb-0">
-            Here you can later show real-time urgent blood requests from
-            hospitals. For now, this is a placeholder section.
+            Show real-time announcements or social media posts from hospitals
+            and blood donation campaigns.
           </p>
         </div>
       </section>

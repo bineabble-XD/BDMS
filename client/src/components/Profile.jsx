@@ -41,9 +41,6 @@ const Profile = () => {
           </div>
 
           <nav className="d-none d-md-flex align-items-center gap-4">
-            <Link to="/home" className="nav-link">
-              Home
-            </Link>
             <span className="nav-link active-link">My Profile</span>
           </nav>
         </div>

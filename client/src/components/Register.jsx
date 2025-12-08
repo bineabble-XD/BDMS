@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { registerUser, clearAuthMessage } from "../features/authSlice";
-import donorIllustration from "../assets/donor.png";
+import donorIllustration from "../assets/9+.png";
 import bdmslogo from "../assets/bdmslogo.png";
 
 const Register = () => {
@@ -114,24 +114,7 @@ const Register = () => {
             paddingRight: "10px",
           }}
         >
-          <div className="d-flex align-items-center gap-2 mb-4">
-            <img
-              src={bdmslogo}
-              alt="BDMS Logo"
-              style={{
-                width: "60px",
-                height: "60px",
-                borderRadius: "12px",
-                objectFit: "cover",
-              }}
-            />
-            <div className="lh-1">
-              <h5 className="mb-0 fw-bold">
-                <span className="text-danger">BLOOD</span> <span>DONATION</span>
-              </h5>
-              <small className="text-muted">MANAGEMENT SYSTEM</small>
-            </div>
-          </div>
+          
 
           <h3 className="mb-3 fw-semibold" style={{ color: "#d10000" }}>
             Registration

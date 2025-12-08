@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import bdmslogo from "../assets/bdmslogo.png";
-import donorIllustration from "../assets/donor.png";
+import donorIllustration from "../assets/9+.png";
 
 const API_BASE = "http://localhost:5050";
 

@@ -1,8 +1,8 @@
+// src/components/Home.jsx
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../features/authSlice";
-import { FaUserCircle } from "react-icons/fa"; // Import the profile icon
 import heroImg from "../assets/2+.png";
 import bdmslogo from "../assets/bdmslogo.png";
 
@@ -10,103 +10,28 @@ const Home = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  // get logged in user from Redux
+  // Get logged-in user from Redux
   const user = useSelector((state) => state.auth.user);
 
-  // 👇 NEW: Safely pick the correct display name
+  // Safely pick a display name
   const displayName =
     user?.fName || user?.uname || user?.name || user?.email || "User";
 
   const handleLogout = () => {
     dispatch(logout());
-    navigate("/login");
-  };
-
-  const goToProfile = () => {
-    navigate("/profile"); // This navigates to the user's profile page
+    // send user back to landing page
+    navigate("/");          // change to "/landing" or whatever your landing route is
   };
 
   return (
     <div className="home-page">
-      <header className="bdms-navbar shadow-sm">
-        <div className="container d-flex align-items-center justify-content-between py-3">
-          <div className="d-flex align-items-center gap-2">
-            <img
-              src={bdmslogo}
-              alt="BDMS Logo"
-              style={{
-                width: "60px",
-                height: "60px",
-                borderRadius: "12px",
-                objectFit: "cover",
-              }}
-            />
-            <div className="lh-1">
-              <h5 className="mb-0 fw-bold">
-                <span className="text-danger">BLOOD</span> <span>DONATION</span>
-              </h5>
-              <small className="text-muted">MANAGEMENT SYSTEM</small>
-            </div>
-          </div>
+      {/* example logout usage if you want it on Home itself */}
+      {/* you can also call handleLogout from your navbar instead */}
+      {/* <button onClick={handleLogout} className="btn btn-outline-danger">
+        Log Out
+      </button> */}
 
-          <nav className="d-none d-md-flex align-items-center gap-4">
-            <Link to="/home" className="nav-link active-link">
-              Home
-            </Link>
-
-            <Link to="/about" className="nav-link">
-              About
-            </Link>
-
-            <Link to="/appointments" className="nav-link">
-              Book An Appointment
-            </Link>
-
-            {/* ✅ Go to /urgent page, not #urgent */}
-            <Link to="/urgent" className="nav-link">
-              Urgent Requests
-            </Link>
-
-            {user && (
-              <>
-                <span className="nav-link mb-0">
-                  Hi, <strong>{displayName}</strong>
-                </span>
-
-                <Link
-                  to="/profile"
-                  className="btn btn-light rounded-circle d-flex align-items-center justify-content-center profile-icon-btn ms-2"
-                  title="View Profile"
-                >
-                  {displayName.charAt(0).toUpperCase()}
-                </Link>
-
-                <button
-                  type="button"
-                  className="btn btn-outline-light text-dark ms-2"
-                  onClick={handleLogout}
-                >
-                  Log Out
-                </button>
-                
-
-              </>
-            )}
-
-            <form className="d-flex ms-3 search-box">
-              <input
-                type="search"
-                className="form-control form-control-sm"
-                placeholder="Search"
-              />
-              <button className="btn btn-sm btn-light ms-1" type="submit">
-                🔍
-              </button>
-            </form>
-          </nav>
-        </div>
-      </header>
-
+      {/* HERO (no buttons here – just info for logged-in user) */}
       <section id="hero" className="hero-section">
         <div className="container h-100">
           <div className="row align-items-center h-100">
@@ -134,6 +59,7 @@ const Home = () => {
         </div>
       </section>
 
+      {/* ABOUT SECTION */}
       <section id="about" className="about-section py-5">
         <div className="container">
           <h3 className="mb-3 fw-semibold">About</h3>
@@ -151,12 +77,12 @@ const Home = () => {
         </div>
       </section>
 
+      {/* URGENT PLACEHOLDER – later you’ll plug real data here */}
       <section id="urgent" className="urgent-section py-5 bg-light">
         <div className="container">
           <h4 className="mb-3 fw-semibold">Urgent Requests</h4>
           <p className="text-muted mb-0">
-            Here we later will show real-time urgent blood requests from
-            hospitals. For now, this is a placeholder section.
+            Here we will show real-time urgent blood requests from hospitals.
           </p>
         </div>
       </section>
