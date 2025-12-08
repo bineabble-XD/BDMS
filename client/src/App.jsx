@@ -45,23 +45,25 @@ function App() {
             <Route path="/reports" element={<AdminReport />} />
             <Route path="/admin-appointments" element={<AdminAppoint />} />
             <Route path="/dashboard" element={<AdminDash />} />
+<<<<<<< HEAD
             <Route path="/NLPAssistant" element={<NLPAssistant/>}/>
+=======
+>>>>>>> 7c2ffed78e7b500f103112eb59148d2db93a34cb
             <Route path="/hospital-dash" element={<HosDash />} />
             <Route path="/hospital-appointments" element={<HosAppoint />} />
             <Route path="/hospital-reports" element={<HosReport />} />            
             <Route path="/admin-profile" element={<AdminProfile />} />
             <Route path="/community" element={<Community />} />
+            <Route path="/register-hospital" element={<HospitalRegister />} />
+            <Route path="/settings" element={<Settings />} />
+            <Route path="/urgent" element={<UrgentRequests />} />
             <Route path="/HosManRequest" element={<HospitalManageRequest />} />
             <Route path="/AdminManRequest" element={<AdminManageRequest />} />
             <Route path="/inventory" element={<Inventory />} />
             <Route path="/HospitalProfile" element={<HospitalProfile />} />
-
-
             <Route path="/profile" element={<Profile />} />
-
             <Route element={<MainLayout />}>
               <Route path="/home" element={<Home />} />
-
               <Route path="/about" element={<About />} />
               <Route path="/feedback" element={<Feedback />} />
               <Route path="/appointments" element={<Appointment />} />
@@ -71,12 +73,10 @@ function App() {
               <Route path="/verified" element={<EmailVerified />} />
               <Route path="/forget-password" element={<ForgetPassword />} />
               <Route path="/reset-password/:token" element={<ResetPassword />} />
-
               <Route path="/register-hospital" element={<HospitalRegister />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/urgent-requests" element={<UrgentRequests />} />
             </Route>
-
           </Routes>
         </div>
 
