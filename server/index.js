@@ -109,7 +109,7 @@ app.post("/register", async (req, res) => {
   }
 });
 
-// -------- VERIFY EMAIL --------
+
 app.get("/verify-email", async (req, res) => {
   try {
     const { token } = req.query;
@@ -141,7 +141,7 @@ app.get("/verify-email", async (req, res) => {
   }
 });
 
-// -------- LOGIN --------
+
 app.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -162,7 +162,7 @@ app.post("/login", async (req, res) => {
       return res.status(401).json({ message: "Invalid Credentials.." });
     }
 
-    // Extra check for hospitals: must be approved
+
     if (donor.isHospital) {
       const hospitalProfile = await HospitalProfileModel.findOne({
         userId: donor._id,
@@ -192,7 +192,7 @@ app.post("/login", async (req, res) => {
   }
 });
 
-// -------- FORGOT PASSWORD --------
+
 app.post("/forgot-password", async (req, res) => {
   const { email } = req.body;
 
@@ -239,7 +239,7 @@ app.post("/forgot-password", async (req, res) => {
   }
 });
 
-// -------- RESET PASSWORD --------
+
 app.post("/reset-password/:token", async (req, res) => {
   const { token } = req.params;
   const { password } = req.body;
@@ -270,7 +270,7 @@ app.post("/reset-password/:token", async (req, res) => {
   }
 });
 
-// -------- REGISTER HOSPITAL --------
+
 app.post("/register-hospital", async (req, res) => {
   try {
     const {

@@ -55,7 +55,7 @@ function App() {
             <Route path="/community" element={<Community />} />
             <Route path="/register-hospital" element={<HospitalRegister />} />
             <Route path="/settings" element={<Settings />} />
-            <Route path="/urgent-requests" element={<UrgentRequests />} />
+            <Route path="/urgent" element={<UrgentRequests />} />
 
           </Routes>
         </div>
