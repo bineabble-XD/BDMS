@@ -53,26 +53,7 @@ const ForgetPassword = () => {
             paddingRight: "10px",
           }}
         >
-          {/* Logo */}
-          <div className="d-flex align-items-center gap-2 mb-4 mt-3">
-            <img
-              src={bdmslogo}
-              alt="BDMS Logo"
-              style={{
-                width: "60px",
-                height: "60px",
-                borderRadius: "12px",
-                objectFit: "cover",
-              }}
-            />
-            <div className="lh-1">
-              <h5 className="mb-0 fw-bold">
-                <span className="text-danger">BLOOD</span> <span>DONATION</span>
-              </h5>
-              <small className="text-muted">MANAGEMENT SYSTEM</small>
-            </div>
-          </div>
-
+          
           {/* Page Title */}
           <h3
             className="fw-semibold mb-2"

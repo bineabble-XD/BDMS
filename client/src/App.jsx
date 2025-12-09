@@ -45,10 +45,7 @@ function App() {
             <Route path="/reports" element={<AdminReport />} />
             <Route path="/admin-appointments" element={<AdminAppoint />} />
             <Route path="/dashboard" element={<AdminDash />} />
-<<<<<<< HEAD
             <Route path="/NLPAssistant" element={<NLPAssistant/>}/>
-=======
->>>>>>> 7c2ffed78e7b500f103112eb59148d2db93a34cb
             <Route path="/hospital-dash" element={<HosDash />} />
             <Route path="/hospital-appointments" element={<HosAppoint />} />
             <Route path="/hospital-reports" element={<HosReport />} />            

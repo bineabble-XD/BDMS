@@ -55,6 +55,9 @@ const Profile = () => {
                 <Link to="/home" className="btn btn-sm btn-outline-secondary">
                   Back to Home
                 </Link>
+                <Link to="/forget-password" className="btn btn-sm btn-outline-secondary">
+                  Reset Passwoword
+                </Link>
               </div>
               <div className="card-body">
                 <div className="d-flex align-items-center mb-4">

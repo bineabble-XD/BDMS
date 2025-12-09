@@ -58,6 +58,9 @@ const AdminReport = () => {
             <Link to="/dashboard" className="nav-link">
               Dashboard
             </Link>
+            <Link to="/NLPAssistant" className="nav-link">
+              NLPAssistant
+            </Link>
             <span className="nav-link">BDMS ADMIN</span>
           </nav>
         </div>
