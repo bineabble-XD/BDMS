@@ -1,4 +1,3 @@
-// src/components/SocialFeed.jsx
 import React from "react";
 import social1 from "../assets/social1.jpg";
 import social2 from "../assets/social2.jpg";
@@ -10,7 +9,7 @@ const socialPosts = [
         platform: "Instagram",
         title: "Blood Drive at City Center",
         text: "Join us this Friday for a community blood drive at City Center Muscat.",
-        image: social1 ,          // put image in public/assets or src/assets
+        image: social1 ,          
         link: "https://www.instagram.com/your_account",
         time: "2 hours ago",
     },

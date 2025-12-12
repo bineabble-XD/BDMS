@@ -1,4 +1,3 @@
-// src/components/Home.jsx
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
@@ -10,28 +9,19 @@ const Home = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  // Get logged-in user from Redux
   const user = useSelector((state) => state.auth.user);
 
-  // Safely pick a display name
   const displayName =
     user?.fName || user?.uname || user?.name || user?.email || "User";
 
   const handleLogout = () => {
     dispatch(logout());
-    // send user back to landing page
-    navigate("/");          // change to "/landing" or whatever your landing route is
+    navigate("/");         
   };
 
   return (
     <div className="home-page">
-      {/* example logout usage if you want it on Home itself */}
-      {/* you can also call handleLogout from your navbar instead */}
-      {/* <button onClick={handleLogout} className="btn btn-outline-danger">
-        Log Out
-      </button> */}
-
-      {/* HERO (no buttons here – just info for logged-in user) */}
+     
       <section id="hero" className="hero-section">
         <div className="container h-100">
           <div className="row align-items-center h-100">
@@ -59,7 +49,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* ABOUT SECTION */}
       <section id="about" className="about-section py-5">
         <div className="container">
           <h3 className="mb-3 fw-semibold">About</h3>
@@ -77,7 +66,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* URGENT PLACEHOLDER – later you’ll plug real data here */}
       <section id="urgent" className="urgent-section py-5 bg-light">
         <div className="container">
           <h4 className="mb-3 fw-semibold">Social Media - Announcement</h4>

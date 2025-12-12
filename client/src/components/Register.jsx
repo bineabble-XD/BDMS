@@ -1,5 +1,3 @@
-// src/components/Register.jsx
-
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -19,16 +17,14 @@ const Register = () => {
     Age: "",
     gender: "",
     bloodType: "",
-    role: "Donor", // always donor
+    role: "Donor", 
     email: "",
     password: "",
     address: "",
   });
 
-  // country code (for phone)
-  const [countryCode, setCountryCode] = useState("+968"); // default Oman
+  const [countryCode, setCountryCode] = useState("+968"); 
 
-  // password validation state
   const [passwordValidations, setPasswordValidations] = useState({
     lower: false,
     upper: false,
@@ -37,7 +33,6 @@ const Register = () => {
     length: false,
   });
 
-  // popup state
   const [showPasswordHints, setShowPasswordHints] = useState(false);
 
   const validatePassword = (password) => {
@@ -45,7 +40,7 @@ const Register = () => {
       lower: /[a-z]/.test(password),
       upper: /[A-Z]/.test(password),
       number: /[0-9]/.test(password),
-      special: /[^A-Za-z0-9]/.test(password), // special character
+      special: /[^A-Za-z0-9]/.test(password),
       length: password.length >= 8,
     });
   };
@@ -53,15 +48,23 @@ const Register = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    // ✅ Name validation: only letters + spaces, max 20 chars
     if (name === "fName") {
       const onlyLetters = /^[A-Za-z\s]*$/;
 
-      // block numbers/symbols
       if (!onlyLetters.test(value)) return;
 
-      // limit to 20 characters
       if (value.length > 20) return;
+    }
+
+    if (name === "phoneNum") {
+      const numericValue = value.replace(/[^0-9]/g, ""); 
+      if (numericValue.length <= 8) {
+        setFormData((prev) => ({
+          ...prev,
+          [name]: numericValue,
+        }));
+      }
+      return;
     }
 
     if (name === "password") {
@@ -77,12 +80,23 @@ const Register = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // ✅ combine country code + phone for backend
+    const requiredFields = ["fName", "phoneNum", "Age", "gender", "bloodType", "email", "password", "address"];
+    let formIsValid = true;
+    
+    requiredFields.forEach((field) => {
+      if (!formData[field]) {
+        formIsValid = false;
+        alert(`Please fill out the ${field}`);
+      }
+    });
+
+    if (!formIsValid) return;
+
     const numericCode = countryCode.replace("+", "");
     const payload = {
       ...formData,
       phoneNum: numericCode + formData.phoneNum,
-      role: "Donor", // enforce donor
+      role: "Donor", 
     };
 
     dispatch(registerUser(payload));
@@ -107,15 +121,13 @@ const Register = () => {
     <div className="register-page container-fluid">
       <div className="row min-vh-100 align-items-center">
         <div
-          className="col-md-7 auth-left" //remove the style to remove the scroll in registeration
+          className="col-md-7 auth-left" 
           style={{
             maxHeight: "100vh",
             overflowY: "auto",
             paddingRight: "10px",
           }}
         >
-          
-
           <h3 className="mb-3 fw-semibold" style={{ color: "#d10000" }}>
             Registration
           </h3>
@@ -127,7 +139,6 @@ const Register = () => {
             }}
           >
             <form className="register-form" onSubmit={handleSubmit}>
-              {/* Full Name */}
               <div className="mb-3">
                 <label className="form-label">Full Name</label>
                 <input
@@ -142,7 +153,6 @@ const Register = () => {
                 <small className="text-muted">Max 20 letters.</small>
               </div>
 
-              {/* Phone with country code */}
               <div className="mb-3">
                 <label className="form-label">Phone Number</label>
                 <div className="row g-2">
@@ -174,7 +184,6 @@ const Register = () => {
                 </div>
               </div>
 
-              {/* Age + Gender */}
               <div className="row">
                 <div className="col-md-6 mb-3">
                   <label className="form-label">Age</label>
@@ -206,7 +215,6 @@ const Register = () => {
                 </div>
               </div>
 
-              {/* Blood Type + Role (fixed) */}
               <div className="row">
                 <div className="col-md-6 mb-3">
                   <label className="form-label">Blood Type</label>
@@ -229,7 +237,6 @@ const Register = () => {
                   </select>
                 </div>
 
-                {/* Role fixed as Donor */}
                 <div className="col-md-6 mb-3">
                   <label className="form-label">Role</label>
                   <input
@@ -242,7 +249,6 @@ const Register = () => {
                 </div>
               </div>
 
-              {/* Email */}
               <div className="mb-3">
                 <label className="form-label">Email</label>
                 <input
@@ -255,7 +261,6 @@ const Register = () => {
                 />
               </div>
 
-              {/* Password + Popup */}
               <div className="mb-3 position-relative">
                 <label className="form-label">Password</label>
                 <input
@@ -342,7 +347,6 @@ const Register = () => {
                 )}
               </div>
 
-              {/* Address */}
               <div className="mb-3">
                 <label className="form-label">Address</label>
                 <input
@@ -355,7 +359,6 @@ const Register = () => {
                 />
               </div>
 
-              {/* Terms */}
               <div className="form-check mb-1">
                 <input
                   className="form-check-input"

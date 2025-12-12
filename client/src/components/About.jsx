@@ -1,4 +1,3 @@
-// src/components/About.jsx
 import React from "react";
 import { Link } from "react-router-dom";
 import bdmslogo from "../assets/bdmslogo.png";
@@ -6,7 +5,6 @@ import bdmslogo from "../assets/bdmslogo.png";
 const About = () => {
   return (
     <div className="about-page">
-      {/* Top hero strip (your existing navbar stays outside this) */}
       <section className="about-hero text-center text-white">
         <div className="container py-5">
           <h1 className="fw-bold mb-3">About Us</h1>
@@ -31,10 +29,8 @@ const About = () => {
         </div>
       </section>
 
-      {/* White content section */}
       <section className="about-content py-5">
         <div className="container">
-          {/* three cards */}
           <div className="row g-4 mb-4">
             <div className="col-md-4">
               <div className="about-card h-100">
@@ -75,7 +71,6 @@ const About = () => {
             </div>
           </div>
 
-          {/* Contact + quick links */}
           <div className="row align-items-center g-4">
             <div className="col-md-6">
               <div className="about-card h-100">

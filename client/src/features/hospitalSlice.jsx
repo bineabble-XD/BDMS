@@ -1,6 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
-// THUNK: register hospital
 export const registerHospital = createAsyncThunk(
   "hospital/registerHospital",
   async (formData, { rejectWithValue }) => {

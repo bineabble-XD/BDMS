@@ -1,8 +1,5 @@
-// src/components/ForgetPassword.jsx
-
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import bdmslogo from "../assets/bdmslogo.png";
 import donorIllustration from "../assets/9+.png";
 
 const API_BASE = "http://localhost:5050";
@@ -31,7 +28,7 @@ const ForgetPassword = () => {
       } else {
         setStatus(
           data.message ||
-            "If an account with that email exists, a reset link has been sent."
+          "If an account with that email exists, a reset link has been sent."
         );
       }
     } catch (err) {
@@ -44,7 +41,6 @@ const ForgetPassword = () => {
   return (
     <div className="register-page container-fluid">
       <div className="row min-vh-100 align-items-start">
-        {/* LEFT SIDE */}
         <div
           className="col-md-7 auth-left"
           style={{
@@ -53,8 +49,7 @@ const ForgetPassword = () => {
             paddingRight: "10px",
           }}
         >
-          
-          {/* Page Title */}
+
           <h3
             className="fw-semibold mb-2"
             style={{ color: "#d10000" }}
@@ -66,7 +61,6 @@ const ForgetPassword = () => {
             Enter your registered email and we will send you a reset link.
           </p>
 
-          {/* Centered Form Container */}
           <div
             style={{
               maxWidth: "400px",
@@ -109,7 +103,6 @@ const ForgetPassword = () => {
           </div>
         </div>
 
-        {/* RIGHT SIDE */}
         <div className="col-md-5 text-center d-none d-md-block">
           <img
             src={donorIllustration}

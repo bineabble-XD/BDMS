@@ -1,7 +1,3 @@
-// login.test.js
-// Automated logic tests for BDMS Login (no React needed)
-
-// ========== MINI TEST FRAMEWORK ===============
 
 let totalTests = 0;
 let passedTests = 0;
@@ -32,11 +28,6 @@ function assertEqual(actual, expected, message) {
     );
   }
 }
-
-// ========== LOGIC UNDER TEST ==================
-
-// This matches your BDMS Login handleSubmit validation logic,
-// but instead of alert() it RETURNS the error message (or null if OK).
 function validateLoginInput(emailRaw, password) {
   const email = emailRaw.trim();
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -57,18 +48,10 @@ function validateLoginInput(emailRaw, password) {
     return "Password must be at least 8 characters.";
   }
 
-  // ✅ No validation error
   return null;
 }
 
-// This matches your useEffect redirection logic:
-//
-// if (!user.isVerified) alert("Please verify...")
-// if (user.isAdmin) -> /reports
-// else if (user.isHospital) -> /hospital-dash
-// else -> /home
-//
-// Here we return a string instead of calling navigate()/alert().
+
 function getRedirectAfterLogin(user) {
   if (!user) return null;
 
@@ -81,9 +64,8 @@ function getRedirectAfterLogin(user) {
   return "/home";
 }
 
-// ========== TEST CASES ========================
 
-// --- Validation tests ---
+//Validation tests
 
 test("Empty email should show 'Please enter your email address.'", () => {
   const error = validateLoginInput("", "Password123");
@@ -126,7 +108,6 @@ test("Valid email & password should return null (no error)", () => {
   assertEqual(error, null, "Expected no error for valid credentials");
 });
 
-// --- Redirect / role logic tests ---
 
 test("Unverified user should be blocked with verify message", () => {
   const user = {
@@ -184,7 +165,7 @@ test("Verified normal donor should navigate to /home", () => {
   assertEqual(result, "/home", "Donor did not navigate to /home");
 });
 
-// ========== SUMMARY OUTPUT ====================
+//SUMMARY OUTPUT
 
 console.log("\n========================");
 console.log(`Result: ${passedTests}/${totalTests} tests passed`);

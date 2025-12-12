@@ -1,4 +1,3 @@
-// src/components/LandingPage.jsx
 import React from "react";
 import { Link } from "react-router-dom";
 import heroImg from "../assets/2+.png";
@@ -10,7 +9,6 @@ const LandingPage = () => {
     <div className="home-page">
       
 
-      {/* HERO with CTA buttons */}
       <section id="hero" className="hero-section">
         <div className="container h-100">
           <div className="row align-items-center h-100">
@@ -46,7 +44,6 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* ABOUT (public) */}
       <section id="about" className="about-section py-5">
         <div className="container">
           <h3 className="mb-3 fw-semibold">About</h3>
@@ -64,10 +61,8 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Social / Announcement area */}
       <section id="urgent" className="urgent-section py-5 bg-light">
         <div className="container">
-          {/* Social / Announcement area */}
 <SocialFeed />
 
         </div>

@@ -14,7 +14,6 @@ import {
 import mlogo from "../assets/bdmslogo.png";
 import heroImg from "../assets/2.png";
 
-// register Chart.js parts
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -25,7 +24,6 @@ ChartJS.register(
   Legend
 );
 
-// get logged-in hospital
 const hospital = JSON.parse(localStorage.getItem("bdmsUser"));
 
 const HosReport = () => {
@@ -73,7 +71,6 @@ const HosReport = () => {
   
   return (
     <div className="report-page">
-      {/* NAVBAR */}
       <header className="bdms-navbar shadow-sm">
         <div className="container d-flex align-items-center justify-content-between py-3">
           <div className="d-flex align-items-center gap-2">
@@ -111,7 +108,6 @@ const HosReport = () => {
         </div>
       </header>
 
-      {/* MAIN CONTENT */}
       <main className="report-main">
         <div className="container">
           <div className="d-flex justify-content-between align-items-center mb-3">

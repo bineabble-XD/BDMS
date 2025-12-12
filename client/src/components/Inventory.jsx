@@ -3,7 +3,6 @@ import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import bdmslogo from "../assets/bdmslogo.png";
 
-const INVENTORY_EMAIL = "inventory@bdms.com";
 
 const demoInventory = [
   {
@@ -75,8 +74,7 @@ const Inventory = () => {
 
         <div className="d-flex flex-column align-items-end">
           <div className="small text-muted mb-1">
-            Logged in as{" "}
-            <span className="fw-semibold">{INVENTORY_EMAIL}</span>{" "}
+            Logged in as{"Blood Bank Inventory "}
           </div>
           <div className="d-flex gap-2">
             
@@ -99,14 +97,12 @@ const Inventory = () => {
         </div>
       </div>
 
-      {/* Page heading */}
       <div className="mb-3">
         <h3 className="fw-semibold mb-1" style={{ color: "#d10000" }}>
           Blood Inventory
         </h3>
       </div>
 
-      {/* Table card */}
       <div
         className="shadow-sm"
         style={{

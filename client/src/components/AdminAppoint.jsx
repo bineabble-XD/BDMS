@@ -1,4 +1,3 @@
-// src/components/AdminAppoint.jsx
 import React from "react";
 import { Link } from "react-router-dom";
 import bdmslogo from "../assets/bdmslogo.png";
@@ -7,7 +6,6 @@ import heroImg from "../assets/11+.png";
 const AdminAppoint = () => {
   return (
     <div className="admin-app-page">
-      {/* NAVBAR */}
       <header className="bdms-navbar shadow-sm">
         <div className="container d-flex align-items-center justify-content-between py-3">
           <div className="d-flex align-items-center gap-2">
@@ -42,10 +40,8 @@ const AdminAppoint = () => {
         </div>
       </header>
 
-      {/* MAIN CONTENT */}
       <main className="admin-app-main">
         <div className="container">
-          {/* Page heading + search */}
           <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
             <div>
               <h3 className="fw-semibold mb-1">Appointments overview</h3>
@@ -55,11 +51,10 @@ const AdminAppoint = () => {
               </p>
             </div>
 
-            
+
           </div>
 
           <div className="row g-4">
-            {/* LEFT – APPOINTMENTS LIST */}
             <div className="col-lg-8">
               <div className="admin-app-card p-4">
                 <div className="d-flex justify-content-between align-items-center mb-3">
@@ -74,7 +69,6 @@ const AdminAppoint = () => {
                   </span>
                 </div>
 
-                {/* Abbas */}
                 <div className="admin-app-row d-flex align-items-center justify-content-between py-2">
                   <div>
                     <div className="fw-semibold">Abbas Allawati</div>
@@ -109,7 +103,6 @@ const AdminAppoint = () => {
 
                 <hr className="my-1" />
 
-                {/* Hassan */}
                 <div className="admin-app-row d-flex align-items-center justify-content-between py-2">
                   <div>
                     <div className="fw-semibold">Hassan Alhasni</div>
@@ -143,7 +136,6 @@ const AdminAppoint = () => {
 
                 <hr className="my-1" />
 
-                {/* Khalid */}
                 <div className="admin-app-row d-flex align-items-center justify-content-between py-2">
                   <div>
                     <div className="fw-semibold">Khalid Alroshdi</div>
@@ -178,7 +170,6 @@ const AdminAppoint = () => {
               </div>
             </div>
 
-            {/* RIGHT – IMAGE + REQUESTS CARD */}
             <div className="col-lg-4">
               <div className="admin-app-illustration text-center mb-3">
                 <img
@@ -196,7 +187,6 @@ const AdminAppoint = () => {
                   </span>
                 </div>
 
-                {/* Jasim */}
                 <div className="admin-req-row d-flex justify-content-between align-items-center py-2">
                   <div>
                     <div className="fw-semibold small">Jasim Albalushi</div>
@@ -230,7 +220,6 @@ const AdminAppoint = () => {
 
                 <hr className="my-1" />
 
-                {/* Sara */}
                 <div className="admin-req-row d-flex justify-content-between align-items-center py-2">
                   <div>
                     <div className="fw-semibold small">Sara Alfarsi</div>
@@ -264,7 +253,6 @@ const AdminAppoint = () => {
 
                 <hr className="my-1" />
 
-                {/* Remas */}
                 <div className="admin-req-row d-flex justify-content-between align-items-center py-2">
                   <div>
                     <div className="fw-semibold small">Remas Alturki</div>

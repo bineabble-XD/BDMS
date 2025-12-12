@@ -22,7 +22,6 @@ a:hover {
   text-decoration: underline;
 }
 
-/* Make footer stick to bottom */
 html, body, #root {
   height: 100%;
 }
@@ -33,23 +32,21 @@ html, body, #root {
 }
 
 .main-content {
-  flex: 1; /* pushes footer to bottom */
+  flex: 1; 
 }
 
-/* Make the whole app a column: content + footer */
 .app-shell {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
 }
 
-/* This grows and pushes footer to the bottom */
 .main-content {
   flex: 1;
 }
 
 .profile-page {
-  min-height: calc(100vh - 80px); /* 80px = footer height + navbar */
+  min-height: calc(100vh - 80px); 
   display: flex;
   flex-direction: column;
 }

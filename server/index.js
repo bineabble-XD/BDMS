@@ -11,22 +11,18 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// --- MongoDB connection string ---
 const connectionString =
   "mongodb+srv://admin:admin@btech.mun6zsy.mongodb.net/BDMS?retryWrites=true&w=majority&appName=btech";
 
-// --- Mail transporter ---
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
     user: "bdmsbtech@gmail.com",
-    pass: "xysfsqeolcziepzw", // app password
+    pass: "xysfsqeolcziepzw",
   },
 });
 
-// ===================== ROUTES ===================== //
 
-// -------- REGISTER (Donor) --------
 app.post("/register", async (req, res) => {
   try {
     const {
@@ -199,7 +195,6 @@ app.post("/forgot-password", async (req, res) => {
   try {
     const user = await donorModel.findOne({ email });
 
-    // Always respond 200
     if (!user) {
       return res.status(200).json({
         message:
@@ -280,8 +275,8 @@ app.post("/register-hospital", async (req, res) => {
       contactPerson,
       contactEmail,
       contactPhone,
-      email, // login email
-      password, // login password
+      email,
+      password,
     } = req.body;
 
     const exists = await donorModel.findOne({ email });
@@ -325,15 +320,10 @@ app.post("/register-hospital", async (req, res) => {
   }
 });
 
-// --- SIMPLE ADMIN MIDDLEWARE (placeholder) ---
 const requireAdmin = (req, res, next) => {
-  // TODO: hook into real auth later
   next();
 };
 
-// -------- HOSPITAL APPROVAL ROUTES --------
-
-// get all pending hospitals
 app.get("/hospitals/pending", requireAdmin, async (req, res) => {
   try {
     const pending = await HospitalProfileModel.find({
@@ -346,7 +336,6 @@ app.get("/hospitals/pending", requireAdmin, async (req, res) => {
   }
 });
 
-// approve hospital
 app.patch("/hospitals/:id/approve", requireAdmin, async (req, res) => {
   try {
     const hospital = await HospitalProfileModel.findById(req.params.id);
@@ -364,7 +353,6 @@ app.patch("/hospitals/:id/approve", requireAdmin, async (req, res) => {
   }
 });
 
-// reject hospital
 app.patch("/hospitals/:id/reject", requireAdmin, async (req, res) => {
   try {
     const hospital = await HospitalProfileModel.findById(req.params.id);
@@ -383,7 +371,6 @@ app.patch("/hospitals/:id/reject", requireAdmin, async (req, res) => {
 });
 
 
-// Get a hospital profile by user ID
 app.get("/hospitals/profile/:userId", async (req, res) => {
   try {
     const profile = await HospitalProfileModel.findOne({
@@ -401,7 +388,69 @@ app.get("/hospitals/profile/:userId", async (req, res) => {
 });
 
 
-// ===================== DB CONNECT & SERVER START ===================== //
+
+app.post("/blood-bank", async (req, res) => {
+  try {
+    const { bloodType, availability, expiryDate, hospitalId } = req.body;
+
+    if (!bloodType || !availability || !expiryDate || !hospitalId) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
+    const newBloodBankRecord = new BloodBank({ bloodType, availability, expiryDate, hospitalId });
+    await newBloodBankRecord.save();
+
+    return res.status(201).json({ message: "Blood bank record added successfully" });
+  } catch (err) {
+    return res.status(500).json({ message: "Server error", error: err.message });
+  }
+});
+
+app.put("/blood-bank/:id", async (req, res) => {
+  try {
+    const { bloodType, availability, expiryDate } = req.body;
+    const bloodBankRecord = await BloodBank.findById(req.params.id);
+
+    if (!bloodBankRecord) {
+      return res.status(404).json({ message: "Blood Bank Record not found" });
+    }
+
+    bloodBankRecord.bloodType = bloodType || bloodBankRecord.bloodType;
+    bloodBankRecord.availability = availability || bloodBankRecord.availability;
+    bloodBankRecord.expiryDate = expiryDate || bloodBankRecord.expiryDate;
+
+    await bloodBankRecord.save();
+    return res.status(200).json({ message: "Blood bank record updated successfully" });
+  } catch (err) {
+    return res.status(500).json({ message: "Server error", error: err.message });
+  }
+});
+
+app.get("/blood-bank/:hospitalId", async (req, res) => {
+  try {
+    const records = await BloodBank.find({ hospitalId: req.params.hospitalId });
+    return res.status(200).json(records);
+  } catch (err) {
+    return res.status(500).json({ message: "Server error", error: err.message });
+  }
+});
+
+app.delete("/blood-bank/:id", async (req, res) => {
+  try {
+    const bloodBankRecord = await BloodBank.findById(req.params.id);
+
+    if (!bloodBankRecord) {
+      return res.status(404).json({ message: "Blood Bank Record not found" });
+    }
+
+    await bloodBankRecord.remove();
+    return res.status(200).json({ message: "Blood bank record deleted successfully" });
+  } catch (err) {
+    return res.status(500).json({ message: "Server error", error: err.message });
+  }
+});
+
+
 mongoose
   .connect(connectionString)
   .then(() => {
@@ -413,5 +462,3 @@ mongoose
   .catch((error) => {
     console.log("Database connection error: " + error);
   });
-
-

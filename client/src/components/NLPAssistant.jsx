@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import heroImg from "../assets/8+.png"; // you may replace image
+import heroImg from "../assets/8+.png"; 
 import bdmslogo from "../assets/bdmslogo.png";
 
 const NLPAssistant = () => {
@@ -8,21 +8,17 @@ const NLPAssistant = () => {
   const [location, setLocation] = useState("");
   const [urgency, setUrgency] = useState("");
 
-  // ----------- NLP EXTRACTION LOGIC -----------
 
   const analyzeText = () => {
     const text = input.toLowerCase();
 
-    // 1️⃣ Detect blood type
     const bloodTypes = ["a+", "a-", "b+", "b-", "o+", "o-", "ab+", "ab-"];
     const detectedBT = bloodTypes.find((bt) => text.includes(bt));
     setBloodType(detectedBT ? detectedBT.toUpperCase() : "Not Found");
 
-    // 2️⃣ Detect location (extract “X Hospital”)
     const matchHospital = text.match(/([a-zA-Z]+(?:\s+[a-zA-Z]+)*)\s+hospital/);
     setLocation(matchHospital ? matchHospital[0].replace(/\b\w/g, c => c.toUpperCase()) : "Not Found");
 
-    // 3️⃣ Detect urgency level
     if (text.includes("urgent") || text.includes("immediately") || text.includes("emergency")) {
       setUrgency("High");
     } else if (text.includes("soon") || text.includes("asap")) {
@@ -57,7 +53,6 @@ const NLPAssistant = () => {
 
       <div className="row align-items-start g-5">
         
-        {/* LEFT TEXT SECTION */}
         <div className="col-lg-6">
           <p className="text-muted mb-1">Advanced Module • NLP</p>
           <h2 className="fw-bold mb-3">Natural Language Assistant</h2>
@@ -67,7 +62,6 @@ const NLPAssistant = () => {
             <strong> urgency level</strong>.
           </p>
 
-          {/* Input box */}
           <div className="p-3 rounded shadow-sm border">
             <h6 className="fw-semibold mb-2">1. Enter Free-Text Request</h6>
 
@@ -88,7 +82,6 @@ const NLPAssistant = () => {
           </div>
         </div>
 
-        {/* RIGHT PANEL */}
         <div className="col-lg-6">
           <img
             src={heroImg}

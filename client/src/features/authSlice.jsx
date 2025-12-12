@@ -1,9 +1,7 @@
-// src/features/authSlice.js
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
 const API_BASE = 'http://localhost:5050';
 
-// --- REGISTER THUNK ---
 export const registerUser = createAsyncThunk(
   'auth/registerUser',
   async (formData, { rejectWithValue }) => {
@@ -27,7 +25,6 @@ export const registerUser = createAsyncThunk(
   }
 );
 
-// --- LOGIN THUNK ---
 export const loginUser = createAsyncThunk(
   'auth/loginUser',
   async ({ email, password }, { rejectWithValue }) => {
@@ -44,7 +41,6 @@ export const loginUser = createAsyncThunk(
         return rejectWithValue(data.message || 'Login failed');
       }
 
-      // backend returns: { user, message }
       return data;
     } catch (err) {
       return rejectWithValue('Network error, please try again.');
@@ -57,7 +53,7 @@ const savedUser = JSON.parse(localStorage.getItem('bdmsUser') || 'null');
 const authSlice = createSlice({
   name: 'auth',
   initialState: {
-    user: savedUser,       // ⬅️ rehydrate from localStorage
+    user: savedUser,       
     loading: false,
     error: null,
     message: null,
@@ -67,7 +63,7 @@ const authSlice = createSlice({
       state.user = null;
       state.error = null;
       state.message = null;
-      localStorage.removeItem('bdmsUser');  // ⬅️ clear on logout
+      localStorage.removeItem('bdmsUser');  
     },
     clearAuthMessage(state) {
       state.error = null;
@@ -75,7 +71,6 @@ const authSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    // REGISTER
     builder
       .addCase(registerUser.pending, (state) => {
         state.loading = true;
@@ -91,7 +86,6 @@ const authSlice = createSlice({
         state.error = action.payload;
       });
 
-    // LOGIN
     builder
       .addCase(loginUser.pending, (state) => {
         state.loading = true;
@@ -103,7 +97,6 @@ const authSlice = createSlice({
         state.user = action.payload.user;
         state.message = action.payload.message || 'Login success';
 
-        // ⬅️ save logged-in user
         localStorage.setItem('bdmsUser', JSON.stringify(action.payload.user));
       })
       .addCase(loginUser.rejected, (state, action) => {

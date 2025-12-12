@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
-import "./App.css"; // make sure this line exists
+import "./App.css"; 
 
 import Home from "./components/Home.jsx";
 import Login from "./components/login.jsx";
@@ -31,24 +31,23 @@ import HosAppoint from "./components/HosAppoint.jsx";
 import HosReport from "./components/HosReport.jsx";
 import HospitalProfile from "./components/HospitalProfile.jsx";
 import NLPAssistant from "./components/NLPAssistant.jsx"
-
+import AdminBloodBankView from "./components/AdminBloodBankView.jsx";
+import BloodBankManagement from "./components/BloodBankManagement.jsx";
 function App() {
   return (
     <BrowserRouter>
-      {/* this whole div is a flex column */}
       <div className="app-shell">
         <div className="page-content">
           <div>
-            {/*NavBar in the future*/}
           </div>
           <Routes>
             <Route path="/reports" element={<AdminReport />} />
             <Route path="/admin-appointments" element={<AdminAppoint />} />
             <Route path="/dashboard" element={<AdminDash />} />
-            <Route path="/NLPAssistant" element={<NLPAssistant/>}/>
+            <Route path="/NLPAssistant" element={<NLPAssistant />} />
             <Route path="/hospital-dash" element={<HosDash />} />
             <Route path="/hospital-appointments" element={<HosAppoint />} />
-            <Route path="/hospital-reports" element={<HosReport />} />            
+            <Route path="/hospital-reports" element={<HosReport />} />
             <Route path="/admin-profile" element={<AdminProfile />} />
             <Route path="/community" element={<Community />} />
             <Route path="/register-hospital" element={<HospitalRegister />} />
@@ -59,6 +58,9 @@ function App() {
             <Route path="/inventory" element={<Inventory />} />
             <Route path="/HospitalProfile" element={<HospitalProfile />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/blood-bank/:hospitalId" element={<BloodBankManagement />} />
+            <Route path="/admin-blood-bank" element={<AdminBloodBankView />} />
+
             <Route element={<MainLayout />}>
               <Route path="/home" element={<Home />} />
               <Route path="/about" element={<About />} />

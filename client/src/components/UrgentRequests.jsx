@@ -1,7 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { FaTint } from "react-icons/fa";
-import bdmslogo from "../assets/bdmslogo.png";
 
 const urgentData = [
   { id: 1, name: "Mohammed Salim", type: "B+", date: "2025-12-12", location: "City Hospital" },
@@ -16,7 +15,6 @@ const UrgentRequests = () => {
   return (
     <div className="urgent-page">
 
-      {/* ===== MAIN CONTENT ===== */}
       <main className="urgent-main">
         <div className="container py-5">
           <h3 className="fw-semibold mb-3">Urgent Requests</h3>
