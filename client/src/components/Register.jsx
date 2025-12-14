@@ -25,6 +25,8 @@ const Register = () => {
 
   const [countryCode, setCountryCode] = useState("+968"); 
 
+  const [phoneError, setPhoneError] = useState(""); // For phone validation error message
+
   const [passwordValidations, setPasswordValidations] = useState({
     lower: false,
     upper: false,
@@ -48,29 +50,26 @@ const Register = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    if (name === "fName") {
-      const onlyLetters = /^[A-Za-z\s]*$/;
-
-      if (!onlyLetters.test(value)) return;
-
-      if (value.length > 20) return;
-    }
-
+    // Phone number validation: Check if it's exactly 8 digits
     if (name === "phoneNum") {
-      const numericValue = value.replace(/[^0-9]/g, ""); 
-      if (numericValue.length <= 8) {
-        setFormData((prev) => ({
-          ...prev,
-          [name]: numericValue,
-        }));
+      const numericValue = value.replace(/[^0-9]/g, ""); // Strip out non-numeric characters
+      if (numericValue.length === 8) {
+        setPhoneError("");  // Clear error when 8 digits are entered
+      } else if (numericValue.length > 8) {
+        return; // Prevent further input if more than 8 digits
       }
-      return;
+      setFormData((prev) => ({
+        ...prev,
+        [name]: numericValue,
+      }));
     }
 
+    // Password validation
     if (name === "password") {
       validatePassword(value);
     }
 
+    // For all other fields
     setFormData((prev) => ({
       ...prev,
       [name]: value,
@@ -80,9 +79,10 @@ const Register = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    // Check if all required fields are filled
     const requiredFields = ["fName", "phoneNum", "Age", "gender", "bloodType", "email", "password", "address"];
     let formIsValid = true;
-    
+
     requiredFields.forEach((field) => {
       if (!formData[field]) {
         formIsValid = false;
@@ -90,13 +90,20 @@ const Register = () => {
       }
     });
 
+    // Additional validation for phone number
+    if (formData.phoneNum.length !== 8) {
+      formIsValid = false;
+      setPhoneError("Phone number must be exactly 8 digits.");
+    }
+
     if (!formIsValid) return;
 
+    // If the form is valid, submit data
     const numericCode = countryCode.replace("+", "");
     const payload = {
       ...formData,
       phoneNum: numericCode + formData.phoneNum,
-      role: "Donor", 
+      role: "Donor",
     };
 
     dispatch(registerUser(payload));
@@ -139,6 +146,7 @@ const Register = () => {
             }}
           >
             <form className="register-form" onSubmit={handleSubmit}>
+              {/* Full Name */}
               <div className="mb-3">
                 <label className="form-label">Full Name</label>
                 <input
@@ -153,6 +161,7 @@ const Register = () => {
                 <small className="text-muted">Max 20 letters.</small>
               </div>
 
+              {/* Phone Number */}
               <div className="mb-3">
                 <label className="form-label">Phone Number</label>
                 <div className="row g-2">
@@ -180,10 +189,12 @@ const Register = () => {
                       required
                       placeholder=""
                     />
+                    {phoneError && <small className="text-danger">{phoneError}</small>}
                   </div>
                 </div>
               </div>
 
+              {/* Other Form Fields (Age, Gender, etc.) */}
               <div className="row">
                 <div className="col-md-6 mb-3">
                   <label className="form-label">Age</label>
@@ -215,6 +226,7 @@ const Register = () => {
                 </div>
               </div>
 
+              {/* Blood Type, Email, and Address */}
               <div className="row">
                 <div className="col-md-6 mb-3">
                   <label className="form-label">Blood Type</label>
@@ -261,6 +273,7 @@ const Register = () => {
                 />
               </div>
 
+              {/* Password Field */}
               <div className="mb-3 position-relative">
                 <label className="form-label">Password</label>
                 <input
@@ -347,6 +360,7 @@ const Register = () => {
                 )}
               </div>
 
+              {/* Address Field */}
               <div className="mb-3">
                 <label className="form-label">Address</label>
                 <input
@@ -359,6 +373,7 @@ const Register = () => {
                 />
               </div>
 
+              {/* Terms and Conditions */}
               <div className="form-check mb-1">
                 <input
                   className="form-check-input"
@@ -377,6 +392,7 @@ const Register = () => {
                 </a>
               </p>
 
+              {/* Submit Button */}
               <button
                 type="submit"
                 className="btn btn-danger w-100"
