@@ -1,4 +1,3 @@
-// src/components/HosAppoint.jsx
 import React from "react";
 import { Link } from "react-router-dom";
 import bdmslogo from "../assets/bdmslogo.png";
@@ -7,7 +6,6 @@ import heroImg from "../assets/11+.png";
 const HosAppoint = () => {
   return (
     <div className="admin-app-page">
-      {/* NAVBAR */}
       <header className="bdms-navbar shadow-sm">
         <div className="container d-flex align-items-center justify-content-between py-3">
           <div className="d-flex align-items-center gap-2">
@@ -43,10 +41,8 @@ const HosAppoint = () => {
         </div>
       </header>
 
-      {/* MAIN CONTENT */}
       <main className="admin-app-main">
         <div className="container">
-          {/* Heading */}
           <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
             <div>
               <h3 className="fw-semibold mb-1">Appointments overview</h3>
@@ -57,7 +53,6 @@ const HosAppoint = () => {
           </div>
 
           <div className="row g-4">
-            {/* LEFT – APPOINTMENTS LIST */}
             <div className="col-lg-8">
               <div className="admin-app-card p-4">
                 <div className="d-flex justify-content-between align-items-center mb-3">
@@ -71,7 +66,6 @@ const HosAppoint = () => {
                   <span className="badge rounded-pill text-bg-light">3 total</span>
                 </div>
 
-                {/* Appointment Rows */}
                 {[
                   { name: "Abbas Allawati", time: "Nov 22, 2025, 10:00 AM" },
                   { name: "Hassan Alhasni", time: "Nov 22, 2025, 11:00 AM" },
@@ -86,7 +80,6 @@ const HosAppoint = () => {
 
                       <div className="text-muted small me-3">{item.time}</div>
 
-                      {/* FIXED: passing appointment info */}
                       <Link
                         to="/HosManRequest"
                         state={{ item }}
@@ -102,7 +95,6 @@ const HosAppoint = () => {
               </div>
             </div>
 
-            {/* RIGHT – ART + PENDING REQUESTS */}
             <div className="col-lg-4">
               <div className="admin-app-illustration mb-3">
                 <img
@@ -132,7 +124,6 @@ const HosAppoint = () => {
                         <div className="text-muted small">{p.time}</div>
                       </div>
 
-                      {/* FIXED: passing pending request info */}
                       <Link
                         to="/HosManRequest"
                         state={{ p }}

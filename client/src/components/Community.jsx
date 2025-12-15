@@ -56,7 +56,6 @@ const threads = [
 const Community = () => {
   return (
     <div className="community-page">
-      {/* NAVBAR – same BDMS style */}
       <header className="bdms-navbar shadow-sm community-navbar">
         <div className="container d-flex align-items-center justify-content-between py-3">
           <div className="d-flex align-items-center gap-2">
@@ -79,9 +78,8 @@ const Community = () => {
           </div>
 
           <nav className="d-none d-md-flex align-items-center gap-4">
-            
 
-            {/* simple logout – you can wire it to Redux if you want */}
+
             <button
               className="btn btn-outline-light ms-3"
               onClick={() => (window.location.href = "/")}
@@ -92,7 +90,6 @@ const Community = () => {
         </div>
       </header>
 
-      {/* MAIN FEED */}
       <main className="community-main py-5">
         <div className="container">
           <div className="d-flex justify-content-between align-items-center mb-4">
@@ -111,7 +108,6 @@ const Community = () => {
             {threads.map((t) => (
               <div key={t.id} className="col-md-4">
                 <article className="community-card h-100 d-flex flex-column">
-                  {/* card header */}
                   <div className="d-flex align-items-center mb-3">
                     <div className="community-avatar me-3">
                       {t.handle.charAt(1).toUpperCase()}
@@ -126,7 +122,6 @@ const Community = () => {
                     </div>
                   </div>
 
-                  {/* main text */}
                   <h6 className="text-white fw-semibold mb-2">
                     {t.title}
                   </h6>
@@ -134,7 +129,6 @@ const Community = () => {
                     {t.body}
                   </p>
 
-                  {/* footer actions */}
                   <div className="d-flex justify-content-between align-items-center mt-3 pt-2 border-top border-secondary">
                     <span className="text-muted small">{t.time}</span>
                     <div className="d-flex gap-3">

@@ -1,4 +1,3 @@
-// EmailVerified.jsx
 import React from 'react';
 import { Link } from 'react-router-dom';
 import donorIllustration from '../assets/9+.png';
@@ -8,7 +7,6 @@ const EmailVerified = () => {
   return (
     <div className="auth-page container-fluid">
       <div className="row align-items-center min-vh-100">
-        {/* Left side */}
         <div className="col-md-6 auth-left">
           <div className="d-flex align-items-center gap-2 mb-4">
             <img
@@ -63,7 +61,6 @@ const EmailVerified = () => {
           </p>
         </div>
 
-        {/* Right side */}
         <div className="col-md-6 auth-right text-center">
           <img
             src={donorIllustration}

@@ -1,15 +1,14 @@
-// src/components/LandingPage.jsx
 import React from "react";
 import { Link } from "react-router-dom";
 import heroImg from "../assets/2+.png";
 import bdmslogo from "../assets/bdmslogo.png";
+import SocialFeed from "./SocialFeed.jsx";
 
 const LandingPage = () => {
   return (
     <div className="home-page">
       
 
-      {/* HERO with CTA buttons */}
       <section id="hero" className="hero-section">
         <div className="container h-100">
           <div className="row align-items-center h-100">
@@ -45,7 +44,6 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* ABOUT (public) */}
       <section id="about" className="about-section py-5">
         <div className="container">
           <h3 className="mb-3 fw-semibold">About</h3>
@@ -63,14 +61,10 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Social / Announcement area */}
       <section id="urgent" className="urgent-section py-5 bg-light">
         <div className="container">
-          <h4 className="mb-3 fw-semibold">Social Media - Announcement</h4>
-          <p className="text-muted mb-0">
-            Show real-time announcements or social media posts from hospitals
-            and blood donation campaigns.
-          </p>
+<SocialFeed />
+
         </div>
       </section>
     </div>

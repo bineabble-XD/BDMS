@@ -1,8 +1,6 @@
-// src/components/ResetPassword.jsx
 
 import React, { useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import bdmslogo from "../assets/bdmslogo.png";
 import donorIllustration from "../assets/9+.png";
 
 const API_BASE = "http://localhost:5050";
@@ -16,7 +14,6 @@ const ResetPassword = () => {
   const [status, setStatus] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // password validation state
   const [passwordValidations, setPasswordValidations] = useState({
     lower: false,
     upper: false,
@@ -25,7 +22,6 @@ const ResetPassword = () => {
     length: false,
   });
 
-  // popup state
   const [showPasswordHints, setShowPasswordHints] = useState(false);
 
   const validatePassword = (value) => {
@@ -85,7 +81,6 @@ const ResetPassword = () => {
   return (
     <div className="register-page container-fluid">
       <div className="row min-vh-100 align-items-start">
-        {/* LEFT SIDE */}
         <div
           className="col-md-7 auth-left"
           style={{
@@ -94,27 +89,8 @@ const ResetPassword = () => {
             paddingRight: "10px",
           }}
         >
-          {/* Logo */}
-          <div className="d-flex align-items-center gap-2 mb-4 mt-3">
-            <img
-              src={bdmslogo}
-              alt="BDMS Logo"
-              style={{
-                width: "60px",
-                height: "60px",
-                borderRadius: "12px",
-                objectFit: "cover",
-              }}
-            />
-            <div className="lh-1">
-              <h5 className="mb-0 fw-bold">
-                <span className="text-danger">BLOOD</span> <span>DONATION</span>
-              </h5>
-              <small className="text-muted">MANAGEMENT SYSTEM</small>
-            </div>
-          </div>
+          
 
-          {/* Title */}
           <h3 className="fw-semibold mb-2" style={{ color: "#d10000" }}>
             Reset Password
           </h3>
@@ -123,7 +99,6 @@ const ResetPassword = () => {
             Choose a new password for your BDMS account.
           </p>
 
-          {/* Form container with border */}
           <div
             style={{
               maxWidth: "420px",
@@ -136,7 +111,6 @@ const ResetPassword = () => {
             }}
           >
             <form onSubmit={handleSubmit}>
-              {/* New Password */}
               <div className="mb-3 position-relative">
                 <label className="form-label">New Password</label>
                 <input
@@ -222,7 +196,6 @@ const ResetPassword = () => {
                 )}
               </div>
 
-              {/* Confirm Password */}
               <div className="mb-3">
                 <label className="form-label">Confirm Password</label>
                 <input
@@ -234,7 +207,6 @@ const ResetPassword = () => {
                 />
               </div>
 
-              {/* Button */}
               <button
                 type="submit"
                 className="btn btn-danger w-100 mb-3"
@@ -244,7 +216,6 @@ const ResetPassword = () => {
               </button>
             </form>
 
-            {/* Status message */}
             {status && <p className="small text-muted mb-2">{status}</p>}
 
             <p className="small mt-3">
@@ -255,7 +226,6 @@ const ResetPassword = () => {
           </div>
         </div>
 
-        {/* RIGHT SIDE */}
         <div className="col-md-5 text-center d-none d-md-block">
           <img
             src={donorIllustration}

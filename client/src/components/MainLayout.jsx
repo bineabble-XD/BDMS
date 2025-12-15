@@ -1,5 +1,3 @@
-// src/components/MainLayout.jsx
-
 import React from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
@@ -23,10 +21,8 @@ const MainLayout = () => {
 
   return (
     <div className="app-shell">
-      {/* NAVBAR */}
       <header className="bdms-navbar shadow-sm">
         <div className="container d-flex align-items-center justify-content-between py-3">
-          {/* Logo + brand */}
           <div className="d-flex align-items-center gap-2">
             <img
               src={bdmslogo}
@@ -46,9 +42,7 @@ const MainLayout = () => {
             </div>
           </div>
 
-          {/* Nav links */}
           <nav className="d-flex align-items-center gap-4">
-            {/* Always available pages */}
             <Link className={`nav-link ${isActive("/home")}`} to="/home">
               Home
             </Link>
@@ -68,7 +62,6 @@ const MainLayout = () => {
               Urgent Requests
             </Link>
 
-            {/* If NOT logged in – show public links */}
             {!user && (
               <>
                 <Link
@@ -98,7 +91,6 @@ const MainLayout = () => {
               </>
             )}
 
-            {/* If logged in – show user options */}
             {user && (
               <>
                 <Link
@@ -135,16 +127,10 @@ const MainLayout = () => {
         </div>
       </header>
 
-      {/* PAGE CONTENT */}
       <div className="page-content">
         <Outlet />
       </div>
 
-      {/* FOOTER (optional)
-      <footer className="bdms-footer text-center py-3">
-        © 2025 Blood Donation Management System. All Rights Reserved.
-      </footer>
-      */}
     </div>
   );
 };

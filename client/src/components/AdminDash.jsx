@@ -50,7 +50,6 @@ const AdminDash = () => {
       }
 
       alert(data.message || "Updated.");
-      // refresh list
       fetchHospitalRequests();
     } catch (err) {
       console.error("Decision error:", err);
@@ -120,11 +119,10 @@ const AdminDash = () => {
       <main className="dashboard-main">
         <div className="container">
           <div className="d-flex justify-content-between align-items-center mb-3">
-            
+
           </div>
 
           <div className="row g-4">
-            {/* LEFT SIDE */}
             <div className="col-lg-8">
               <div className="dashboard-card p-4 mb-4">
                 <h5 className="mb-3">Last Donations</h5>
@@ -149,7 +147,6 @@ const AdminDash = () => {
                     <span className="urgent-dot" />
                     <span>City Hospital</span>
                   </div>
-                  {/* Link to Urgent Requests page */}
                   <Link
                     to="/urgent-requests"
                     className="btn btn-link p-0 dashboard-view-link"
@@ -165,17 +162,18 @@ const AdminDash = () => {
                     <span className="urgent-dot" />
                     <span>Star Hospital</span>
                   </div>
-                  {/* Link to Urgent Requests page */}
                   <Link
                     to="/urgent-requests"
                     className="btn btn-link p-0 dashboard-view-link"
                   >
                     View &gt;
                   </Link>
+                  <Link to="/admin-blood-bank" className="btn btn-danger">
+                    View All Blood Bank Records
+                  </Link>
                 </div>
               </div>
 
-              {/* 🔥 Hospital account requests */}
               <div className="dashboard-card p-4">
                 <h5 className="mb-3">Hospital Account Requests</h5>
 
@@ -226,7 +224,6 @@ const AdminDash = () => {
               </div>
             </div>
 
-            {/* RIGHT SIDE */}
             <div className="col-lg-4">
               <div className="dashboard-side-top mb-2">
 

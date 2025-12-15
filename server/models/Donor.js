@@ -1,4 +1,3 @@
-// Donor.js
 import mongoose from "mongoose";
 
 const donorSchema = new mongoose.Schema(
@@ -23,7 +22,6 @@ const donorSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// model name, schema, collection
 const donorModel = mongoose.model("donor", donorSchema, "donorCol");
 
 export default donorModel;

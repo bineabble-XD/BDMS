@@ -1,16 +1,12 @@
-// src/components/Login.jsx
 
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { loginUser, clearAuthMessage } from "../features/authSlice";
 import donorIllustration from "../assets/1+.png";
-import bdmslogo from "../assets/bdmslogo.png";
 
-//inventory login (no database)
 const INVENTORY_EMAIL = "inventory@bdms.com";
 const INVENTORY_PASSWORD = "Blood@123";
-
 
 
 const Login = () => {
@@ -40,7 +36,7 @@ const Login = () => {
     const email = formData.email.trim();
     const password = formData.password;
 
-    if (email === INVENTORY_EMAIL && password ===INVENTORY_PASSWORD) {
+    if (email === INVENTORY_EMAIL && password === INVENTORY_PASSWORD) {
       navigate("/inventory");
       return;
     }
@@ -73,15 +69,28 @@ const Login = () => {
   useEffect(() => {
     if (!user) return;
 
-    if (!user.isVerified) {
-      alert("Please verify your email before logging in.");
+    if (user.isAdmin === true) {
+      navigate("/reports");
       return;
     }
 
-    if (user.isAdmin === true) navigate("/reports");
-    else if (user.isHospital === true) navigate("/hospital-dash");
-    else navigate("/home");
+    if (user.isHospital === true) {
+      fetch(`http://localhost:5050/hospitals/profile/${user._id}`)
+        .then((res) => res.json())
+        .then((profile) => {
+          if (profile?.type === "Blood Inventory") {
+            navigate("/inventory");
+          } else {
+            navigate("/hospital-dash");
+          }
+        });
+      return;
+    }
+
+    navigate("/home");
   }, [user, navigate]);
+
+
 
   useEffect(() => {
     if (error) {
@@ -94,21 +103,17 @@ const Login = () => {
     <div className="login-page container-fluid">
       <div className="row min-vh-100 align-items-center">
 
-        {/* LEFT SIDE: Title + Form */}
         <div className="col-md-7 d-flex justify-content-end">
           <div style={{ width: "100%", maxWidth: "480px" }}>
 
-            {/* Page Title */}
             <h4 className="text-center mb-4" style={{ color: "#d10000", fontWeight: 600 }}>
               Login
             </h4>
 
-            {/* Form Card */}
             <div className="form-wrapper">
 
               <form onSubmit={handleSubmit}>
-                
-                {/* Email */}
+
                 <div className="mb-3">
                   <label className="form-label small text-muted">Email</label>
                   <input
@@ -122,7 +127,6 @@ const Login = () => {
                   />
                 </div>
 
-                {/* Password */}
                 <div className="mb-3">
                   <label className="form-label small text-muted">Password</label>
                   <input
@@ -136,7 +140,6 @@ const Login = () => {
                   />
                 </div>
 
-                {/* Submit */}
                 <button
                   type="submit"
                   className="btn btn-danger w-100 mb-3"
@@ -146,7 +149,7 @@ const Login = () => {
                 </button>
               </form>
 
-              {/* Links */}
+
               <p className="small mb-1">
                 Forget password?{" "}
                 <Link to="/forget-password" className="text-danger text-decoration-none">
@@ -165,7 +168,6 @@ const Login = () => {
           </div>
         </div>
 
-        {/* RIGHT SIDE: Illustration (Option 2 applied) */}
         <div className="col-md-5 d-flex justify-content-start align-items-center d-none d-md-flex">
           <img
             src={donorIllustration}

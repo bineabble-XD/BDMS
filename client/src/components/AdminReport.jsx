@@ -28,7 +28,6 @@ const AdminReport = () => {
 
   return (
     <div className="admin-report-page">
-      {/* NAVBAR */}
       <header className="bdms-navbar shadow-sm">
         <div className="container d-flex align-items-center justify-content-between py-3">
           <div className="d-flex align-items-center gap-2">
@@ -58,15 +57,16 @@ const AdminReport = () => {
             <Link to="/dashboard" className="nav-link">
               Dashboard
             </Link>
+            <Link to="/NLPAssistant" className="nav-link">
+              NLPAssistant
+            </Link>
             <span className="nav-link">BDMS ADMIN</span>
           </nav>
         </div>
       </header>
 
-      {/* MAIN */}
       <main className="admin-report-main">
         <div className="container">
-          {/* filters */}
           <div className="admin-report-filters mb-4">
             <select
               className="form-select"
@@ -90,7 +90,6 @@ const AdminReport = () => {
           </div>
 
           <div className="row g-4">
-            {/* LEFT – REPORT */}
             <div className="col-lg-8">
               <div className="admin-report-card">
                 <div className="admin-report-card-inner">
@@ -114,7 +113,6 @@ const AdminReport = () => {
                     </div>
                   </div>
 
-                  {/* chart (أعمدة بسيطة مثل الصورة) */}
                   <div className="report-chart">
                     {bloodData.map((item) => (
                       <div className="report-column" key={item.type}>
@@ -130,7 +128,6 @@ const AdminReport = () => {
               </div>
             </div>
 
-            {/* RIGHT – صورة الشخص على اللابتوب */}
             <div className="col-lg-4">
               <div className="admin-report-illustration text-center">
                 <img
@@ -144,7 +141,7 @@ const AdminReport = () => {
         </div>
       </main>
 
-      
+
     </div>
   );
 };

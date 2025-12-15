@@ -1,4 +1,3 @@
-// src/components/Settings.jsx
 
 import React, { useState, useEffect } from "react";
 import { FaCog } from "react-icons/fa";
@@ -8,7 +7,6 @@ import { useNavigate } from "react-router-dom";
 const Settings = () => {
   const navigate = useNavigate();
 
-  // initialize from localStorage so dark mode persists
   const [darkMode, setDarkMode] = useState(() => {
     if (typeof window === "undefined") return false;
     return localStorage.getItem("bdms_dark_mode") === "true";
@@ -18,7 +16,6 @@ const Settings = () => {
   const [fontSize, setFontSize] = useState("Medium");
   const [colorBlind, setColorBlind] = useState(false);
 
-  // 🔥 hook dark mode to the whole app (body class + persistence)
   useEffect(() => {
     if (darkMode) {
       document.body.classList.add("bdms-dark");
@@ -28,7 +25,6 @@ const Settings = () => {
     localStorage.setItem("bdms_dark_mode", darkMode ? "true" : "false");
   }, [darkMode]);
 
-  // Back button logic
   const goBack = () => {
     if (window.history.length > 1) navigate(-1);
     else navigate("/home");
@@ -37,7 +33,6 @@ const Settings = () => {
   return (
     <div className={`settings-page ${darkMode ? "dark-mode" : ""}`}>
       <div className="container py-4">
-        {/* Top row: back arrow + title */}
         <div className="d-flex align-items-center mb-4">
           <button className="settings-back-btn me-3" onClick={goBack}>
             <FiArrowLeft size={22} />
@@ -49,9 +44,7 @@ const Settings = () => {
           </div>
         </div>
 
-        {/* Main white card */}
         <div className="settings-box p-4">
-          {/* DARK MODE */}
           <div className="setting-row">
             <span className="setting-label">Dark Mode :</span>
 
@@ -75,7 +68,6 @@ const Settings = () => {
             </div>
           </div>
 
-          {/* LANGUAGE */}
           <div className="setting-row">
             <span className="setting-label">Language :</span>
 
@@ -101,7 +93,6 @@ const Settings = () => {
             </div>
           </div>
 
-          {/* FONT SIZE */}
           <div className="setting-row">
             <span className="setting-label">Font Size :</span>
 
@@ -119,7 +110,6 @@ const Settings = () => {
             </div>
           </div>
 
-          {/* COLOR BLINDNESS */}
           <div className="setting-row">
             <span className="setting-label">Color Blindness :</span>
 

@@ -1,4 +1,3 @@
-// src/components/Profile.jsx
 import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate, Link } from "react-router-dom";
@@ -8,14 +7,13 @@ const Profile = () => {
   const user = useSelector((state) => state.auth.user);
   const navigate = useNavigate();
 
-  // If no user (not logged in), redirect to login
   useEffect(() => {
     if (!user) {
       navigate("/login");
     }
   }, [user, navigate]);
 
-  if (!user) return null; // nothing while redirecting
+  if (!user) return null; 
 
   return (
     <div className="profile-page">
@@ -54,6 +52,9 @@ const Profile = () => {
                 <h5 className="mb-0">My Profile</h5>
                 <Link to="/home" className="btn btn-sm btn-outline-secondary">
                   Back to Home
+                </Link>
+                <Link to="/forget-password" className="btn btn-sm btn-outline-secondary">
+                  Reset Passwoword
                 </Link>
               </div>
               <div className="card-body">

@@ -1,11 +1,9 @@
-// src/components/AdminManRequest.jsx
 
 import React from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { FiArrowLeft } from "react-icons/fi";
 import bdmslogo from "../assets/bdmslogo.png";
 
-// fallback data if opened directly
 const defaultRequest = {
   name: "Abbas Al Lawati",
   donorType: "O+",
@@ -39,7 +37,6 @@ const AdminManageRequest = () => {
 
   return (
     <div className="manage-req-page">
-      {/* NAVBAR */}
       <header className="bdms-navbar shadow-sm">
         <div className="container d-flex align-items-center justify-content-between py-3">
           <div className="d-flex align-items-center gap-2">
@@ -76,60 +73,57 @@ const AdminManageRequest = () => {
         </div>
       </header>
 
-      {/* PAGE CONTENT */}
       <div className="container mt-4">
 
-  <button onClick={goBack} className="manage-back-btn d-flex align-items-center gap-2 mb-2">
-    <FiArrowLeft size={20} /> Back
-  </button>
+        <button onClick={goBack} className="manage-back-btn d-flex align-items-center gap-2 mb-2">
+          <FiArrowLeft size={20} /> Back
+        </button>
 
-  <h4 className="fw-semibold mb-3">{title}</h4>
+        <h4 className="fw-semibold mb-3">{title}</h4>
 
-  <div className="manage-card">
-    <div className="row">
-      
-      {/* LEFT DETAILS */}
-      <div className="col-md-8 left-details">
-        <h6 className="fw-bold mb-1">{request.name}</h6>
+        <div className="manage-card">
+          <div className="row">
 
-        <p className="mb-1">
-          <strong>Donor Type:</strong> {request.donorType}
-        </p>
+            <div className="col-md-8 left-details">
+              <h6 className="fw-bold mb-1">{request.name}</h6>
 
-        <p className="mb-3">
-          <strong>Requested:</strong> {request.requested}
-        </p>
+              <p className="mb-1">
+                <strong>Donor Type:</strong> {request.donorType}
+              </p>
 
-        <div className="mb-2 fw-semibold">{reasonLabel}</div>
+              <p className="mb-3">
+                <strong>Requested:</strong> {request.requested}
+              </p>
 
-        <input
-          type="text"
-          className="form-control mb-3"
-          value={request.reason || ""}
-          readOnly
-        />
+              <div className="mb-2 fw-semibold">{reasonLabel}</div>
+
+              <input
+                type="text"
+                className="form-control mb-3"
+                value={request.reason || ""}
+                readOnly
+              />
+            </div>
+
+            <div className="col-md-4 right-details">
+              <p className="mb-1 fw-semibold">{request.ageGender}</p>
+
+              <p className="mb-1">📧 {request.email}</p>
+              <p className="mb-3">📞 {request.phone}</p>
+
+              <p className={request.eligible ? "eligible" : "not-eligible"}>
+                {request.eligible ? "Eligible" : "Not Eligible"}
+              </p>
+
+              <p className="fw-semibold mb-1">Previous Donations</p>
+              <p className="mb-0">{request.previousDate}</p>
+              <p className="text-muted">{request.previousHospital}</p>
+            </div>
+
+          </div>
+        </div>
+
       </div>
-
-      {/* RIGHT DETAILS */}
-      <div className="col-md-4 right-details">
-        <p className="mb-1 fw-semibold">{request.ageGender}</p>
-
-        <p className="mb-1">📧 {request.email}</p>
-        <p className="mb-3">📞 {request.phone}</p>
-
-        <p className={request.eligible ? "eligible" : "not-eligible"}>
-          {request.eligible ? "Eligible" : "Not Eligible"}
-        </p>
-
-        <p className="fw-semibold mb-1">Previous Donations</p>
-        <p className="mb-0">{request.previousDate}</p>
-        <p className="text-muted">{request.previousHospital}</p>
-      </div>
-
-    </div>
-  </div>
-
-</div>
 
     </div>
   );

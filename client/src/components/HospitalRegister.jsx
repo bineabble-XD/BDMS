@@ -1,17 +1,12 @@
-// src/components/HospitalRegister.jsx
-
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { registerHospital, resetHospitalState } from "../features/hospitalSlice";
-import bdmslogo from "../assets/bdmslogo.png";
-import donorIllustration from "../assets/1+.png"; // or your hospital illustration
-
+import donorIllustration from "../assets/1+.png"; 
 const HospitalRegister = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  // 🔗 Redux hospital state
   const { loading, error, success } = useSelector((state) => state.hospital);
 
   const [form, setForm] = useState({
@@ -21,11 +16,10 @@ const HospitalRegister = () => {
     contactPerson: "",
     contactEmail: "",
     contactPhone: "",
-    email: "", // login email
-    password: "", // login password
+    email: "", 
+    password: "", 
   });
 
-  // ✅ password validation state (same as Register)
   const [passwordValidations, setPasswordValidations] = useState({
     lower: false,
     upper: false,
@@ -34,10 +28,8 @@ const HospitalRegister = () => {
     length: false,
   });
 
-  // ✅ popup state for password hints
   const [showPasswordHints, setShowPasswordHints] = useState(false);
 
-  // clear old success/error when opening this page
   useEffect(() => {
     dispatch(resetHospitalState());
   }, [dispatch]);
@@ -55,14 +47,12 @@ const HospitalRegister = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    // ✅ Contact person: letters + spaces only, max 20 chars (like user name)
     if (name === "contactPerson") {
       const onlyLetters = /^[A-Za-z\s]*$/;
-      if (!onlyLetters.test(value)) return; // block numbers/symbols
-      if (value.length > 20) return; // limit length
+      if (!onlyLetters.test(value)) return; 
+      if (value.length > 20) return; 
     }
 
-    // ✅ track password rules
     if (name === "password") {
       validatePassword(value);
     }
@@ -72,11 +62,9 @@ const HospitalRegister = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (loading) return; // prevent double submit
+    if (loading) return; 
 
-    // ✅ basic validations before sending
 
-    // email regex
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     const contactEmail = form.contactEmail.trim();
@@ -110,7 +98,6 @@ const HospitalRegister = () => {
       return;
     }
 
-    // 🧠 Dispatch Redux thunk instead of local fetch
     dispatch(
       registerHospital({
         ...form,
@@ -122,12 +109,11 @@ const HospitalRegister = () => {
       .then((data) => {
         alert(
           data?.message ||
-            "Hospital registration submitted and pending admin approval."
+          "Hospital registration submitted and pending admin approval."
         );
         navigate("/login");
       })
       .catch(() => {
-        // error message is already in Redux `error`, we can also alert if you like:
         if (error) {
           alert(error);
         }
@@ -137,14 +123,13 @@ const HospitalRegister = () => {
   return (
     <div className="register-page container-fluid">
       <div className="row min-vh-100 align-items-center">
-        {/* LEFT SIDE (form) */}
         <div
           className="col-md-7 auth-left"
           style={{
             paddingRight: "10px",
           }}
         >
-          
+
 
           <h3 className="mb-3 fw-semibold" style={{ color: "#d10000" }}>
             Hospital Registration
@@ -162,13 +147,11 @@ const HospitalRegister = () => {
               boxShadow: "0 4px 10px rgba(0,0,0,0.08)",
             }}
           >
-            {/* 🔴 show server error from Redux */}
             {error && (
               <div className="alert alert-danger py-2">{error}</div>
             )}
 
             <form onSubmit={handleSubmit}>
-              {/* Hospital Name */}
               <div className="mb-3">
                 <label className="form-label">Hospital Name</label>
                 <input
@@ -181,7 +164,6 @@ const HospitalRegister = () => {
                 />
               </div>
 
-              {/* City + Type */}
               <div className="row">
                 <div className="col-md-6 mb-3">
                   <label className="form-label">City</label>
@@ -207,12 +189,12 @@ const HospitalRegister = () => {
                     <option>Government</option>
                     <option>Private</option>
                     <option>Military</option>
+                    <option>Blood Inventory</option>
                     <option>Other</option>
                   </select>
                 </div>
               </div>
 
-              {/* Contact Person */}
               <div className="mb-3">
                 <label className="form-label">Contact Person</label>
                 <input
@@ -228,7 +210,6 @@ const HospitalRegister = () => {
                 </small>
               </div>
 
-              {/* Contact Phone + Contact Email */}
               <div className="row">
                 <div className="col-md-6 mb-3">
                   <label className="form-label">Contact Phone</label>
@@ -255,7 +236,6 @@ const HospitalRegister = () => {
                 </div>
               </div>
 
-              {/* Login Email */}
               <div className="mb-3">
                 <label className="form-label">Login Email</label>
                 <input
@@ -268,7 +248,6 @@ const HospitalRegister = () => {
                 />
               </div>
 
-              {/* Login Password with popup hints */}
               <div className="mb-3 position-relative">
                 <label className="form-label">Login Password</label>
                 <input
@@ -373,7 +352,6 @@ const HospitalRegister = () => {
           </p>
         </div>
 
-        {/* RIGHT SIDE ILLUSTRATION */}
         <div className="col-md-5 text-center d-none d-md-block">
           <img
             src={donorIllustration}

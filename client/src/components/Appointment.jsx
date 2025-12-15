@@ -1,4 +1,3 @@
-// src/components/Appointment.jsx
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import bdmslogo from "../assets/bdmslogo.png";
@@ -38,45 +37,9 @@ const Appointment = () => {
   };
 
   return (
-    <div className="appointment-page container-fluid"  style={{ paddingBottom: "80px" }}>
-      {/* NAVBAR 
-      <header className="bdms-navbar shadow-sm mb-4">
-        <div className="container d-flex align-items-center justify-content-between py-3">
-          <div className="d-flex align-items-center gap-2">
-            <img
-              src={bdmslogo}
-              alt="BDMS Logo"
-              style={{
-                width: "60px",
-                height: "60px",
-                borderRadius: "12px",
-                objectFit: "cover",
-              }}
-            />
-            <div className="lh-1">
-              <h5 className="mb-0 fw-bold">
-                <span className="text-danger">BLOOD</span> <span>DONATION</span>
-              </h5>
-              <small className="text-muted">MANAGEMENT SYSTEM</small>
-            </div>
-          </div>
+    <div className="appointment-page container-fluid" style={{ paddingBottom: "80px" }}>
 
-          <nav className="d-none d-md-flex align-items-center gap-4">
-            <Link to="/home" className="nav-link">
-              Home
-            </Link>
-            <Link to="/home#urgent" className="nav-link">
-              Urgent Requests
-            </Link>
-            <span className="nav-link active-link">Appointments</span>
-          </nav>
-        </div>
-      </header>
-      */}
-
-      {/* MAIN CONTENT (same idea as Register.jsx) */}
       <div className="row min-vh-100 align-items-center">
-        {/* LEFT SIDE – form column */}
         <div
           className="col-md-7 auth-left"
           style={{
@@ -87,13 +50,14 @@ const Appointment = () => {
             Book an Appointment
           </h3>
 
-          {/* Centered Form Container */}
-          <div style={{ maxWidth: "700px",
-    margin: "0 auto",
-    padding: "20px",
-    border: "1px solid #ddd",
-    borderRadius: "10px",
-    backgroundColor: "#fff", }}>
+          <div style={{
+            maxWidth: "700px",
+            margin: "0 auto",
+            padding: "20px",
+            border: "1px solid #ddd",
+            borderRadius: "10px",
+            backgroundColor: "#fff",
+          }}>
             <form onSubmit={handleSubmit}>
               <h5 className="mb-3">Appointment Details</h5>
 
@@ -189,7 +153,6 @@ const Appointment = () => {
 
               <h5 className="mb-3 mt-4">Eligibility Screening</h5>
 
-              {/* CHECKBOXES */}
               <div className="mb-4">
                 <div className="form-check mb-2">
                   <input
@@ -218,7 +181,6 @@ const Appointment = () => {
                 </div>
               </div>
 
-              {/* RADIO GROUPS */}
               <div className="mb-4">
                 <p className="fw-semibold mb-2">Medication recently?</p>
                 <div className="d-flex flex-column gap-2">
@@ -336,7 +298,6 @@ const Appointment = () => {
           </div>
         </div>
 
-        {/* RIGHT SIDE – smaller illustration, same idea as Register */}
         <div className="col-md-5 text-center d-none d-md-block">
           <img
             src={donorIllustration}
