@@ -1,69 +1,12 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import mlogo from "../assets/bdmslogo.png";
 import heroImg from "../assets/9+.png";
-
-const hospital = JSON.parse(localStorage.getItem("bdmsUser"));
+import HospitalNavbar from "./HospitalNavbar";
 
 const HosDash = () => {
   return (
     <div className="dashboard-page">
-      <header className="bdms-navbar shadow-sm">
-        <div className="container d-flex align-items-center justify-content-between py-3">
-          <div className="d-flex align-items-center gap-2">
-            <img
-              src={mlogo}
-              alt="BDMS Logo"
-              style={{
-                width: "70px",
-                height: "70px",
-                borderRadius: "12px",
-                objectFit: "cover",
-              }}
-            />
-            <div className="lh-1">
-              <h5 className="mb-0 fw-bold">
-                <span className="text-danger">BLOOD</span> <span>DONATION</span>
-              </h5>
-              <small className="text-muted">MANAGEMENT SYSTEM</small>
-            </div>
-          </div>
-
-          <nav className="d-none d-md-flex align-items-center gap-4">
-            <Link to="/hospital-reports" className="nav-link">
-              Reports
-            </Link>
-
-            <Link to="/hospital-appointments" className="nav-link">
-              Appointments
-            </Link>
-
-            <span className="nav-link active-link">Dashboard</span>
-
-            <span className="nav-link fw-bold">
-              {hospital?.fName || "Hospital Page"}
-            </span>
-
-            <Link
-              to="/HospitalProfile" 
-              className="admin-profile-icon d-flex align-items-center justify-content-center"
-              title="Profile"
-            >
-              {hospital?.fName?.charAt(0).toUpperCase() || "H"}
-            </Link>
-
-            <button
-              className="btn btn-outline-danger btn-sm ms-2"
-              onClick={() => {
-                localStorage.removeItem("bdmsUser");
-                window.location.href = "/";
-              }}
-            >
-              Log Out
-            </button>
-          </nav>
-        </div>
-      </header>
+      <HospitalNavbar />
 
       <main className="dashboard-main">
         <div className="container">

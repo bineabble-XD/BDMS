@@ -1,8 +1,7 @@
-
 import React from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { FiArrowLeft } from "react-icons/fi";
-import bdmslogo from "../assets/bdmslogo.png";
+import AdminNavbar from "./AdminNavbar";
 
 const defaultRequest = {
   name: "Abbas Al Lawati",
@@ -37,41 +36,7 @@ const AdminManageRequest = () => {
 
   return (
     <div className="manage-req-page">
-      <header className="bdms-navbar shadow-sm">
-        <div className="container d-flex align-items-center justify-content-between py-3">
-          <div className="d-flex align-items-center gap-2">
-            <img
-              src={bdmslogo}
-              alt="BDMS Logo"
-              style={{
-                width: "60px",
-                height: "60px",
-                borderRadius: "12px",
-                objectFit: "cover",
-              }}
-            />
-            <div className="lh-1">
-              <h5 className="mb-0 fw-bold">
-                <span className="text-danger">BLOOD</span> DONATION
-              </h5>
-              <small className="text-muted">MANAGEMENT SYSTEM</small>
-            </div>
-          </div>
-
-          <nav className="d-none d-md-flex align-items-center gap-4">
-            <Link to="/reports" className="nav-link">
-              Reports
-            </Link>
-            <Link to="/admin-appointments" className="nav-link">
-              Appointments
-            </Link>
-            <Link to="/dashboard" className="nav-link">
-              Dashboard
-            </Link>
-            <span className="nav-link">BDMS ADMIN</span>
-          </nav>
-        </div>
-      </header>
+      <AdminNavbar />
 
       <div className="container mt-4">
 

@@ -31,18 +31,10 @@ html, body, #root {
   flex-direction: column;
 }
 
-.main-content {
-  flex: 1; 
-}
-
 .app-shell {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-}
-
-.main-content {
-  flex: 1;
 }
 
 .profile-page {

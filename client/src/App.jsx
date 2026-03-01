@@ -38,8 +38,6 @@ function App() {
     <BrowserRouter>
       <div className="app-shell">
         <div className="page-content">
-          <div>
-          </div>
           <Routes>
             <Route path="/reports" element={<AdminReport />} />
             <Route path="/admin-appointments" element={<AdminAppoint />} />

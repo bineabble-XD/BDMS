@@ -1,26 +1,26 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import bdmslogo from "../assets/bdmslogo.png";
 import donorIllustration from "../assets/11+.png";
 import { createBooking, resetBooking } from "../features/bookingSlice";
 
+const API_BASE = "http://localhost:5050";
+
 const Appointment = () => {
-  const hospitalMap = {
-    "Khawla Hospital": "1424252525h",
-    "Royal Hospital": "2636363h",
-    "Sultan Qaboos University Hospital": "kksk8",
-    "Armed Forces Hospital": "sksks9",
-  };
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const { user } = useSelector((state) => state.auth);
   const { loading, success, error } = useSelector((state) => state.booking);
 
+  const [hospitals, setHospitals] = useState([]);
+  const today = new Date().toISOString().split("T")[0];
+  const now = new Date();
+  const minTime = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+
   const [form, setForm] = useState({
-    hospital: "Khawla Hospital",
-    appointmentMonth: "",
+    hospital: "",
+    appointmentDate: "",
     appointmentTime: "",
     lastDonationMonth: "",
     donatedBefore: false,
@@ -52,23 +52,27 @@ const Appointment = () => {
       return;
     }
 
-    // TEMP hospital mapping (replace later with DB IDs)
-    const hospitalMap = {
-      "Khawla Hospital": "HOSPITAL_ID_1",
-      "Royal Hospital": "HOSPITAL_ID_2",
-      "Sultan Qaboos University Hospital": "HOSPITAL_ID_3",
-      "Armed Forces Hospital": "HOSPITAL_ID_4",
-    };
+    if (!form.hospital) {
+      alert("Please select a hospital");
+      return;
+    }
 
-    // Convert month + time to Date
-    const appointmentDate = new Date(
-      `${form.appointmentMonth} 1, 2026 ${form.appointmentTime}`
-    );
+    if (!form.appointmentDate || !form.appointmentTime) {
+      alert("Please select appointment date and time");
+      return;
+    }
+
+    const appointmentDate = new Date(`${form.appointmentDate}T${form.appointmentTime}`);
+
+    if (appointmentDate <= new Date()) {
+      alert("Please select a future date and time. You cannot book appointments in the past.");
+      return;
+    }
 
     dispatch(
       createBooking({
         donorId: user._id,
-        hospitalId: hospitalMap[form.hospital],
+        hospitalId: form.hospital,
         appointmentDate,
         bloodType: user.bloodType,
 
@@ -84,6 +88,20 @@ const Appointment = () => {
       })
     );
   };
+
+  useEffect(() => {
+    fetch(`${API_BASE}/hospitals/approved`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setHospitals(data);
+          if (data.length > 0) {
+            setForm((prev) => (prev.hospital ? prev : { ...prev, hospital: data[0]._id }));
+          }
+        }
+      })
+      .catch(() => setHospitals([]));
+  }, []);
 
   useEffect(() => {
     if (success) {
@@ -123,33 +141,34 @@ const Appointment = () => {
                   name="hospital"
                   value={form.hospital}
                   onChange={handleChange}
+                  required
                 >
-                  <option>Khawla Hospital</option>
-                  <option>Royal Hospital</option>
-                  <option>Sultan Qaboos University Hospital</option>
-                  <option>Armed Forces Hospital</option>
+                  <option value="">Select hospital</option>
+                  {hospitals.map((h) => (
+                    <option key={h._id} value={h._id}>
+                      {h.hospitalName} {h.city ? `(${h.city})` : ""}
+                    </option>
+                  ))}
                 </select>
+                {hospitals.length === 0 && (
+                  <small className="text-muted">No approved hospitals available. Please try again later.</small>
+                )}
               </div>
 
               <div className="row mb-4">
                 <div className="col-md-6">
                   <label className="form-label fw-semibold">
-                    Appointment Month
+                    Appointment Date
                   </label>
-                  <select
-                    className="form-select"
-                    name="appointmentMonth"
-                    value={form.appointmentMonth}
+                  <input
+                    type="date"
+                    className="form-control"
+                    name="appointmentDate"
+                    value={form.appointmentDate}
                     onChange={handleChange}
-                  >
-                    <option value="">Select month</option>
-                    {[
-                      "January","February","March","April","May","June",
-                      "July","August","September","October","November","December",
-                    ].map((m) => (
-                      <option key={m}>{m}</option>
-                    ))}
-                  </select>
+                    min={today}
+                    required
+                  />
                 </div>
 
                 <div className="col-md-6">
@@ -160,6 +179,8 @@ const Appointment = () => {
                     name="appointmentTime"
                     value={form.appointmentTime}
                     onChange={handleChange}
+                    min={form.appointmentDate === today ? minTime : undefined}
+                    required
                   />
                 </div>
               </div>

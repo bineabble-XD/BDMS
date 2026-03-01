@@ -9,8 +9,6 @@ const Feedback = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Rating:", rating);
-    console.log("Feedback:", text);
     alert("Thank you for your feedback!");
     setRating(0);
     setHover(0);
@@ -107,8 +105,6 @@ const Feedback = () => {
           </form>
         </div>
       </section>
-
-      <div className="feedback-footer-bar" />
     </div>
   );
 };

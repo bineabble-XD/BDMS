@@ -1,6 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
-import bdmslogo from "../assets/bdmslogo.png";
+import AdminNavbar from "./AdminNavbar";
 
 const AdminProfile = () => {
   const admin = JSON.parse(localStorage.getItem("bdmsUser"));
@@ -8,27 +7,10 @@ const AdminProfile = () => {
   if (!admin) return <h3>No admin logged in</h3>;
 
   return (
-    <div className="container py-5">
-      <header className="d-flex justify-content-between align-items-center mb-4">
-        <div className="d-flex align-items-center gap-2">
-          <img
-            src={bdmslogo}
-            alt="BDMS Logo"
-            style={{
-              width: "60px",
-              height: "60px",
-              objectFit: "cover",
-              borderRadius: "12px",
-            }}
-          />
-          <h4 className="fw-bold">BDMS Admin</h4>
-        </div>
+    <div>
+      <AdminNavbar />
 
-        <Link to="/dashboard" className="btn btn-outline-secondary">
-          Back
-        </Link>
-      </header>
-
+      <div className="container py-5">
       <div className="card shadow p-4">
         <h3>Admin Profile</h3>
         <hr />
@@ -57,6 +39,7 @@ const AdminProfile = () => {
             {admin.isAdmin ? "Administrator" : "Standard User"}
           </dd>
         </dl>
+      </div>
       </div>
     </div>
   );

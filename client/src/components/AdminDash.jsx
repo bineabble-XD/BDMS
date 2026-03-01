@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import bdmslogo from "../assets/bdmslogo.png";
 import heroImg from "../assets/9+.png";
-
-const admin = JSON.parse(localStorage.getItem("bdmsUser"));
+import AdminNavbar from "./AdminNavbar";
 
 const API_BASE = "http://localhost:5050";
 
@@ -63,58 +61,7 @@ const AdminDash = () => {
 
   return (
     <div className="dashboard-page">
-      <header className="bdms-navbar shadow-sm">
-        <div className="container d-flex align-items-center justify-content-between py-3">
-          <div className="d-flex align-items-center gap-2">
-            <img
-              src={bdmslogo}
-              alt="BDMS Logo"
-              style={{
-                width: "60px",
-                height: "60px",
-                borderRadius: "12px",
-                objectFit: "cover",
-              }}
-            />
-            <div className="lh-1">
-              <h5 className="mb-0 fw-bold">
-                <span className="text-danger">BLOOD</span> <span>DONATION</span>
-              </h5>
-              <small className="text-muted">MANAGEMENT SYSTEM</small>
-            </div>
-          </div>
-
-          <nav className="d-flex align-items-center gap-4">
-            <Link to="/reports" className="nav-link">
-              Reports
-            </Link>
-            <Link to="/admin-appointments" className="nav-link">
-              Appointments
-            </Link>
-            <Link to="/dashboard" className="nav-link">
-              Dashboard
-            </Link>
-            <span className="nav-link fw-bold">BDMS ADMIN</span>
-            <Link
-              to="/admin-profile"
-              className="admin-profile-icon d-flex align-items-center justify-content-center ms-2"
-              title="Admin Profile"
-            >
-              {admin?.fName ? admin.fName.charAt(0).toUpperCase() : "A"}
-            </Link>
-
-            <button
-              className="btn btn-outline-danger ms-3"
-              onClick={() => {
-                localStorage.removeItem("bdmsUser");
-                window.location.href = "/";
-              }}
-            >
-              Log Out
-            </button>
-          </nav>
-        </div>
-      </header>
+      <AdminNavbar />
 
       <main className="dashboard-main">
         <div className="container">
@@ -254,8 +201,6 @@ const AdminDash = () => {
           </div>
         </div>
       </main>
-
-      <div className="dashboard-bottom-bar" />
     </div>
   );
 };

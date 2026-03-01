@@ -7,6 +7,7 @@ import nodemailer from "nodemailer";
 import donorModel from "./models/Donor.js";
 import HospitalProfileModel from "./models/Hospital.js";
 import Booking from "./models/Booking.js";
+import BloodBank from "./models/bloodBank.js";
 
 const app = express();
 app.use(cors());
@@ -325,6 +326,18 @@ const requireAdmin = (req, res, next) => {
   next();
 };
 
+app.get("/hospitals/approved", async (req, res) => {
+  try {
+    const hospitals = await HospitalProfileModel.find({ status: "approved" })
+      .select("_id hospitalName city")
+      .sort({ hospitalName: 1 });
+    res.json(hospitals);
+  } catch (err) {
+    console.error("Approved hospitals error:", err);
+    res.status(500).json({ message: "Server error." });
+  }
+});
+
 app.get("/hospitals/pending", requireAdmin, async (req, res) => {
   try {
     const pending = await HospitalProfileModel.find({
@@ -427,6 +440,15 @@ app.put("/blood-bank/:id", async (req, res) => {
   }
 });
 
+app.get("/blood-bank/all", async (req, res) => {
+  try {
+    const records = await BloodBank.find({}).populate("hospitalId", "hospitalName");
+    return res.status(200).json(records);
+  } catch (err) {
+    return res.status(500).json({ message: "Server error", error: err.message });
+  }
+});
+
 app.get("/blood-bank/:hospitalId", async (req, res) => {
   try {
     const records = await BloodBank.find({ hospitalId: req.params.hospitalId });
@@ -468,10 +490,15 @@ app.post("/bookings", async (req, res) => {
       return res.status(400).json({ message: "All fields are required" });
     }
 
+    const appointmentDateObj = new Date(appointmentDate);
+    if (isNaN(appointmentDateObj.getTime()) || appointmentDateObj <= new Date()) {
+      return res.status(400).json({ message: "Appointment date must be in the future" });
+    }
+
     const booking = await Booking.create({
       donor: donorId,
       hospital: hospitalId,
-      appointmentDate,
+      appointmentDate: appointmentDateObj,
       bloodType,
       eligibility, // ✅ FULL OBJECT SAVED
     });

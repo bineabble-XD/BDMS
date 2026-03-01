@@ -1,8 +1,12 @@
 import React, { useState } from "react";
-import heroImg from "../assets/8+.png"; 
-import bdmslogo from "../assets/bdmslogo.png";
+import heroImg from "../assets/8+.png";
+import AdminNavbar from "./AdminNavbar";
+import HospitalNavbar from "./HospitalNavbar";
+import BloodBankNavbar from "./BloodBankNavbar";
 
 const NLPAssistant = () => {
+  const user = JSON.parse(localStorage.getItem("bdmsUser") || "null");
+  const Navbar = user?.isAdmin ? AdminNavbar : user?.isHospital ? HospitalNavbar : BloodBankNavbar;
   const [input, setInput] = useState("");
   const [bloodType, setBloodType] = useState("");
   const [location, setLocation] = useState("");
@@ -36,22 +40,11 @@ const NLPAssistant = () => {
   };
 
   return (
-    <div className="nlp-page container py-5">
-      <header className="d-flex align-items-center justify-content-between mb-4">
-        <div className="d-flex align-items-center gap-2">
-          <img
-            src={bdmslogo}
-            alt="BDMS Logo"
-            style={{ width: "60px", height: "60px", borderRadius: "12px" }}
-          />
-          <h4 className="fw-bold m-0">
-            <span className="text-danger">BLOOD</span> DONATION
-            <div className="small text-muted">MANAGEMENT SYSTEM</div>
-          </h4>
-        </div>
-      </header>
+    <div className="nlp-page">
+      <Navbar />
 
-      <div className="row align-items-start g-5">
+      <div className="container py-5">
+        <div className="row align-items-start g-5">
         
         <div className="col-lg-6">
           <p className="text-muted mb-1">Advanced Module • NLP</p>
@@ -119,6 +112,7 @@ const NLPAssistant = () => {
             <p className="m-0"><strong>Urgency:</strong> {urgency}</p>
           </div>
         </div>
+      </div>
       </div>
     </div>
   );

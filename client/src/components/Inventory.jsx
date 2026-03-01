@@ -1,7 +1,5 @@
-
 import React from "react";
-import { Link, useNavigate } from "react-router-dom";
-import bdmslogo from "../assets/bdmslogo.png";
+import BloodBankNavbar from "./BloodBankNavbar";
 
 
 const demoInventory = [
@@ -38,65 +36,11 @@ const demoInventory = [
 ];
 
 const Inventory = () => {
-  const navigate = useNavigate();
-
-  const handleLogout = () => {
-    localStorage.removeItem("bdmsUser");
-    navigate("/login");
-  };
-
-  const goBack = () => {
-    if (window.history.length > 1) navigate(-1);
-    else navigate("/login");
-  };
-
   return (
-    <div className="container py-4">
-      <div className="d-flex align-items-center justify-content-between mb-4">
-        <div className="d-flex align-items-center gap-2">
-          <img
-            src={bdmslogo}
-            alt="BDMS Logo"
-            style={{
-              width: "60px",
-              height: "60px",
-              borderRadius: "12px",
-              objectFit: "cover",
-            }}
-          />
-          <div className="lh-1">
-            <h5 className="mb-0 fw-bold">
-              <span className="text-danger">BLOOD</span> DONATION
-            </h5>
-            <small className="text-muted">MANAGEMENT SYSTEM</small>
-          </div>
-        </div>
+    <div>
+      <BloodBankNavbar />
 
-        <div className="d-flex flex-column align-items-end">
-          <div className="small text-muted mb-1">
-            Logged in as{"Blood Bank Inventory "}
-          </div>
-          <div className="d-flex gap-2">
-            
-
-            <Link
-              to="/community"
-              className="btn btn-outline-danger btn-sm"
-            >
-              Community
-            </Link>
-
-            <button
-              type="button"
-              className="btn btn-danger btn-sm"
-              onClick={handleLogout}
-            >
-              Log Out
-            </button>
-          </div>
-        </div>
-      </div>
-
+      <div className="container py-4">
       <div className="mb-3">
         <h3 className="fw-semibold mb-1" style={{ color: "#d10000" }}>
           Blood Inventory
@@ -142,6 +86,7 @@ const Inventory = () => {
             </tbody>
           </table>
         </div>
+      </div>
       </div>
     </div>
   );

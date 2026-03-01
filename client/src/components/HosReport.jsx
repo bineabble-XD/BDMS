@@ -1,5 +1,4 @@
 import React from "react";
-import { Link } from "react-router-dom";
 import { Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -11,8 +10,8 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import mlogo from "../assets/bdmslogo.png";
 import heroImg from "../assets/2.png";
+import HospitalNavbar from "./HospitalNavbar";
 
 ChartJS.register(
   CategoryScale,
@@ -71,42 +70,7 @@ const HosReport = () => {
   
   return (
     <div className="report-page">
-      <header className="bdms-navbar shadow-sm">
-        <div className="container d-flex align-items-center justify-content-between py-3">
-          <div className="d-flex align-items-center gap-2">
-            <img
-              src={mlogo}
-              alt="BDMS Logo"
-              style={{
-                width: "70px",
-                height: "70px",
-                borderRadius: "12px",
-                objectFit: "cover",
-              }}
-            />
-            <div className="lh-1">
-              <h5 className="mb-0 fw-bold">
-                <span className="text-danger">BLOOD</span> DONATION
-              </h5>
-              <small className="text-muted">MANAGEMENT SYSTEM</small>
-            </div>
-          </div>
-
-          <nav className="d-none d-md-flex align-items-center gap-4">
-            <span className="nav-link active-link">Reports</span>
-            <Link to="/hospital-appointments" className="nav-link">
-              Appointments
-            </Link>
-            <Link to="/hospital-dash" className="nav-link">
-              Dashboard
-            </Link>
-
-            
-
-            
-          </nav>
-        </div>
-      </header>
+      <HospitalNavbar />
 
       <main className="report-main">
         <div className="container">

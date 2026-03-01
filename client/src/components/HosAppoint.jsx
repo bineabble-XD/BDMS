@@ -1,45 +1,12 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import bdmslogo from "../assets/bdmslogo.png";
 import heroImg from "../assets/11+.png";
+import HospitalNavbar from "./HospitalNavbar";
 
 const HosAppoint = () => {
   return (
     <div className="admin-app-page">
-      <header className="bdms-navbar shadow-sm">
-        <div className="container d-flex align-items-center justify-content-between py-3">
-          <div className="d-flex align-items-center gap-2">
-            <img
-              src={bdmslogo}
-              alt="BDMS Logo"
-              style={{
-                width: "60px",
-                height: "60px",
-                borderRadius: "12px",
-                objectFit: "cover",
-              }}
-            />
-
-            <div className="lh-1">
-              <h5 className="mb-0 fw-bold">
-                <span className="text-danger">BLOOD</span> DONATION
-              </h5>
-              <small className="text-muted">MANAGEMENT SYSTEM</small>
-            </div>
-          </div>
-
-          <nav className="d-none d-md-flex align-items-center gap-4">
-            <Link to="/hospital-reports" className="nav-link">
-              Reports
-            </Link>
-            <span className="nav-link active-link">Appointments</span>
-            <Link to="/hospital-dash" className="nav-link">
-              Dashboard
-            </Link>
-            <span className="nav-link">BDMS HOSPITAL</span>
-          </nav>
-        </div>
-      </header>
+      <HospitalNavbar />
 
       <main className="admin-app-main">
         <div className="container">

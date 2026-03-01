@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
+import HospitalNavbar from "./HospitalNavbar";
 
 const BloodBankManagement = () => {
   const { hospitalId } = useParams();
@@ -49,7 +50,9 @@ const BloodBankManagement = () => {
   };
 
   return (
-    <div className="container">
+    <div>
+      <HospitalNavbar />
+      <div className="container py-4">
       <h2>Manage Blood Bank Records</h2>
       <form onSubmit={addBloodRecord}>
         <input
@@ -85,6 +88,7 @@ const BloodBankManagement = () => {
           </li>
         ))}
       </ul>
+      </div>
     </div>
   );
 };
