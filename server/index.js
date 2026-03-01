@@ -6,6 +6,7 @@ import crypto from "crypto";
 import nodemailer from "nodemailer";
 import donorModel from "./models/Donor.js";
 import HospitalProfileModel from "./models/Hospital.js";
+import Booking from "./models/Booking.js";
 
 const app = express();
 app.use(cors());
@@ -447,6 +448,41 @@ app.delete("/blood-bank/:id", async (req, res) => {
     return res.status(200).json({ message: "Blood bank record deleted successfully" });
   } catch (err) {
     return res.status(500).json({ message: "Server error", error: err.message });
+  }
+});
+
+
+
+//new codes 02/3/2026
+app.post("/bookings", async (req, res) => {
+  try {
+    const {
+      donorId,
+      hospitalId,
+      appointmentDate,
+      bloodType,
+      eligibility,
+    } = req.body;
+
+    if (!donorId || !hospitalId || !appointmentDate || !bloodType) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
+    const booking = await Booking.create({
+      donor: donorId,
+      hospital: hospitalId,
+      appointmentDate,
+      bloodType,
+      eligibility, // ✅ FULL OBJECT SAVED
+    });
+
+    res.status(201).json({
+      message: "Booking request sent successfully",
+      booking,
+    });
+  } catch (error) {
+    console.error("Booking error:", error);
+    res.status(500).json({ message: "Failed to create booking" });
   }
 });
 
