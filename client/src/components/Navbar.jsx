@@ -42,32 +42,13 @@ const Navbar = () => {
         </div>
 
         <nav className="d-flex align-items-center gap-4">
-          <Link className={`nav-link ${isActive("/home")}`} to="/home">
-            Home
-          </Link>
-          <Link className={`nav-link ${isActive("/about")}`} to="/about">
-            About Us
-          </Link>
-          <Link
-            className={`nav-link ${isActive("/appointments")}`}
-            to="/appointments"
-          >
-            Book An Appointment
-          </Link>
-          <Link
-            className={`nav-link ${isActive("/urgent-requests")}`}
-            to="/urgent-requests"
-          >
-            Urgent Requests
-          </Link>
-
-          {!user && (
+          {!user ? (
             <>
-              <Link
-                className={`nav-link ${isActive("/register")}`}
-                to="/register"
-              >
-                Register Now
+              <Link className={`nav-link ${isActive("/home")}`} to="/home">
+                Home
+              </Link>
+              <Link className={`nav-link ${isActive("/about")}`} to="/about">
+                About Us
               </Link>
               <Link
                 className={`nav-link ${isActive("/login")}`}
@@ -76,10 +57,10 @@ const Navbar = () => {
                 Log In
               </Link>
               <Link
-                className={`nav-link ${isActive("/community")}`}
-                to="/community"
+                className={`nav-link ${isActive("/register")}`}
+                to="/register"
               >
-                Community
+                Register
               </Link>
               <Link
                 className={`nav-link ${isActive("/settings")}`}
@@ -88,10 +69,26 @@ const Navbar = () => {
                 Settings
               </Link>
             </>
-          )}
-
-          {user && (
+          ) : (
             <>
+              <Link className={`nav-link ${isActive("/home")}`} to="/home">
+                Home
+              </Link>
+              <Link className={`nav-link ${isActive("/about")}`} to="/about">
+                About Us
+              </Link>
+              <Link
+                className={`nav-link ${isActive("/appointments")}`}
+                to="/appointments"
+              >
+                Book An Appointment
+              </Link>
+              <Link
+                className={`nav-link ${isActive("/urgent-requests")}`}
+                to="/urgent-requests"
+              >
+                Urgent Requests
+              </Link>
               <Link
                 className={`nav-link ${isActive("/settings")}`}
                 to="/settings"
@@ -120,8 +117,6 @@ const Navbar = () => {
               </button>
             </>
           )}
-
-          
         </nav>
       </div>
     </header>
