@@ -1,12 +1,14 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import bdmslogo from "../assets/bdmslogo.png";
+import { useLanguage } from "../context/LanguageContext";
 
 const AdminNavbar = () => {
   const location = useLocation();
+  const { t } = useLanguage();
   const admin = JSON.parse(localStorage.getItem("bdmsUser"));
 
-  const displayName = admin?.fName || "Admin";
+  const displayName = admin?.fName || t("admin");
 
   const handleLogout = () => {
     localStorage.removeItem("bdmsUser");
@@ -36,9 +38,9 @@ const AdminNavbar = () => {
           />
           <div className="lh-1">
             <h5 className="mb-0 fw-bold">
-              <span className="text-danger">BLOOD</span> DONATION
+              <span className="text-danger">{t("brandBlood")}</span> {t("brandDonation")}
             </h5>
-            <small className="text-muted">MANAGEMENT SYSTEM</small>
+            <small className="text-muted">{t("brandSystem")}</small>
           </div>
         </div>
 
@@ -47,31 +49,31 @@ const AdminNavbar = () => {
             className={`nav-link ${isActive("/reports")}`}
             to="/reports"
           >
-            Reports
+            {t("navReports")}
           </Link>
           <Link
             className={`nav-link ${isActive("/admin-appointments")}`}
             to="/admin-appointments"
           >
-            Appointments
+            {t("navAppointments")}
           </Link>
           <Link
             className={`nav-link ${isActive("/dashboard")}`}
             to="/dashboard"
           >
-            Dashboard
+            {t("navDashboard")}
           </Link>
           <Link
             className={`nav-link ${isActive("/NLPAssistant")}`}
             to="/NLPAssistant"
           >
-            NLP Assistant
+            {t("navNLPAssistant")}
           </Link>
           <Link
             className={`nav-link ${isActive("/blood-bank")}`}
             to="/admin-blood-bank"
           >
-            Blood Bank
+            {t("navBloodBank")}
           </Link>
 
           <span className="nav-link mb-0 fw-bold">
@@ -81,7 +83,7 @@ const AdminNavbar = () => {
           <Link
             to="/admin-profile"
             className="admin-profile-icon d-flex align-items-center justify-content-center"
-            title="Admin Profile"
+            title={t("navAdminProfile")}
           >
             {displayName.charAt(0).toUpperCase()}
           </Link>
@@ -91,7 +93,7 @@ const AdminNavbar = () => {
             className="btn btn-outline-danger btn-sm ms-2"
             onClick={handleLogout}
           >
-            Log Out
+            {t("navLogOut")}
           </button>
         </nav>
       </div>

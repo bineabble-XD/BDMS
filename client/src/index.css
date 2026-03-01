@@ -47,3 +47,75 @@ html, body, #root {
   flex: 1;
 }
 
+/* Font size settings */
+html.bdms-font-small {
+  font-size: 14px;
+}
+
+html.bdms-font-medium {
+  font-size: 16px;
+}
+
+html.bdms-font-large {
+  font-size: 18px;
+}
+
+/* Color blindness mode - high contrast, avoid red-green reliance */
+body.bdms-colorblind .text-danger,
+body.bdms-colorblind .btn-danger,
+body.bdms-colorblind .badge.bg-danger {
+  color: #0066cc !important;
+  background-color: #0066cc !important;
+  border-color: #0066cc !important;
+}
+
+body.bdms-colorblind .btn-outline-danger {
+  border-color: #0066cc !important;
+  color: #0066cc !important;
+}
+
+body.bdms-colorblind .btn-outline-danger:hover {
+  background-color: #0066cc !important;
+  color: white !important;
+}
+
+body.bdms-colorblind nav .active-link {
+  border-bottom-color: #0066cc !important;
+}
+
+body.bdms-colorblind nav .nav-link:hover,
+body.bdms-colorblind nav .active-link {
+  color: #0066cc !important;
+}
+
+body.bdms-colorblind .bdms-footer {
+  background: linear-gradient(90deg, #0066cc 0%, #003d7a 100%) !important;
+}
+
+body.bdms-colorblind .urgent-drop-icon,
+body.bdms-colorblind .urgent-dot {
+  color: #0066cc !important;
+  background-color: rgba(0, 102, 204, 0.2) !important;
+}
+
+body.bdms-colorblind .toggle-btn.active,
+body.bdms-colorblind .lang-btn.active {
+  background: #0066cc !important;
+}
+
+body.bdms-colorblind .hero-section {
+  background-color: #0066cc !important;
+}
+
+body.bdms-colorblind .community-avatar {
+  background: #0066cc !important;
+}
+
+body.bdms-colorblind .settings-back-btn:hover {
+  color: #0066cc !important;
+}
+
+/* RTL: flip back arrow when direction is right-to-left */
+[dir="rtl"] .settings-back-btn svg {
+  transform: scaleX(-1);
+}

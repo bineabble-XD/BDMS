@@ -1,6 +1,9 @@
+import { useEffect } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
-import "./App.css"; 
+import "./App.css";
+import { applySettings } from "./utils/settingsUtils";
+import { LanguageProvider } from "./context/LanguageContext";
 
 import Home from "./components/Home.jsx";
 import Login from "./components/login.jsx";
@@ -34,8 +37,13 @@ import NLPAssistant from "./components/NLPAssistant.jsx"
 import AdminBloodBankView from "./components/AdminBloodBankView.jsx";
 import BloodBankManagement from "./components/BloodBankManagement.jsx";
 function App() {
+  useEffect(() => {
+    applySettings();
+  }, []);
+
   return (
     <BrowserRouter>
+      <LanguageProvider>
       <div className="app-shell">
         <div className="page-content">
           <Routes>
@@ -79,6 +87,7 @@ function App() {
 
         <Footer />
       </div>
+      </LanguageProvider>
     </BrowserRouter>
   );
 }

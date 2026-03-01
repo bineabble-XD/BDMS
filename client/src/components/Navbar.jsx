@@ -3,15 +3,17 @@ import { Link, useLocation } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../features/authSlice";
 import bdmslogo from "../assets/bdmslogo.png";
+import { useLanguage } from "../context/LanguageContext";
 
 const Navbar = () => {
   const location = useLocation();
   const dispatch = useDispatch();
+  const { t } = useLanguage();
 
   const user = useSelector((state) => state.auth.user);
 
   const displayName =
-    user?.fName || user?.uname || user?.name || user?.email || "User";
+    user?.fName || user?.uname || user?.name || user?.email || t("user");
 
   const handleLogout = () => {
     dispatch(logout());
@@ -35,9 +37,9 @@ const Navbar = () => {
           />
           <div className="lh-1">
             <h5 className="mb-0 fw-bold">
-              <span className="text-danger">BLOOD</span> DONATION
+              <span className="text-danger">{t("brandBlood")}</span> {t("brandDonation")}
             </h5>
-            <small className="text-muted">MANAGEMENT SYSTEM</small>
+            <small className="text-muted">{t("brandSystem")}</small>
           </div>
         </div>
 
@@ -45,65 +47,65 @@ const Navbar = () => {
           {!user ? (
             <>
               <Link className={`nav-link ${isActive("/home")}`} to="/home">
-                Home
+                {t("navHome")}
               </Link>
               <Link className={`nav-link ${isActive("/about")}`} to="/about">
-                About Us
+                {t("navAbout")}
               </Link>
               <Link
                 className={`nav-link ${isActive("/login")}`}
                 to="/login"
               >
-                Log In
+                {t("navLogin")}
               </Link>
               <Link
                 className={`nav-link ${isActive("/register")}`}
                 to="/register"
               >
-                Register
+                {t("navRegister")}
               </Link>
               <Link
                 className={`nav-link ${isActive("/settings")}`}
                 to="/settings"
               >
-                Settings
+                {t("navSettings")}
               </Link>
             </>
           ) : (
             <>
               <Link className={`nav-link ${isActive("/home")}`} to="/home">
-                Home
+                {t("navHome")}
               </Link>
               <Link className={`nav-link ${isActive("/about")}`} to="/about">
-                About Us
+                {t("navAbout")}
               </Link>
               <Link
                 className={`nav-link ${isActive("/appointments")}`}
                 to="/appointments"
               >
-                Book An Appointment
+                {t("navBookAppointment")}
               </Link>
               <Link
                 className={`nav-link ${isActive("/urgent-requests")}`}
                 to="/urgent-requests"
               >
-                Urgent Requests
+                {t("navUrgentRequests")}
               </Link>
               <Link
                 className={`nav-link ${isActive("/settings")}`}
                 to="/settings"
               >
-                Settings
+                {t("navSettings")}
               </Link>
 
               <span className="nav-link mb-0">
-                Hi, <strong>{displayName}</strong>
+                {t("navHi")}, <strong>{displayName}</strong>
               </span>
 
               <Link
                 to="/profile"
                 className="btn btn-light rounded-circle d-flex align-items-center justify-content-center profile-icon-btn ms-1"
-                title="View Profile"
+                title={t("navViewProfile")}
               >
                 {displayName.charAt(0).toUpperCase()}
               </Link>
@@ -113,7 +115,7 @@ const Navbar = () => {
                 className="btn btn-outline-light text-dark ms-2"
                 onClick={handleLogout}
               >
-                Log Out
+                {t("navLogOut")}
               </button>
             </>
           )}

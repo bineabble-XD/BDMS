@@ -1,12 +1,14 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import bdmslogo from "../assets/bdmslogo.png";
+import { useLanguage } from "../context/LanguageContext";
 
 const HospitalNavbar = () => {
   const location = useLocation();
+  const { t } = useLanguage();
   const hospital = JSON.parse(localStorage.getItem("bdmsUser"));
 
-  const displayName = hospital?.fName || "Hospital";
+  const displayName = hospital?.fName || t("hospital");
 
   const handleLogout = () => {
     localStorage.removeItem("bdmsUser");
@@ -36,9 +38,9 @@ const HospitalNavbar = () => {
           />
           <div className="lh-1">
             <h5 className="mb-0 fw-bold">
-              <span className="text-danger">BLOOD</span> DONATION
+              <span className="text-danger">{t("brandBlood")}</span> {t("brandDonation")}
             </h5>
-            <small className="text-muted">MANAGEMENT SYSTEM</small>
+            <small className="text-muted">{t("brandSystem")}</small>
           </div>
         </div>
 
@@ -47,32 +49,32 @@ const HospitalNavbar = () => {
             className={`nav-link ${isActive("/hospital-reports")}`}
             to="/hospital-reports"
           >
-            Reports
+            {t("navReports")}
           </Link>
           <Link
             className={`nav-link ${isActive("/hospital-appointments")}`}
             to="/hospital-appointments"
           >
-            Appointments
+            {t("navAppointments")}
           </Link>
           <Link
             className={`nav-link ${isActive("/hospital-dash")}`}
             to="/hospital-dash"
           >
-            Dashboard
+            {t("navDashboard")}
           </Link>
           <Link
             className={`nav-link ${isActive("/NLPAssistant")}`}
             to="/NLPAssistant"
           >
-            NLP Assistant
+            {t("navNLPAssistant")}
           </Link>
           {(hospital?._id || hospital?.id) && (
             <Link
               className={`nav-link ${isActive("/blood-bank")}`}
               to={`/blood-bank/${hospital?._id || hospital?.id}`}
             >
-              Blood Bank
+              {t("navBloodBank")}
             </Link>
           )}
 
@@ -83,7 +85,7 @@ const HospitalNavbar = () => {
           <Link
             to="/HospitalProfile"
             className="admin-profile-icon d-flex align-items-center justify-content-center"
-            title="Profile"
+            title={t("navProfile")}
           >
             {displayName.charAt(0).toUpperCase()}
           </Link>
@@ -93,7 +95,7 @@ const HospitalNavbar = () => {
             className="btn btn-outline-danger btn-sm ms-2"
             onClick={handleLogout}
           >
-            Log Out
+            {t("navLogOut")}
           </button>
         </nav>
       </div>

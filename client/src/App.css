@@ -960,6 +960,61 @@ body.bdms-dark .hero-tagline {
   color: #111;
 }
 
+body.bdms-dark .dashboard-main,
+body.bdms-dark .admin-app-main,
+body.bdms-dark .manage-req-page {
+  background: #1a1a1a !important;
+}
+
+body.bdms-dark .dashboard-card,
+body.bdms-dark .dashboard-side-card {
+  background-color: #1f1f1f !important;
+  border-color: #333 !important;
+}
+
+body.bdms-dark .admin-report-main,
+body.bdms-dark .report-main {
+  background-color: #121212 !important;
+}
+
+body.bdms-dark .settings-page {
+  background-color: #121212 !important;
+}
+
+body.bdms-dark .urgent-page,
+body.bdms-dark .about-page,
+body.bdms-dark .feedback-page {
+  background-color: #121212 !important;
+}
+
+body.bdms-dark .login-page,
+body.bdms-dark .register-page {
+  background-color: #121212 !important;
+}
+
+body.bdms-dark .manage-card {
+  background-color: #1f1f1f !important;
+  border-color: #333 !important;
+  color: #f5f5f5;
+}
+
+body.bdms-dark .manage-card input {
+  background-color: #2a2a2a;
+  border-color: #444;
+  color: #f5f5f5;
+}
+
+body.bdms-dark .app-shell,
+body.bdms-dark .page-content {
+  background-color: #121212 !important;
+}
+
+body.bdms-dark .settings-page h5,
+body.bdms-dark .settings-page .setting-label,
+body.bdms-dark .settings-page .setting-value {
+  color: #f5f5f5 !important;
+}
+
 .dashboard-main {
   background: #f5f5f8;
   padding: 32px 0 60px;

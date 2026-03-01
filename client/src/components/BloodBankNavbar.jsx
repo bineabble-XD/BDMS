@@ -1,12 +1,14 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import bdmslogo from "../assets/bdmslogo.png";
+import { useLanguage } from "../context/LanguageContext";
 
 const BloodBankNavbar = () => {
   const location = useLocation();
+  const { t } = useLanguage();
   const user = JSON.parse(localStorage.getItem("bdmsUser"));
 
-  const displayName = user?.fName || user?.uname || "Blood Bank";
+  const displayName = user?.fName || user?.uname || t("bloodBank");
 
   const handleLogout = () => {
     localStorage.removeItem("bdmsUser");
@@ -31,9 +33,9 @@ const BloodBankNavbar = () => {
           />
           <div className="lh-1">
             <h5 className="mb-0 fw-bold">
-              <span className="text-danger">BLOOD</span> DONATION
+              <span className="text-danger">{t("brandBlood")}</span> {t("brandDonation")}
             </h5>
-            <small className="text-muted">MANAGEMENT SYSTEM</small>
+            <small className="text-muted">{t("brandSystem")}</small>
           </div>
         </div>
 
@@ -42,19 +44,19 @@ const BloodBankNavbar = () => {
             className={`nav-link ${isActive("/inventory")}`}
             to="/inventory"
           >
-            Inventory
+            {t("navInventory")}
           </Link>
           <Link
             className={`nav-link ${isActive("/community")}`}
             to="/community"
           >
-            Community
+            {t("navCommunity")}
           </Link>
           <Link
             className={`nav-link ${isActive("/NLPAssistant")}`}
             to="/NLPAssistant"
           >
-            NLP Assistant
+            {t("navNLPAssistant")}
           </Link>
 
           <span className="nav-link mb-0 fw-bold">
@@ -66,7 +68,7 @@ const BloodBankNavbar = () => {
             className="btn btn-outline-danger btn-sm ms-2"
             onClick={handleLogout}
           >
-            Log Out
+            {t("navLogOut")}
           </button>
         </nav>
       </div>
