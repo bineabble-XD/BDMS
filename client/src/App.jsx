@@ -36,6 +36,8 @@ import HospitalProfile from "./components/HospitalProfile.jsx";
 import NLPAssistant from "./components/NLPAssistant.jsx"
 import AdminBloodBankView from "./components/AdminBloodBankView.jsx";
 import BloodBankManagement from "./components/BloodBankManagement.jsx";
+import MyAppointments from "./components/MyAppointments.jsx";
+
 function App() {
   useEffect(() => {
     applySettings();
@@ -81,6 +83,7 @@ function App() {
               <Route path="/register-hospital" element={<HospitalRegister />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/urgent-requests" element={<UrgentRequests />} />
+              <Route path="/my-appointments" element={<MyAppointments />} />
             </Route>
           </Routes>
         </div>

@@ -86,6 +86,12 @@ const Navbar = () => {
                 {t("navBookAppointment")}
               </Link>
               <Link
+                className={`nav-link ${isActive("/my-appointments")}`}
+                to="/my-appointments"
+              >
+                {t("navMyAppointments")}
+              </Link>
+              <Link
                 className={`nav-link ${isActive("/urgent-requests")}`}
                 to="/urgent-requests"
               >
@@ -109,6 +115,7 @@ const Navbar = () => {
               >
                 {displayName.charAt(0).toUpperCase()}
               </Link>
+
 
               <button
                 type="button"

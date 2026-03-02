@@ -11,6 +11,7 @@ export const translations = {
     navLogOut: "Log Out",
     navHi: "Hi",
     navViewProfile: "View Profile",
+    navMyAppointments: "My Appointments",
 
     // Navbar - Admin
     navReports: "Reports",
@@ -88,5 +89,7 @@ export const translations = {
     admin: "مدير",
     hospital: "مستشفى",
     bloodBank: "بنك الدم",
+
+    navMyAppointments: "مواعيدي",
   },
 };

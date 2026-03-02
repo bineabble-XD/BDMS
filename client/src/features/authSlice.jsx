@@ -48,6 +48,30 @@ export const loginUser = createAsyncThunk(
   }
 );
 
+export const updateProfile = createAsyncThunk(
+  'auth/updateProfile',
+  async ({ userId, updates }, { rejectWithValue }) => {
+    try {
+      const res = await fetch(`${API_BASE}/users/${userId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, updates }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        return rejectWithValue(data.message || 'Update failed');
+      }
+
+      return data; // { message, user }
+    } catch (err) {
+      return rejectWithValue('Network error, please try again.');
+    }
+  }
+);
+
+
 const savedUser = JSON.parse(localStorage.getItem('bdmsUser') || 'null');
 
 const authSlice = createSlice({
@@ -102,7 +126,24 @@ const authSlice = createSlice({
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
-      });
+      })
+      
+      builder
+  .addCase(updateProfile.pending, (state) => {
+    state.loading = true;
+    state.error = null;
+    state.message = null;
+  })
+  .addCase(updateProfile.fulfilled, (state, action) => {
+    state.loading = false;
+    state.user = action.payload.user;
+    state.message = action.payload.message || 'Profile updated';
+    localStorage.setItem('bdmsUser', JSON.stringify(action.payload.user));
+  })
+  .addCase(updateProfile.rejected, (state, action) => {
+    state.loading = false;
+    state.error = action.payload;
+  });
   },
 });
 

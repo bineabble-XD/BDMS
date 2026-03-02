@@ -703,6 +703,133 @@ app.get("/urgent-requests/hospital/:userId", async (req, res) => {
 });
 
 
+// ✅ Get bookings for a DONOR
+app.get("/bookings/donor/:donorId", async (req, res) => {
+  try {
+    const { donorId } = req.params;
+
+    const bookings = await Booking.find({ donor: donorId })
+      .populate("hospital", "hospitalName city contactPhone contactEmail")
+      .sort({ appointmentDate: -1 });
+
+    res.json({ bookings });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to fetch donor bookings" });
+  }
+});
+
+// ✅ Donor reschedule appointment
+app.patch("/bookings/:id/reschedule", async (req, res) => {
+  try {
+    const { donorId, appointmentDate } = req.body;
+
+    const booking = await Booking.findById(req.params.id);
+    if (!booking) return res.status(404).json({ message: "Booking not found" });
+
+    // make sure the donor owns this booking
+    if (String(booking.donor) !== String(donorId)) {
+      return res.status(403).json({ message: "Not allowed" });
+    }
+
+    // (optional rule) only allow reschedule if still pending
+    if (booking.status !== "pending") {
+      return res
+        .status(400)
+        .json({ message: "You can only reschedule pending bookings" });
+    }
+
+    const newDate = new Date(appointmentDate);
+    if (isNaN(newDate.getTime()) || newDate <= new Date()) {
+      return res
+        .status(400)
+        .json({ message: "Please choose a valid future date/time" });
+    }
+
+    booking.appointmentDate = newDate;
+    await booking.save();
+
+    res.json({ message: "Appointment rescheduled", booking });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to reschedule" });
+  }
+});
+
+// ✅ Donor cancel appointment
+app.patch("/bookings/:id/cancel", async (req, res) => {
+  try {
+    const { donorId } = req.body;
+
+    const booking = await Booking.findById(req.params.id);
+    if (!booking) return res.status(404).json({ message: "Booking not found" });
+
+    if (String(booking.donor) !== String(donorId)) {
+      return res.status(403).json({ message: "Not allowed" });
+    }
+
+    // (optional rule) only allow cancel if pending
+    if (booking.status !== "pending") {
+      return res
+        .status(400)
+        .json({ message: "You can only cancel pending bookings" });
+    }
+
+    booking.status = "cancelled";
+    await booking.save();
+
+    res.json({ message: "Appointment cancelled", booking });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to cancel" });
+  }
+});
+
+// -------------------------
+// Profile update (Donor/Hospital user)
+// -------------------------
+app.patch("/users/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { userId, updates } = req.body || {};
+
+    // make sure user updates themselves
+    if (!userId || String(userId) !== String(id)) {
+      return res.status(403).json({ message: "Not allowed" });
+    }
+
+    // role is intentionally excluded
+    const allowed = ["fName", "email", "phoneNum", "Age", "gender", "bloodType", "address"];
+    const safeUpdates = {};
+    for (const key of allowed) {
+      if (updates && Object.prototype.hasOwnProperty.call(updates, key)) {
+        safeUpdates[key] = updates[key];
+      }
+    }
+
+    // Email must be unique
+    if (safeUpdates.email) {
+      const existing = await donorModel.findOne({ email: safeUpdates.email });
+      if (existing && String(existing._id) !== String(id)) {
+        return res.status(400).json({ message: "Email already in use" });
+      }
+    }
+
+    const updated = await donorModel.findByIdAndUpdate(id, safeUpdates, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!updated) return res.status(404).json({ message: "User not found" });
+
+    const { password: _pwd, ...safeUser } = updated.toObject();
+    return res.json({ message: "Profile updated", user: safeUser });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to update profile" });
+  }
+});
+
 mongoose
   .connect(connectionString)
   .then(() => {
