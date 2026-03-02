@@ -8,6 +8,7 @@ import donorModel from "./models/Donor.js";
 import HospitalProfileModel from "./models/Hospital.js";
 import Booking from "./models/Booking.js";
 import BloodBank from "./models/bloodBank.js";
+import UrgentRequest from "./models/UrgentRequest.js";
 
 const app = express();
 app.use(cors());
@@ -510,6 +511,194 @@ app.post("/bookings", async (req, res) => {
   } catch (error) {
     console.error("Booking error:", error);
     res.status(500).json({ message: "Failed to create booking" });
+  }
+});
+
+// Get bookings for a hospital (by userId - looks up HospitalProfile)
+app.get("/bookings/hospital/:userId", async (req, res) => {
+  try {
+    let profile = null;
+    try {
+      profile = await HospitalProfileModel.findOne({ userId: new mongoose.Types.ObjectId(req.params.userId) });
+    } catch {
+      profile = await HospitalProfileModel.findOne({ userId: req.params.userId });
+    }
+    if (!profile) {
+      return res.status(404).json({ message: "Hospital profile not found" });
+    }
+
+    const bookings = await Booking.find({ hospital: profile._id })
+      .populate("donor", "fName email phoneNum")
+      .populate("hospital", "hospitalName city")
+      .sort({ appointmentDate: -1 });
+
+    const donations = bookings.filter((b) => b.status === "approved");
+    const pending = bookings.filter((b) => b.status === "pending");
+    const appointments = bookings.filter(
+      (b) => b.status === "approved" && new Date(b.appointmentDate) >= new Date()
+    );
+
+    res.json({ bookings, donations, pending, appointments, profile });
+  } catch (error) {
+    console.error("Bookings fetch error:", error);
+    res.status(500).json({ message: "Failed to fetch bookings" });
+  }
+});
+
+app.patch("/bookings/:id/status", async (req, res) => {
+  try {
+    const { status, userId } = req.body;
+    if (!["approved", "rejected"].includes(status)) return res.status(400).json({ message: "Status must be approved or rejected" });
+    if (!userId) return res.status(401).json({ message: "Authentication required (userId)" });
+    let profile = null;
+    try {
+      profile = await HospitalProfileModel.findOne({ userId: new mongoose.Types.ObjectId(userId) });
+    } catch { profile = await HospitalProfileModel.findOne({ userId }); }
+    if (!profile) return res.status(403).json({ message: "Hospital profile not found" });
+    const booking = await Booking.findById(req.params.id);
+    if (!booking) return res.status(404).json({ message: "Booking not found" });
+    const bhId = booking.hospital?._id ?? booking.hospital;
+    const bhp = await HospitalProfileModel.findById(bhId);
+    if (!bhp || String(bhp.hospitalName || "").toLowerCase() !== String(profile.hospitalName || "").toLowerCase()) {
+      return res.status(403).json({ message: "You can only approve/reject bookings for your own hospital" });
+    }
+    if (booking.status !== "pending") return res.status(400).json({ message: "Booking already processed" });
+    booking.status = status;
+    await booking.save();
+    res.json({ message: `Booking ${status} successfully`, booking });
+  } catch (error) {
+    console.error("Booking status error:", error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+app.delete("/bookings/:id", async (req, res) => {
+  try {
+    const userId = req.query.userId || req.body?.userId;
+    if (!userId) return res.status(401).json({ message: "Authentication required (userId)" });
+    let profile = null;
+    try { profile = await HospitalProfileModel.findOne({ userId: new mongoose.Types.ObjectId(userId) }); }
+    catch { profile = await HospitalProfileModel.findOne({ userId }); }
+    if (!profile) return res.status(403).json({ message: "Hospital profile not found" });
+    const booking = await Booking.findById(req.params.id);
+    if (!booking) return res.status(404).json({ message: "Booking not found" });
+    const bhId = booking.hospital?._id ?? booking.hospital;
+    const bhp = await HospitalProfileModel.findById(bhId);
+    if (!bhp || String(bhp.hospitalName || "").toLowerCase() !== String(profile.hospitalName || "").toLowerCase()) {
+      return res.status(403).json({ message: "You can only cancel bookings for your own hospital" });
+    }
+    booking.status = "rejected";
+    await booking.save();
+    res.json({ message: "Appointment cancelled", booking });
+  } catch (error) {
+    console.error("Booking cancel error:", error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+const deleteUrgentRequest = async (req, res) => {
+  try {
+    const userId = req.query.userId ?? req.body?.userId;
+    if (!userId) return res.status(401).json({ message: "Authentication required (userId)" });
+    let profile = null;
+    try { profile = await HospitalProfileModel.findOne({ userId: new mongoose.Types.ObjectId(userId) }); }
+    catch { profile = await HospitalProfileModel.findOne({ userId }); }
+    if (!profile) return res.status(403).json({ message: "Hospital profile not found" });
+    const ur = await UrgentRequest.findById(req.params.id);
+    if (!ur) return res.status(404).json({ message: "Urgent request not found" });
+    const urHospitalStr = String(ur.hospital?._id ?? ur.hospital);
+    const profileStr = String(profile._id);
+    if (urHospitalStr !== profileStr) {
+      return res.status(403).json({ message: "You can only remove your own urgent requests" });
+    }
+    await UrgentRequest.findByIdAndDelete(req.params.id);
+    res.json({ message: "Urgent request removed" });
+  } catch (error) {
+    console.error("Unpost error:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+app.delete("/urgent-requests/:id", deleteUrgentRequest);
+app.patch("/urgent-requests/:id/unpost", deleteUrgentRequest);
+
+// Urgent requests - GET all open (for donors/public)
+app.get("/urgent-requests", async (req, res) => {
+  try {
+    const requests = await UrgentRequest.find({ status: "open" })
+      .populate("hospital", "hospitalName city contactPerson contactPhone")
+      .sort({ createdAt: -1 });
+    res.json(requests);
+  } catch (error) {
+    console.error("Urgent requests fetch error:", error);
+    res.status(500).json({ message: "Failed to fetch urgent requests" });
+  }
+});
+
+// Urgent requests - POST (hospital creates)
+app.post("/urgent-requests", async (req, res) => {
+  try {
+    const { userId, bloodType, quantity, message, bookingId } = req.body;
+
+    if (!userId || !bloodType) return res.status(400).json({ message: "userId and bloodType are required" });
+
+    const profile = await HospitalProfileModel.findOne({ userId });
+    if (!profile) return res.status(404).json({ message: "Hospital profile not found" });
+
+    if (bookingId) {
+      const existing = await UrgentRequest.findOne({ bookingId, status: "open" });
+      if (existing) {
+        const populated = await UrgentRequest.findById(existing._id)
+          .populate("hospital", "hospitalName city contactPerson contactPhone");
+        return res.status(200).json(populated);
+      }
+    }
+
+    const request = await UrgentRequest.create({
+      hospital: profile._id,
+      bloodType,
+      quantity: quantity || 1,
+      message: message || "",
+      bookingId: bookingId || null,
+    });
+
+    const populated = await UrgentRequest.findById(request._id)
+      .populate("hospital", "hospitalName city contactPerson contactPhone");
+
+    res.status(201).json(populated);
+  } catch (error) {
+    console.error("Urgent request create error:", error);
+    res.status(500).json({ message: "Failed to create urgent request" });
+  }
+});
+
+// Urgent requests by hospital (for dashboard)
+app.get("/urgent-requests/hospital/:userId", async (req, res) => {
+  try {
+    let profile = null;
+    try {
+      profile = await HospitalProfileModel.findOne({ userId: new mongoose.Types.ObjectId(req.params.userId) });
+    } catch {
+      profile = await HospitalProfileModel.findOne({ userId: req.params.userId });
+    }
+    if (!profile) return res.status(404).json({ message: "Hospital profile not found" });
+
+    const requests = await UrgentRequest.find({
+      hospital: profile._id,
+      status: "open",
+    })
+      .populate("hospital", "hospitalName city")
+      .sort({ createdAt: -1 })
+      .lean();
+
+    const normalized = requests.map((r) => ({
+      ...r,
+      bookingId: r.bookingId ? String(r.bookingId) : null,
+    }));
+    res.json(normalized);
+  } catch (error) {
+    console.error("Urgent requests fetch error:", error);
+    res.status(500).json({ message: "Failed to fetch urgent requests" });
   }
 });
 
