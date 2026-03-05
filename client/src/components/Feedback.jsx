@@ -1,63 +1,53 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import bdmslogo from "../assets/bdmslogo.png";
+
+const API_BASE = "http://localhost:5050";
 
 const Feedback = () => {
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
   const [text, setText] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [sentiment, setSentiment] = useState(null);
+  const [error, setError] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    alert("Thank you for your feedback!");
-    setRating(0);
-    setHover(0);
-    setText("");
+    if (rating < 1 || rating > 5) {
+      setError("Please select a rating.");
+      return;
+    }
+    setSubmitting(true);
+    setError("");
+    setSentiment(null);
+    try {
+      const user = JSON.parse(localStorage.getItem("bdmsUser") || "null");
+      const res = await fetch(`${API_BASE}/feedback`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          rating,
+          text,
+          userId: user?._id || null,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setSentiment(data.feedback?.sentiment || "neutral");
+        setRating(0);
+        setHover(0);
+        setText("");
+      } else {
+        setError(data.message || "Failed to submit feedback.");
+      }
+    } catch (err) {
+      setError("Network error. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
     <div className="feedback-page">
-      <header className="bdms-navbar shadow-sm">
-        <div className="container d-flex align-items-center justify-content-between py-3">
-          <div className="d-flex align-items-center gap-2">
-            <img
-              src={bdmslogo}
-              alt="BDMS Logo"
-              style={{
-                width: "60px",
-                height: "60px",
-                borderRadius: "12px",
-                objectFit: "cover",
-              }}
-            />
-            <div className="lh-1">
-              <h5 className="mb-0 fw-bold">
-                <span className="text-danger">BLOOD</span> <span>DONATION</span>
-              </h5>
-              <small className="text-muted">MANAGEMENT SYSTEM</small>
-            </div>
-          </div>
-
-          <nav className="d-none d-md-flex align-items-center gap-4">
-            <Link to="/" className="nav-link">
-              Home
-            </Link>
-            <Link to="/about" className="nav-link">
-              About Us
-            </Link>
-            <a href="#urgent" className="nav-link">
-              Urgent Requests
-            </a>
-            <Link to="/register" className="nav-link">
-              Register Now
-            </Link>
-            <Link to="/login" className="nav-link">
-              Log In
-            </Link>
-          </nav>
-        </div>
-      </header>
-
       <section className="feedback-section">
         <div className="container text-center">
           <h1 className="feedback-title mb-3">Feedback</h1>
@@ -99,8 +89,18 @@ const Feedback = () => {
               placeholder="Write your feedback here..."
             />
 
-            <button type="submit" className="btn btn-danger feedback-submit">
-              Submit Feedback
+            {error && <p className="text-danger small mb-2">{error}</p>}
+            {sentiment && (
+              <p className="mb-2">
+                <span className="badge bg-success me-1">Saved</span>
+                <span className="text-muted small">
+                  Sentiment: <strong>{sentiment}</strong>
+                </span>
+              </p>
+            )}
+
+            <button type="submit" className="btn btn-danger feedback-submit" disabled={submitting}>
+              {submitting ? "Submitting..." : "Submit Feedback"}
             </button>
           </form>
         </div>

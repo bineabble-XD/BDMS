@@ -26,6 +26,7 @@ import Footer from "./components/Footer.jsx";
 import Community from "./components/Community.jsx";
 import Settings from "./components/Settings";
 import UrgentRequests from "./components/UrgentRequests";
+import AppNavbar from "./components/AppNavbar";
 import MainLayout from "./components/MainLayout";
 import HospitalManageRequest from "./components/HospitalManageRequest"
 import AdminManageRequest from "./components/AdminManageRequest"
@@ -47,6 +48,7 @@ function App() {
     <BrowserRouter>
       <LanguageProvider>
       <div className="app-shell">
+        <AppNavbar />
         <div className="page-content">
           <Routes>
             <Route path="/reports" element={<AdminReport />} />
@@ -59,7 +61,6 @@ function App() {
             <Route path="/admin-profile" element={<AdminProfile />} />
             <Route path="/community" element={<Community />} />
             <Route path="/register-hospital" element={<HospitalRegister />} />
-            <Route path="/settings" element={<Settings />} />
             <Route path="/urgent" element={<UrgentRequests />} />
             <Route path="/HosManRequest" element={<HospitalManageRequest />} />
             <Route path="/AdminManRequest" element={<AdminManageRequest />} />

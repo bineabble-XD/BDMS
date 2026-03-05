@@ -1,6 +1,5 @@
-import React from "react";
+import React, { useState } from "react";
 import { useLocation, Link, useNavigate } from "react-router-dom";
-import HospitalNavbar from "./HospitalNavbar";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5050";
 
@@ -14,6 +13,7 @@ const formatDate = (d) => {
     day: "numeric",
     hour: "2-digit",
     minute: "2-digit",
+    timeZone: "Asia/Muscat",
   });
 };
 
@@ -66,10 +66,36 @@ const HospitalManageRequest = () => {
 
   const bloodType = booking.bloodType || donor.bloodType || "—";
   const appointmentDate = booking.appointmentDate ? formatDate(booking.appointmentDate) : "—";
+  const canConfirmDonation = booking.appointmentDate && new Date() >= new Date(booking.appointmentDate);
 
   // Optional actions (only if you want them)
   const user = JSON.parse(localStorage.getItem("bdmsUser"));
   const userId = user?._id || user?.id;
+
+  const [completing, setCompleting] = useState(false);
+
+  const handleConfirmDonation = async () => {
+    if (!userId || booking.status !== "approved") return;
+    setCompleting(true);
+    try {
+      const res = await fetch(`${API_BASE}/bookings/${booking._id}/complete`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok) {
+        alert("Donation confirmed. Blood added to stock.");
+        navigate("/hospital-appointments");
+      } else {
+        alert(data?.message || "Failed to confirm donation");
+      }
+    } catch (err) {
+      alert("Network error");
+    } finally {
+      setCompleting(false);
+    }
+  };
 
   const handleStatusUpdate = async (status) => {
     try {
@@ -90,8 +116,6 @@ const HospitalManageRequest = () => {
 
   return (
     <div className="admin-app-page">
-      <HospitalNavbar />
-
       <main className="admin-app-main">
         <div className="container py-4">
           <h2 className="mb-3">Manage Request</h2>
@@ -114,7 +138,20 @@ const HospitalManageRequest = () => {
                 </p>
 
                 <p className="mb-0">
-                  <strong>Status:</strong> {booking.status || "—"}
+                  <strong>Status:</strong>{" "}
+                  {(() => {
+                    const s = booking.status;
+                    const c = s === "completed" ? { dot: "bg-success", label: "Completed" }
+                      : s === "approved" ? { dot: "bg-warning", label: "Pending donation" }
+                      : s === "rejected" || s === "cancelled" ? { dot: "bg-danger", label: "Cancelled" }
+                      : { dot: "bg-secondary", label: s || "—" };
+                    return (
+                      <span className="d-inline-flex align-items-center gap-1">
+                        <span className={`rounded-circle d-inline-block ${c.dot}`} style={{ width: 8, height: 8 }} />
+                        {c.label}
+                      </span>
+                    );
+                  })()}
                 </p>
               </div>
 
@@ -145,6 +182,23 @@ const HospitalManageRequest = () => {
                 <button className="btn btn-outline-dark" onClick={() => handleStatusUpdate("rejected")}>
                   Decline
                 </button>
+              </div>
+            )}
+            {booking.status === "approved" && (
+              <div className="d-flex gap-3 mt-3">
+                <button
+                  className="btn btn-success"
+                  disabled={completing || !canConfirmDonation}
+                  onClick={handleConfirmDonation}
+                  title={!canConfirmDonation ? "Confirm only when the appointment date/time has been reached" : ""}
+                >
+                  {completing ? "..." : "Confirm donation (add to stock)"}
+                </button>
+                {!canConfirmDonation && (
+                  <small className="text-muted align-self-center">
+                    Wait until the scheduled date/time to confirm.
+                  </small>
+                )}
               </div>
             )}
           </div>

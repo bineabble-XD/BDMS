@@ -91,7 +91,7 @@ const ResetPassword = () => {
         >
           
 
-          <h3 className="fw-semibold mb-2" style={{ color: "#d10000" }}>
+          <h3 className="fw-semibold mb-2" className="text-danger">
             Reset Password
           </h3>
 

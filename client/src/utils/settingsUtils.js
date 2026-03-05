@@ -44,4 +44,6 @@ export function applySettings() {
   } else {
     document.body.classList.remove("bdms-colorblind");
   }
+
+  window.dispatchEvent(new CustomEvent("bdms-settings-changed"));
 }

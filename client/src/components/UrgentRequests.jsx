@@ -1,15 +1,18 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
+import { useLocation } from "react-router-dom";
 import { FaTint } from "react-icons/fa";
 
 const API_BASE = "http://localhost:5050";
 const BLOOD_TYPES = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
 
 const UrgentRequests = () => {
+  const location = useLocation();
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [postForm, setPostForm] = useState({ bloodType: "", quantity: 1, message: "" });
   const [posting, setPosting] = useState(false);
   const [postSuccess, setPostSuccess] = useState(false);
+  const prefillApplied = useRef(false);
 
   const user = JSON.parse(localStorage.getItem("bdmsUser") || "null");
   const isHospital = user?.isHospital === true;
@@ -25,6 +28,18 @@ const UrgentRequests = () => {
   useEffect(() => {
     fetchRequests();
   }, []);
+
+  useEffect(() => {
+    const prefill = location.state?.nlpPrefill;
+    if (prefill && isHospital && !prefillApplied.current) {
+      prefillApplied.current = true;
+      setPostForm({
+        bloodType: prefill.bloodType || "",
+        quantity: prefill.quantity || 1,
+        message: prefill.message || "",
+      });
+    }
+  }, [location.state, isHospital]);
 
   const handlePostUrgent = async (e) => {
     e.preventDefault();
@@ -59,6 +74,7 @@ const UrgentRequests = () => {
       day: "numeric",
       month: "short",
       year: "numeric",
+      timeZone: "Asia/Muscat",
     });
   };
 

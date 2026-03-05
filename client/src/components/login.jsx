@@ -106,7 +106,7 @@ const Login = () => {
         <div className="col-md-7 d-flex justify-content-end">
           <div style={{ width: "100%", maxWidth: "480px" }}>
 
-            <h4 className="text-center mb-4" style={{ color: "#d10000", fontWeight: 600 }}>
+            <h4 className="text-center mb-4" className="text-danger fw-semibold">
               Login
             </h4>
 

@@ -1,3 +1,5 @@
+process.env.TZ = "Asia/Muscat";
+
 import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
@@ -9,6 +11,10 @@ import HospitalProfileModel from "./models/Hospital.js";
 import Booking from "./models/Booking.js";
 import BloodBank from "./models/bloodBank.js";
 import UrgentRequest from "./models/UrgentRequest.js";
+import Feedback from "./models/Feedback.js";
+import CommunityPost from "./models/CommunityPost.js";
+import CommunityReply from "./models/CommunityReply.js";
+import { extractFromText, analyzeSentiment } from "./utils/nlp.js";
 
 const app = express();
 app.use(cors());
@@ -406,13 +412,29 @@ app.get("/hospitals/profile/:userId", async (req, res) => {
 
 app.post("/blood-bank", async (req, res) => {
   try {
-    const { bloodType, availability, expiryDate, hospitalId } = req.body;
+    const { bloodType, availability, expiryDate, donationDate, hospitalId } = req.body;
 
     if (!bloodType || !availability || !expiryDate || !hospitalId) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
-    const newBloodBankRecord = new BloodBank({ bloodType, availability, expiryDate, hospitalId });
+    if (donationDate) {
+      const dt = new Date(donationDate);
+      const now = new Date();
+      if (dt > now) {
+        return res.status(400).json({ message: "Donation date and time cannot be in the future." });
+      }
+      const twoWeeksAgo = new Date(now);
+      twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
+      if (dt < twoWeeksAgo) {
+        return res.status(400).json({ message: "Donation date must be within the last 2 weeks." });
+      }
+    }
+
+    const recordData = { bloodType, availability, expiryDate, hospitalId };
+    if (donationDate) recordData.donationDate = new Date(donationDate);
+
+    const newBloodBankRecord = new BloodBank(recordData);
     await newBloodBankRecord.save();
 
     return res.status(201).json({ message: "Blood bank record added successfully" });
@@ -423,7 +445,7 @@ app.post("/blood-bank", async (req, res) => {
 
 app.put("/blood-bank/:id", async (req, res) => {
   try {
-    const { bloodType, availability, expiryDate } = req.body;
+    const { bloodType, availability, expiryDate, donationDate } = req.body;
     const bloodBankRecord = await BloodBank.findById(req.params.id);
 
     if (!bloodBankRecord) {
@@ -433,6 +455,7 @@ app.put("/blood-bank/:id", async (req, res) => {
     bloodBankRecord.bloodType = bloodType || bloodBankRecord.bloodType;
     bloodBankRecord.availability = availability || bloodBankRecord.availability;
     bloodBankRecord.expiryDate = expiryDate || bloodBankRecord.expiryDate;
+    if (donationDate !== undefined) bloodBankRecord.donationDate = donationDate ? new Date(donationDate) : null;
 
     await bloodBankRecord.save();
     return res.status(200).json({ message: "Blood bank record updated successfully" });
@@ -450,10 +473,66 @@ app.get("/blood-bank/all", async (req, res) => {
   }
 });
 
+// Blood stock report - aggregated by blood type + detailed records (all hospitals or by hospitalId)
+app.get("/api/blood-stock-report", async (req, res) => {
+  try {
+    const { hospitalId } = req.query;
+    let match = {};
+    if (hospitalId) {
+      const profileByUser = await HospitalProfileModel.findOne({ userId: hospitalId });
+      const profileById = await HospitalProfileModel.findById(hospitalId);
+      const profile = profileByUser || profileById;
+      if (profile) {
+        match.hospitalId = profile._id;
+      } else {
+        match.hospitalId = hospitalId;
+      }
+    }
+
+    const [aggregated, records] = await Promise.all([
+      BloodBank.aggregate([
+        { $match: match },
+        { $group: { _id: "$bloodType", total: { $sum: "$availability" } } },
+        { $sort: { _id: 1 } },
+      ]),
+      BloodBank.find(match)
+        .populate("hospitalId", "hospitalName city")
+        .sort({ bloodType: 1, createdAt: -1 })
+        .lean(),
+    ]);
+
+    const bloodTypes = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
+    const data = bloodTypes.map((type) => {
+      const found = aggregated.find((a) => a._id === type);
+      return { type, total: found ? found.total : 0 };
+    });
+
+    const recordsWithDetails = records.map((r) => ({
+      bloodType: r.bloodType,
+      units: r.availability,
+      date: r.donationDate || r.createdAt,
+      location: r.hospitalId
+        ? `${r.hospitalId.hospitalName || ""}${r.hospitalId.city ? `, ${r.hospitalId.city}` : ""}`.trim()
+        : "—",
+    }));
+
+    res.json({ data, records: recordsWithDetails, generatedAt: new Date().toISOString() });
+  } catch (err) {
+    console.error("Blood stock report error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 app.get("/blood-bank/:hospitalId", async (req, res) => {
   try {
-    const records = await BloodBank.find({ hospitalId: req.params.hospitalId });
-    return res.status(200).json(records);
+    const { hospitalId } = req.params;
+    const profile = await HospitalProfileModel.findOne({ userId: hospitalId });
+    if (profile) {
+      const records = await BloodBank.find({ hospitalId: profile._id });
+      return res.status(200).json({ records, profileId: profile._id });
+    }
+    const records = await BloodBank.find({ hospitalId });
+    return res.status(200).json({ records: records || [], profileId: hospitalId });
   } catch (err) {
     return res.status(500).json({ message: "Server error", error: err.message });
   }
@@ -495,6 +574,19 @@ app.post("/bookings", async (req, res) => {
     if (isNaN(appointmentDateObj.getTime()) || appointmentDateObj <= new Date()) {
       return res.status(400).json({ message: "Appointment date must be in the future" });
     }
+    const maxDate = new Date();
+    maxDate.setDate(maxDate.getDate() + 14);
+    if (appointmentDateObj > maxDate) {
+      return res.status(400).json({ message: "Appointment date cannot be more than 2 weeks from today" });
+    }
+    const hours = appointmentDateObj.getHours();
+    const minutes = appointmentDateObj.getMinutes();
+    if (hours < 9 || hours > 22 || (hours === 22 && minutes > 0)) {
+      return res.status(400).json({ message: "Appointment time must be between 9:00 AM and 10:00 PM" });
+    }
+    if (minutes % 15 !== 0) {
+      return res.status(400).json({ message: "Time must be in 15-minute intervals" });
+    }
 
     const booking = await Booking.create({
       donor: donorId,
@@ -511,6 +603,59 @@ app.post("/bookings", async (req, res) => {
   } catch (error) {
     console.error("Booking error:", error);
     res.status(500).json({ message: "Failed to create booking" });
+  }
+});
+
+app.get("/api/bookings/slots", async (req, res) => {
+  try {
+    const { hospitalId, date, excludeBookingId } = req.query;
+    if (!hospitalId || !date) {
+      return res.status(400).json({ message: "hospitalId and date are required" });
+    }
+    const start = new Date(`${date}T00:00:00`);
+    const end = new Date(`${date}T23:59:59.999`);
+    if (isNaN(start.getTime())) {
+      return res.status(400).json({ message: "Invalid date format (use YYYY-MM-DD)" });
+    }
+    const match = {
+      hospital: hospitalId,
+      status: { $in: ["pending", "approved"] },
+      appointmentDate: { $gte: start, $lte: end },
+    };
+    if (excludeBookingId) {
+      match._id = { $ne: excludeBookingId };
+    }
+    const bookings = await Booking.find(match).select("appointmentDate");
+
+    const bookedSlots = bookings.map((b) => {
+      const d = new Date(b.appointmentDate);
+      const h = d.getHours();
+      const m = Math.floor(d.getMinutes() / 15) * 15;
+      return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+    });
+
+    res.json({ bookedSlots: [...new Set(bookedSlots)] });
+  } catch (err) {
+    console.error("Bookings slots error:", err);
+    res.status(500).json({ message: "Failed to fetch slots" });
+  }
+});
+
+app.get("/bookings/all", async (req, res) => {
+  try {
+    const bookings = await Booking.find({})
+      .populate("donor", "fName email phoneNum bloodType")
+      .populate("hospital", "hospitalName city")
+      .sort({ appointmentDate: -1 });
+    const pending = bookings.filter((b) => b.status === "pending");
+    const appointments = bookings.filter(
+      (b) => b.status === "approved" && new Date(b.appointmentDate) >= new Date()
+    );
+    const completed = bookings.filter((b) => b.status === "completed");
+    res.json({ bookings, pending, appointments, completed });
+  } catch (error) {
+    console.error("Bookings all error:", error);
+    res.status(500).json({ message: "Failed to fetch bookings" });
   }
 });
 
@@ -532,13 +677,14 @@ app.get("/bookings/hospital/:userId", async (req, res) => {
       .populate("hospital", "hospitalName city")
       .sort({ appointmentDate: -1 });
 
-    const donations = bookings.filter((b) => b.status === "approved");
+    const donations = bookings.filter((b) => b.status === "approved" || b.status === "completed");
     const pending = bookings.filter((b) => b.status === "pending");
     const appointments = bookings.filter(
       (b) => b.status === "approved" && new Date(b.appointmentDate) >= new Date()
     );
+    const completed = bookings.filter((b) => b.status === "completed");
 
-    res.json({ bookings, donations, pending, appointments, profile });
+    res.json({ bookings, donations, pending, appointments, completed, profile });
   } catch (error) {
     console.error("Bookings fetch error:", error);
     res.status(500).json({ message: "Failed to fetch bookings" });
@@ -568,6 +714,55 @@ app.patch("/bookings/:id/status", async (req, res) => {
     res.json({ message: `Booking ${status} successfully`, booking });
   } catch (error) {
     console.error("Booking status error:", error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+app.patch("/bookings/:id/complete", async (req, res) => {
+  try {
+    const { userId, isAdmin } = req.body || {};
+    if (!userId) return res.status(401).json({ message: "Authentication required (userId)" });
+    const booking = await Booking.findById(req.params.id)
+      .populate("hospital", "_id");
+    if (!booking) return res.status(404).json({ message: "Booking not found" });
+    const bhId = booking.hospital?._id ?? booking.hospital;
+    if (!isAdmin) {
+      let profile = null;
+      try {
+        profile = await HospitalProfileModel.findOne({ userId: new mongoose.Types.ObjectId(userId) });
+      } catch {
+        profile = await HospitalProfileModel.findOne({ userId });
+      }
+      if (!profile) return res.status(403).json({ message: "Hospital profile not found" });
+      const bhp = await HospitalProfileModel.findById(bhId);
+      if (!bhp || String(bhp._id) !== String(profile._id)) {
+        return res.status(403).json({ message: "You can only complete donations for your own hospital" });
+      }
+    }
+    if (booking.status !== "approved") {
+      return res.status(400).json({ message: "Only approved appointments can be marked as completed" });
+    }
+    const now = new Date();
+    const appointmentDate = new Date(booking.appointmentDate);
+    if (now < appointmentDate) {
+      return res.status(400).json({
+        message: "Cannot confirm yet. The appointment date and time has not been reached. Please confirm only when the donor has completed their donation on the scheduled day.",
+      });
+    }
+    booking.status = "completed";
+    await booking.save();
+    const expiryDate = new Date();
+    expiryDate.setDate(expiryDate.getDate() + 42);
+    await BloodBank.create({
+      bloodType: booking.bloodType,
+      availability: 1,
+      expiryDate,
+      donationDate: new Date(),
+      hospitalId: bhId,
+    });
+    res.json({ message: "Donation confirmed and blood added to stock", booking });
+  } catch (error) {
+    console.error("Booking complete error:", error);
     res.status(500).json({ message: error.message });
   }
 });
@@ -687,13 +882,16 @@ app.get("/urgent-requests/hospital/:userId", async (req, res) => {
       hospital: profile._id,
       status: "open",
     })
-      .populate("hospital", "hospitalName city")
+      .populate("hospital", "hospitalName city contactPerson contactPhone")
+      .populate({ path: "bookingId", populate: { path: "donor", select: "fName phoneNum" } })
       .sort({ createdAt: -1 })
       .lean();
 
     const normalized = requests.map((r) => ({
       ...r,
-      bookingId: r.bookingId ? String(r.bookingId) : null,
+      bookingId: r.bookingId?._id ? String(r.bookingId._id) : null,
+      donorName: r.bookingId?.donor?.fName || r.hospital?.contactPerson || null,
+      donorPhone: r.bookingId?.donor?.phoneNum || r.hospital?.contactPhone || null,
     }));
     res.json(normalized);
   } catch (error) {
@@ -710,7 +908,7 @@ app.get("/bookings/donor/:donorId", async (req, res) => {
 
     const bookings = await Booking.find({ donor: donorId })
       .populate("hospital", "hospitalName city contactPhone contactEmail")
-      .sort({ appointmentDate: -1 });
+      .sort({ appointmentDate: 1 });
 
     res.json({ bookings });
   } catch (err) {
@@ -732,24 +930,31 @@ app.patch("/bookings/:id/reschedule", async (req, res) => {
       return res.status(403).json({ message: "Not allowed" });
     }
 
-    // (optional rule) only allow reschedule if still pending
-    if (booking.status !== "pending") {
-      return res
-        .status(400)
-        .json({ message: "You can only reschedule pending bookings" });
-    }
-
     const newDate = new Date(appointmentDate);
     if (isNaN(newDate.getTime()) || newDate <= new Date()) {
       return res
         .status(400)
         .json({ message: "Please choose a valid future date/time" });
     }
+    const maxDate = new Date();
+    maxDate.setDate(maxDate.getDate() + 14);
+    if (newDate > maxDate) {
+      return res.status(400).json({ message: "Appointment date cannot be more than 2 weeks from today" });
+    }
+    const hours = newDate.getHours();
+    const minutes = newDate.getMinutes();
+    if (hours < 9 || hours > 22 || (hours === 22 && minutes > 0)) {
+      return res.status(400).json({ message: "Appointment time must be between 9:00 AM and 10:00 PM" });
+    }
+    if (minutes % 15 !== 0) {
+      return res.status(400).json({ message: "Time must be in 15-minute intervals" });
+    }
 
     booking.appointmentDate = newDate;
+    booking.status = "pending";
     await booking.save();
 
-    res.json({ message: "Appointment rescheduled", booking });
+    res.json({ message: "Appointment rescheduled. Hospital approval required for the new date.", booking });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Failed to reschedule" });
@@ -827,6 +1032,189 @@ app.patch("/users/:id", async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Failed to update profile" });
+  }
+});
+
+// -------------------------
+// NLP API
+// -------------------------
+app.post("/api/nlp/analyze", (req, res) => {
+  try {
+    const { text } = req.body || {};
+    const result = extractFromText(text);
+    res.json(result);
+  } catch (err) {
+    console.error("NLP analyze error:", err);
+    res.status(500).json({ message: "NLP analysis failed" });
+  }
+});
+
+app.post("/api/nlp/sentiment", (req, res) => {
+  try {
+    const { text } = req.body || {};
+    const result = analyzeSentiment(text);
+    res.json(result);
+  } catch (err) {
+    console.error("NLP sentiment error:", err);
+    res.status(500).json({ message: "Sentiment analysis failed" });
+  }
+});
+
+// -------------------------
+// Feedback (with sentiment analysis)
+// -------------------------
+app.post("/feedback", async (req, res) => {
+  try {
+    const { rating, text, userId } = req.body || {};
+
+    if (rating == null || rating < 1 || rating > 5) {
+      return res.status(400).json({ message: "Rating must be between 1 and 5" });
+    }
+
+    const sentiment = text ? analyzeSentiment(text) : { sentiment: "neutral", score: 0, label: "Neutral" };
+
+    const feedback = await Feedback.create({
+      rating: Number(rating),
+      text: text || "",
+      userId: userId || null,
+      sentiment: sentiment.sentiment,
+      sentimentScore: sentiment.score,
+    });
+
+    res.status(201).json({
+      message: "Thank you for your feedback!",
+      feedback: {
+        id: feedback._id,
+        rating: feedback.rating,
+        sentiment: feedback.sentiment,
+      },
+    });
+  } catch (err) {
+    console.error("Feedback error:", err);
+    res.status(500).json({ message: "Failed to submit feedback" });
+  }
+});
+
+// -------------------------
+// Community
+// -------------------------
+app.get("/api/community/posts", async (req, res) => {
+  try {
+    const posts = await CommunityPost.find()
+      .sort({ createdAt: -1 })
+      .populate("authorId", "fName role")
+      .lean();
+    const postIds = posts.map((p) => p._id);
+    const replies = await CommunityReply.find({ postId: { $in: postIds } })
+      .sort({ createdAt: 1 })
+      .populate("authorId", "fName role")
+      .lean();
+    const repliesByPost = {};
+    replies.forEach((r) => {
+      const key = String(r.postId);
+      if (!repliesByPost[key]) repliesByPost[key] = [];
+      repliesByPost[key].push(r);
+    });
+    const result = posts.map((p) => ({
+      ...p,
+      replies: repliesByPost[String(p._id)] || [],
+    }));
+    res.json(result);
+  } catch (err) {
+    console.error("Community posts error:", err);
+    res.status(500).json({ message: "Failed to fetch community posts" });
+  }
+});
+
+app.post("/api/community/posts", async (req, res) => {
+  try {
+    const { userId, title, body, role } = req.body || {};
+    if (!userId || !title || !body || !role) {
+      return res.status(400).json({ message: "userId, title, body and role are required" });
+    }
+    const validRoles = ["Hospital", "Blood Bank"];
+    if (!validRoles.includes(role)) {
+      return res.status(400).json({ message: "role must be Hospital or Blood Bank" });
+    }
+    const post = await CommunityPost.create({
+      authorId: userId,
+      title: title.trim(),
+      body: body.trim(),
+      role,
+    });
+    const populated = await CommunityPost.findById(post._id)
+      .populate("authorId", "fName role")
+      .lean();
+    res.status(201).json({ ...populated, replies: [] });
+  } catch (err) {
+    console.error("Community post create error:", err);
+    res.status(500).json({ message: "Failed to create post" });
+  }
+});
+
+app.post("/api/community/posts/:id/reply", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { userId, body } = req.body || {};
+    if (!userId || !body || !body.trim()) {
+      return res.status(400).json({ message: "userId and body are required" });
+    }
+    const post = await CommunityPost.findById(id);
+    if (!post) return res.status(404).json({ message: "Post not found" });
+    const reply = await CommunityReply.create({
+      postId: id,
+      authorId: userId,
+      body: body.trim(),
+    });
+    const populated = await CommunityReply.findById(reply._id)
+      .populate("authorId", "fName role")
+      .lean();
+    res.status(201).json(populated);
+  } catch (err) {
+    console.error("Community reply error:", err);
+    res.status(500).json({ message: "Failed to add reply" });
+  }
+});
+
+app.post("/api/community/posts/:id/acknowledge", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { userId } = req.body || {};
+    if (!userId) return res.status(400).json({ message: "userId is required" });
+    const post = await CommunityPost.findById(id);
+    if (!post) return res.status(404).json({ message: "Post not found" });
+    const uid = new mongoose.Types.ObjectId(userId);
+    const idx = post.acknowledgedBy.findIndex((a) => a.toString() === uid.toString());
+    if (idx >= 0) {
+      post.acknowledgedBy.splice(idx, 1);
+    } else {
+      post.acknowledgedBy.push(uid);
+    }
+    await post.save();
+    res.json({ acknowledgedBy: post.acknowledgedBy });
+  } catch (err) {
+    console.error("Community acknowledge error:", err);
+    res.status(500).json({ message: "Failed to acknowledge" });
+  }
+});
+
+app.delete("/api/community/posts/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { userId, isAdmin } = req.body || {};
+    if (!userId) return res.status(400).json({ message: "userId is required" });
+    const post = await CommunityPost.findById(id);
+    if (!post) return res.status(404).json({ message: "Post not found" });
+    const isAuthor = String(post.authorId) === String(userId);
+    if (!isAuthor && !isAdmin) {
+      return res.status(403).json({ message: "You can only delete your own posts" });
+    }
+    await CommunityReply.deleteMany({ postId: id });
+    await CommunityPost.findByIdAndDelete(id);
+    res.json({ message: "Post deleted" });
+  } catch (err) {
+    console.error("Community delete error:", err);
+    res.status(500).json({ message: "Failed to delete post" });
   }
 });
 

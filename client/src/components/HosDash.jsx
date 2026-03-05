@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import heroImg from "../assets/9+.png";
-import HospitalNavbar from "./HospitalNavbar";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5050";
 
 const HosDash = () => {
-  const [donations, setDonations] = useState([]);
+  const [completedDonations, setCompletedDonations] = useState([]);
   const [pending, setPending] = useState([]);
   const [appointments, setAppointments] = useState([]);
   const [urgentRequests, setUrgentRequests] = useState([]);
@@ -24,8 +23,8 @@ const HosDash = () => {
         fetch(`${API_BASE}/urgent-requests/hospital/${userId}`),
       ]);
       if (bookingsRes.ok) {
-        const { donations: d, pending: p, appointments: a } = await bookingsRes.json();
-        setDonations(d || []);
+        const { completed: c, pending: p, appointments: a } = await bookingsRes.json();
+        setCompletedDonations(c || []);
         setPending(p || []);
         setAppointments(a || []);
       }
@@ -72,6 +71,7 @@ const HosDash = () => {
     return d.toLocaleDateString("en-GB", {
       day: "numeric",
       month: "short",
+      timeZone: "Asia/Muscat",
       year: "numeric",
       hour: "2-digit",
       minute: "2-digit",
@@ -80,8 +80,6 @@ const HosDash = () => {
 
   return (
     <div className="dashboard-page">
-      <HospitalNavbar />
-
       <main className="dashboard-main">
         <div className="container">
           <div className="row g-4">
@@ -116,11 +114,11 @@ const HosDash = () => {
 
                 {loading ? (
                   <p className="text-muted">Loading...</p>
-                ) : donations.length === 0 ? (
+                ) : completedDonations.length === 0 ? (
                   <p className="text-muted">No completed donations yet.</p>
                 ) : (
                   <>
-                    {donations.map((d) => (
+                    {completedDonations.map((d) => (
                       <div
                         key={d._id}
                         className="d-flex justify-content-between mb-2"
@@ -148,11 +146,13 @@ const HosDash = () => {
                         key={ur._id}
                         className="d-flex justify-content-between align-items-center mb-2"
                       >
-                        <div className="d-flex align-items-center gap-2">
-                          <span className="urgent-dot" />
-                          <span>
-                            {ur.bloodType} — {ur.hospital?.hospitalName}
-                          </span>
+                        <div>
+                          <div className="d-flex align-items-center gap-2">
+                            <span className="urgent-dot" />
+                            <span className="fw-semibold small">{ur.bloodType}</span>
+                          </div>
+                          <div className="text-muted small">{ur.donorName || "—"}</div>
+                          <div className="text-muted small">{ur.donorPhone ? `+${ur.donorPhone}` : "—"}</div>
                         </div>
                         <Link
                           to="/urgent-requests"

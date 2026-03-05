@@ -3,8 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import donorIllustration from "../assets/11+.png";
 import { createBooking, resetBooking } from "../features/bookingSlice";
+import { getTodayInOman, getMaxDateInOman, getCurrentMinutesInOman } from "../utils/omanTime";
 
-const API_BASE = "http://localhost:5050";
+const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5050";
 
 const Appointment = () => {
   const navigate = useNavigate();
@@ -14,9 +15,35 @@ const Appointment = () => {
   const { loading, success, error } = useSelector((state) => state.booking);
 
   const [hospitals, setHospitals] = useState([]);
-  const today = new Date().toISOString().split("T")[0];
-  const now = new Date();
-  const minTime = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+  const today = getTodayInOman();
+  const maxDate = getMaxDateInOman(14);
+  const maxDateObj = new Date(maxDate + "T23:59:59+04:00");
+
+  // 9 AM - 10 PM in 15-min intervals
+  const TIME_SLOTS = [];
+  for (let h = 9; h <= 22; h++) {
+    for (let m = 0; m < 60; m += 15) {
+      if (h === 22 && m > 0) break;
+      TIME_SLOTS.push(
+        `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`
+      );
+    }
+  }
+
+  const getAvailableTimeSlots = () => {
+    let slots = TIME_SLOTS.filter((slot) => !bookedSlots.includes(slot));
+    if (form.appointmentDate === today) {
+      const currentMinutes = getCurrentMinutesInOman();
+      slots = slots.filter((slot) => {
+        const [h, m] = slot.split(":").map(Number);
+        return h * 60 + m > currentMinutes;
+      });
+    }
+    return slots;
+  };
+
+  const [bookedSlots, setBookedSlots] = useState([]);
+  const [slotsLoading, setSlotsLoading] = useState(false);
 
   const [form, setForm] = useState({
     hospital: "",
@@ -38,6 +65,19 @@ const Appointment = () => {
       [name]: type === "checkbox" ? checked : value,
     }));
   };
+
+  useEffect(() => {
+    if (!form.hospital || !form.appointmentDate) {
+      setBookedSlots([]);
+      return;
+    }
+    setSlotsLoading(true);
+    fetch(`${API_BASE}/api/bookings/slots?hospitalId=${encodeURIComponent(form.hospital)}&date=${form.appointmentDate}`)
+      .then((res) => (res.ok ? res.json() : { bookedSlots: [] }))
+      .then((data) => setBookedSlots(data.bookedSlots || []))
+      .catch(() => setBookedSlots([]))
+      .finally(() => setSlotsLoading(false));
+  }, [form.hospital, form.appointmentDate]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -62,10 +102,24 @@ const Appointment = () => {
       return;
     }
 
-    const appointmentDate = new Date(`${form.appointmentDate}T${form.appointmentTime}`);
+    const [h, m] = form.appointmentTime.split(":").map(Number);
+    if (h < 9 || h > 22 || (h === 22 && m > 0)) {
+      alert("Appointment time must be between 9:00 AM and 10:00 PM");
+      return;
+    }
+    if (m % 15 !== 0) {
+      alert("Time must be in 15-minute intervals");
+      return;
+    }
+
+    const appointmentDate = new Date(`${form.appointmentDate}T${form.appointmentTime}+04:00`);
 
     if (appointmentDate <= new Date()) {
       alert("Please select a future date and time. You cannot book appointments in the past.");
+      return;
+    }
+    if (appointmentDate > maxDateObj) {
+      alert("Appointment date cannot be more than 2 weeks from today.");
       return;
     }
 
@@ -88,6 +142,21 @@ const Appointment = () => {
       })
     );
   };
+
+  useEffect(() => {
+    if (!form.appointmentTime) return;
+    if (bookedSlots.includes(form.appointmentTime)) {
+      setForm((prev) => ({ ...prev, appointmentTime: "" }));
+      return;
+    }
+    if (form.appointmentDate === today) {
+      const currentMinutes = getCurrentMinutesInOman();
+      const [h, m] = form.appointmentTime.split(":").map(Number);
+      if (h * 60 + m <= currentMinutes) {
+        setForm((prev) => ({ ...prev, appointmentTime: "" }));
+      }
+    }
+  }, [form.appointmentDate, form.appointmentTime, bookedSlots]);
 
   useEffect(() => {
     fetch(`${API_BASE}/hospitals/approved`)
@@ -115,7 +184,7 @@ const Appointment = () => {
     <div className="appointment-page container-fluid" style={{ paddingBottom: "80px" }}>
       <div className="row min-vh-100 align-items-center">
         <div className="col-md-7 auth-left">
-          <h3 className="fw-semibold mb-4 mt-3" style={{ color: "#d10000" }}>
+          <h3 className="fw-semibold mb-4 mt-3" className="text-danger">
             Book an Appointment
           </h3>
 
@@ -167,21 +236,37 @@ const Appointment = () => {
                     value={form.appointmentDate}
                     onChange={handleChange}
                     min={today}
+                    max={maxDate}
                     required
                   />
                 </div>
 
                 <div className="col-md-6">
                   <label className="form-label fw-semibold">Time</label>
-                  <input
-                    type="time"
-                    className="form-control"
+                  <select
+                    className="form-select"
                     name="appointmentTime"
                     value={form.appointmentTime}
                     onChange={handleChange}
-                    min={form.appointmentDate === today ? minTime : undefined}
                     required
-                  />
+                    disabled={!form.hospital || !form.appointmentDate || slotsLoading}
+                  >
+                    <option value="">
+                      {!form.hospital || !form.appointmentDate
+                        ? "Select hospital and date first"
+                        : slotsLoading
+                          ? "Loading slots..."
+                          : "Select time"}
+                    </option>
+                    {!slotsLoading && getAvailableTimeSlots().map((slot) => {
+                      const [h, m] = slot.split(":").map(Number);
+                      const label = h === 12 ? `12:${String(m).padStart(2, "0")} PM` : h < 12 ? `${h}:${String(m).padStart(2, "0")} AM` : `${h - 12}:${String(m).padStart(2, "0")} PM`;
+                      return <option key={slot} value={slot}>{label}</option>;
+                    })}
+                  </select>
+                  {!slotsLoading && form.hospital && form.appointmentDate && getAvailableTimeSlots().length === 0 && (
+                    <small className="text-muted">No slots available. Try another date.</small>
+                  )}
                 </div>
               </div>
 

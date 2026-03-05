@@ -1,7 +1,6 @@
 import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { FiArrowLeft } from "react-icons/fi";
-import AdminNavbar from "./AdminNavbar";
 
 const defaultRequest = {
   name: "Abbas Al Lawati",
@@ -36,8 +35,6 @@ const AdminManageRequest = () => {
 
   return (
     <div className="manage-req-page">
-      <AdminNavbar />
-
       <div className="container mt-4">
 
         <button onClick={goBack} className="manage-back-btn d-flex align-items-center gap-2 mb-2">

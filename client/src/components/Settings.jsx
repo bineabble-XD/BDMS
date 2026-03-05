@@ -37,12 +37,6 @@ const Settings = () => {
     applySettings();
   }, [colorBlind]);
 
-  const cycleFontSize = () => {
-    setFontSize((prev) =>
-      prev === "Small" ? "Medium" : prev === "Medium" ? "Large" : "Small"
-    );
-  };
-
   const goBack = () => {
     if (window.history.length > 1) navigate(-1);
     else navigate("/home");
@@ -64,68 +58,67 @@ const Settings = () => {
 
         <div className="settings-box p-4">
           <div className="setting-row">
-            <span className="setting-label">{t("settingsDarkMode")} :</span>
-
-            <div className="d-flex align-items-center gap-3">
-              <div className="toggle-group">
-                <span
-                  className={`toggle-btn ${!darkMode ? "active" : ""}`}
-                  onClick={() => setDarkMode(false)}
-                >
-                  {t("settingsOff")}
-                </span>
-                <span
-                  className={`toggle-btn ${darkMode ? "active" : ""}`}
-                  onClick={() => setDarkMode(true)}
-                >
-                  {t("settingsOn")}
-                </span>
-              </div>
-
-              <FaCog className="setting-icon" />
-            </div>
-          </div>
-
-          <div className="setting-row">
-            <span className="setting-label">{t("settingsLanguage")} :</span>
-
-            <div className="d-flex align-items-center gap-3">
-              <span className="setting-value">
-                {language === "EN" ? t("settingsEnglish") : t("settingsArabic")}
+            <span className="setting-label">{t("settingsDarkMode")}</span>
+            <div className="toggle-group">
+              <span
+                className={`toggle-btn ${!darkMode ? "active" : ""}`}
+                onClick={() => setDarkMode(false)}
+              >
+                {t("settingsOff")}
               </span>
-
-              <div className="lang-toggle">
-                <button
-                  className={`lang-btn ${language === "EN" ? "active" : ""}`}
-                  onClick={() => setLanguage("EN")}
-                >
-                  EN
-                </button>
-                <button
-                  className={`lang-btn ${language === "AR" ? "active" : ""}`}
-                  onClick={() => setLanguage("AR")}
-                >
-                  ع
-                </button>
-              </div>
+              <span
+                className={`toggle-btn ${darkMode ? "active" : ""}`}
+                onClick={() => setDarkMode(true)}
+              >
+                {t("settingsOn")}
+              </span>
             </div>
           </div>
 
           <div className="setting-row">
-            <span className="setting-label">{t("settingsFontSize")} :</span>
-
-            <div className="d-flex align-items-center gap-3">
-              <span className="setting-value">{fontSize}</span>
-
-              <button className="font-btn" onClick={cycleFontSize} title="Cycle: Small → Medium → Large">
-                Tt
-              </button>
+            <span className="setting-label">{t("settingsLanguage")}</span>
+            <div className="toggle-group">
+              <span
+                className={`toggle-btn ${language === "EN" ? "active" : ""}`}
+                onClick={() => setLanguage("EN")}
+              >
+                EN
+              </span>
+              <span
+                className={`toggle-btn ${language === "AR" ? "active" : ""}`}
+                onClick={() => setLanguage("AR")}
+              >
+                ع
+              </span>
             </div>
           </div>
 
           <div className="setting-row">
-            <span className="setting-label">{t("settingsColorBlind")} :</span>
+            <span className="setting-label">{t("settingsFontSize")}</span>
+            <div className="toggle-group">
+              <span
+                className={`toggle-btn ${fontSize === "Small" ? "active" : ""}`}
+                onClick={() => setFontSize("Small")}
+              >
+                Small
+              </span>
+              <span
+                className={`toggle-btn ${fontSize === "Medium" ? "active" : ""}`}
+                onClick={() => setFontSize("Medium")}
+              >
+                Medium
+              </span>
+              <span
+                className={`toggle-btn ${fontSize === "Large" ? "active" : ""}`}
+                onClick={() => setFontSize("Large")}
+              >
+                Large
+              </span>
+            </div>
+          </div>
 
+          <div className="setting-row">
+            <span className="setting-label">{t("settingsColorBlind")}</span>
             <div className="toggle-group">
               <span
                 className={`toggle-btn ${!colorBlind ? "active" : ""}`}

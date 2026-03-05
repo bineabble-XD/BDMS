@@ -75,6 +75,12 @@ const AdminNavbar = () => {
           >
             {t("navBloodBank")}
           </Link>
+          <Link
+            className={`nav-link ${isActive("/settings")}`}
+            to="/settings"
+          >
+            {t("navSettings")}
+          </Link>
 
           <span className="nav-link mb-0 fw-bold">
             {displayName}

@@ -45,11 +45,9 @@ const SocialFeed = () => {
                     {socialPosts.map((post) => (
                         <div key={post.id} className="col-md-4">
                             <article
-                                className="shadow-sm h-100"
+                                className="shadow-sm social-feed-card h-100"
                                 style={{
                                     borderRadius: "18px",
-                                    backgroundColor: "#ffffff",
-                                    border: "1px solid #e5e5e5",
                                     overflow: "hidden",
                                 }}
                             >
@@ -69,10 +67,7 @@ const SocialFeed = () => {
 
                                 <div className="p-3">
                                     <div className="d-flex justify-content-between mb-1">
-                                        <span
-                                            className="badge"
-                                            style={{ backgroundColor: "#ff4b4b1a", color: "#d62828" }}
-                                        >
+                                        <span className="badge bg-danger bg-opacity-10 text-danger">
                                             {post.platform}
                                         </span>
                                         <span className="text-muted small">{post.time}</span>
@@ -85,8 +80,7 @@ const SocialFeed = () => {
                                         href={post.link}
                                         target="_blank"
                                         rel="noreferrer"
-                                        className="small text-decoration-none"
-                                        style={{ color: "#d62828", fontWeight: 500 }}
+                                        className="small text-decoration-none text-danger fw-medium"
                                     >
                                         View on {post.platform} →
                                     </a>

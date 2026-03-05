@@ -135,7 +135,7 @@ const Register = () => {
             paddingRight: "10px",
           }}
         >
-          <h3 className="mb-3 fw-semibold" style={{ color: "#d10000" }}>
+          <h3 className="mb-3 fw-semibold" className="text-danger">
             Registration
           </h3>
 

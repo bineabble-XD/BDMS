@@ -1,5 +1,4 @@
 import React from "react";
-import AdminNavbar from "./AdminNavbar";
 
 const AdminProfile = () => {
   const admin = JSON.parse(localStorage.getItem("bdmsUser"));
@@ -8,8 +7,6 @@ const AdminProfile = () => {
 
   return (
     <div>
-      <AdminNavbar />
-
       <div className="container py-5">
       <div className="card shadow p-4">
         <h3>Admin Profile</h3>

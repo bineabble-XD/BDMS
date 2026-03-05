@@ -1,9 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import heroImg from "../assets/11+.png";
-import HospitalNavbar from "./HospitalNavbar";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5050";
+
+const isAppointmentReached = (appointmentDate) => {
+  if (!appointmentDate) return false;
+  return new Date() >= new Date(appointmentDate);
+};
 
 const formatDate = (d) => {
   if (!d) return "";
@@ -15,6 +19,7 @@ const formatDate = (d) => {
     day: "numeric",
     hour: "2-digit",
     minute: "2-digit",
+    timeZone: "Asia/Muscat",
   });
 };
 
@@ -24,6 +29,7 @@ const HosAppoint = () => {
   const [postedUrgentMap, setPostedUrgentMap] = useState({}); // bookingId -> urgentRequestId
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState(null);
+  const [searchName, setSearchName] = useState("");
 
   const user = JSON.parse(localStorage.getItem("bdmsUser"));
   const userId = user?._id || user?.id;
@@ -36,8 +42,10 @@ const HosAppoint = () => {
         fetch(`${API_BASE}/urgent-requests/hospital/${userId}`),
       ]);
       if (bookingsRes.ok) {
-        const { appointments: a } = await bookingsRes.json();
-        setAppointments(a || []);
+        const data = await bookingsRes.json();
+        const upcoming = data.appointments || [];
+        const done = data.completed || [];
+        setAppointments([...upcoming, ...done]);
       }
       if (urgentRes.ok) {
         const list = await urgentRes.json();
@@ -112,6 +120,28 @@ const HosAppoint = () => {
     }
   };
 
+  const handleConfirmDonation = async (booking) => {
+    if (!userId || !booking) return;
+    setBusyId(booking._id);
+    try {
+      const res = await fetch(`${API_BASE}/bookings/${booking._id}/complete`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok) {
+        await fetchData();
+      } else {
+        alert(data?.message || "Failed to confirm donation");
+      }
+    } catch (err) {
+      alert("Network error");
+    } finally {
+      setBusyId(null);
+    }
+  };
+
   const handleUnpost = async (urgentRequestId, bookingId) => {
     const urId = String(urgentRequestId);
     if (!urId || !userId) return;
@@ -145,8 +175,6 @@ const HosAppoint = () => {
 
   return (
     <div className="admin-app-page">
-      <HospitalNavbar />
-
       <main className="admin-app-main">
         <div className="container">
           <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
@@ -161,22 +189,40 @@ const HosAppoint = () => {
           <div className="row g-4">
             <div className="col-lg-8">
               <div className="admin-app-card p-4">
-                <div className="d-flex justify-content-between align-items-center mb-3">
+                <div className="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
                   <div>
                     <h5 className="mb-1">Appointments</h5>
                     <span className="text-muted small">
                       Approved scheduled donations
                     </span>
                   </div>
-                  <span className="badge rounded-pill text-bg-light">{appointments.length} total</span>
+                  <div className="d-flex align-items-center gap-2">
+                    <input
+                      type="text"
+                      className="form-control form-control-sm"
+                      placeholder="Search by name..."
+                      value={searchName}
+                      onChange={(e) => setSearchName(e.target.value)}
+                      style={{ width: "180px" }}
+                    />
+                    <span className="badge rounded-pill text-bg-light">{appointments.length} total</span>
+                  </div>
                 </div>
 
                 {loading ? (
                   <p className="text-muted">Loading...</p>
                 ) : appointments.length === 0 ? (
-                  <p className="text-muted">No upcoming appointments.</p>
-                ) : (
-                  appointments.map((item) => {
+                  <p className="text-muted">No appointments.</p>
+                ) : (() => {
+                  const filtered = appointments.filter((item) => {
+                    const name = (item.donor?.fName || "Donor").toLowerCase();
+                    const q = searchName.trim().toLowerCase();
+                    return !q || name.includes(q);
+                  });
+                  if (filtered.length === 0) {
+                    return <p className="text-muted">No matches for &quot;{searchName}&quot;.</p>;
+                  }
+                  return filtered.map((item) => {
                     const donor = item.donor || {};
                     const name = donor.fName || "Donor";
                     const hospitalName = item.hospital?.hospitalName || "Hospital";
@@ -185,35 +231,60 @@ const HosAppoint = () => {
                     const fromList = urgentList.find((ur) => String(ur.bookingId || "") === bid);
                     const urgentId = fromMap || fromList?._id;
                     const isPosted = !!urgentId;
+                    const isCompleted = item.status === "completed";
+                    const canConfirm = isAppointmentReached(item.appointmentDate);
                     return (
                       <div key={item._id}>
                         <div className="admin-app-row d-flex align-items-center justify-content-between py-2">
                           <div>
-                            <div className="fw-semibold">{name}</div>
+                            <div className="d-flex align-items-center gap-2">
+                              <span className="fw-semibold">{name}</span>
+                              <span className="d-inline-flex align-items-center gap-1">
+                                <span className={`rounded-circle d-inline-block ${isCompleted ? "bg-success" : "bg-warning"}`} style={{ width: 8, height: 8 }} />
+                                {isCompleted ? "Completed" : "Pending donation"}
+                              </span>
+                            </div>
                             <div className="text-muted small">
                               {donor.email}
                               {donor.phoneNum && ` • ${donor.phoneNum}`}
                             </div>
-                            <div className="text-muted small">{hospitalName}</div>
+                            <div className="text-muted small">{hospitalName} • {item.bloodType}</div>
                           </div>
 
                           <div className="text-muted small me-3">{formatDate(item.appointmentDate)}</div>
 
-                          <div className="d-flex gap-1 align-items-center">
-                            <button
-                              className={`btn btn-sm ${isPosted ? "btn-outline-secondary" : "btn-outline-danger"}`}
-                              disabled={!!busyId}
-                              onClick={() => isPosted ? handleUnpost(urgentId, bid) : handlePostUrgent(item)}
-                            >
-                              {busyId === (isPosted ? urgentId : item._id) ? "..." : isPosted ? "Unpost" : "Post urgent"}
-                            </button>
-                            <button
-                              className="btn btn-outline-secondary btn-sm"
-                              disabled={!!busyId}
-                              onClick={() => handleCancel(item._id)}
-                            >
-                              {busyId === item._id ? "..." : "Cancel"}
-                            </button>
+                          <div className="d-flex gap-1 align-items-center flex-wrap">
+                            {!isCompleted && (
+                              <button
+                                className="btn btn-success btn-sm"
+                                style={{ minWidth: "100px" }}
+                                disabled={!!busyId || !canConfirm}
+                                onClick={() => handleConfirmDonation(item)}
+                                title={!canConfirm ? "Confirm only when the appointment date/time has been reached" : ""}
+                              >
+                                {busyId === item._id ? "..." : "Confirm"}
+                              </button>
+                            )}
+                            {!isCompleted && (
+                              <>
+                                <button
+                                  className={`btn btn-sm ${isPosted ? "btn-outline-secondary" : "btn-outline-danger"}`}
+                                  style={{ minWidth: "100px" }}
+                                  disabled={!!busyId}
+                                  onClick={() => isPosted ? handleUnpost(urgentId, bid) : handlePostUrgent(item)}
+                                >
+                                  {busyId === (isPosted ? urgentId : item._id) ? "..." : isPosted ? "Unpost" : "Post urgent"}
+                                </button>
+                                <button
+                                  className="btn btn-outline-secondary btn-sm"
+                                  style={{ minWidth: "100px" }}
+                                  disabled={!!busyId}
+                                  onClick={() => handleCancel(item._id)}
+                                >
+                                  {busyId === item._id ? "..." : "Cancel"}
+                                </button>
+                              </>
+                            )}
                             <Link
                               to="/HosManRequest"
                               state={{ item }}
@@ -226,8 +297,8 @@ const HosAppoint = () => {
                         <hr className="my-1" />
                       </div>
                     );
-                  })
-                )}
+                  });
+                })()}
               </div>
             </div>
 
@@ -253,10 +324,11 @@ const HosAppoint = () => {
                 ) : (
                   urgentList.map((ur) => (
                     <div key={ur._id}>
-                      <div className="admin-req-row d-flex justify-content-between align-items-center py-2">
+                      <div className="admin-req-row d-flex justify-content-between align-items-start py-2">
                         <div>
                           <div className="fw-semibold small">{ur.bloodType}</div>
-                          <div className="text-muted small">{ur.message || "No message"}</div>
+                          <div className="text-muted small">{ur.donorName || "—"}</div>
+                          <div className="text-muted small">{ur.donorPhone ? `+${ur.donorPhone}` : "—"}</div>
                         </div>
                         <button
                           className="btn btn-link p-0 admin-link small"

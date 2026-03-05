@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import heroImg from "../assets/9+.png";
-import AdminNavbar from "./AdminNavbar";
 
 const API_BASE = "http://localhost:5050";
 
@@ -61,8 +60,6 @@ const AdminDash = () => {
 
   return (
     <div className="dashboard-page">
-      <AdminNavbar />
-
       <main className="dashboard-main">
         <div className="container">
           <div className="d-flex justify-content-between align-items-center mb-3">

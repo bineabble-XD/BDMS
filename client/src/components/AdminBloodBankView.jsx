@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import AdminNavbar from "./AdminNavbar";
 
 const API_BASE = "http://localhost:5050";
 
@@ -23,7 +22,6 @@ const AdminBloodBankView = () => {
 
   return (
     <div>
-      <AdminNavbar />
       <div className="container py-4">
         <h2>View All Blood Bank Records</h2>
         {loading && <p className="text-muted">Loading...</p>}
@@ -35,11 +33,12 @@ const AdminBloodBankView = () => {
             ) : (
               bloodRecords.map((record) => (
                 <li key={record._id} className="list-group-item">
-                  {record.bloodType} - {record.availability} units available -{" "}
-                  {record.expiryDate
-                    ? new Date(record.expiryDate).toLocaleDateString()
+                  {record.bloodType} - {record.availability} units - Donation:{" "}
+                  {(record.donationDate || record.createdAt)
+                    ? new Date(record.donationDate || record.createdAt).toLocaleString("en-GB", { timeZone: "Asia/Muscat" })
                     : "N/A"}{" "}
-                  - {record.hospitalId?.hospitalName || record.hospitalId || "N/A"}
+                  - Expiry: {record.expiryDate ? new Date(record.expiryDate).toLocaleDateString("en-GB", { timeZone: "Asia/Muscat" }) : "N/A"} -{" "}
+                  {record.hospitalId?.hospitalName || record.hospitalId || "N/A"}
                 </li>
               ))
             )}

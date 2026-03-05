@@ -50,10 +50,7 @@ const ForgetPassword = () => {
           }}
         >
 
-          <h3
-            className="fw-semibold mb-2"
-            style={{ color: "#d10000" }}
-          >
+          <h3 className="fw-semibold mb-2 text-danger">
             Update Password
           </h3>
 

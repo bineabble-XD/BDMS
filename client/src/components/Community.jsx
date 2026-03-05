@@ -1,102 +1,168 @@
-import React from "react";
-import { Link } from "react-router-dom";
-import mlogo from "../assets/bdmslogo.png";
+import React, { useEffect, useState } from "react";
 
-const threads = [
-  {
-    id: 1,
-    handle: "@KhawlaHospital",
-    role: "Hospital",
-    title: "Urgent A- units needed tonight",
-    body: "We require 6 units of A- for emergency surgery. Can any nearby blood bank confirm available stock before 9:00 PM?",
-    time: "15 min ago"
-  },
-  {
-    id: 2,
-    handle: "@CentralBloodBank",
-    role: "Blood Bank",
-    title: "O+ stock update for Muscat region",
-    body: "We can supply up to 20 units of O+ by tomorrow morning. Please send requests through official channel if needed.",
-    time: "1 hr ago"
-  },
-  {
-    id: 3,
-    handle: "@RoyalHospital",
-    role: "Hospital",
-    title: "Scheduled drive coordination",
-    body: "Looking to arrange a joint blood drive next Thursday. Any blood banks interested in partnering and sharing mobile units?",
-    time: "3 hrs ago"
-  },
-  {
-    id: 4,
-    handle: "@SalalahBloodCenter",
-    role: "Blood Bank",
-    title: "Low B- stock warning",
-    body: "Our B- stock is under safety threshold. Requesting hospitals to prioritize usage and share available units if possible.",
-    time: "6 hrs ago"
-  },
-  {
-    id: 5,
-    handle: "@NizwaHospital",
-    role: "Hospital",
-    title: "Cross-match confirmation",
-    body: "Need confirmation for cross-match results for patient ID #BD-2391. Please respond in the thread if results were shared.",
-    time: "8 hrs ago"
-  },
-  {
-    id: 6,
-    handle: "@SeebBloodBank",
-    role: "Blood Bank",
-    title: "New donor registration day",
-    body: "We’re organizing a donor day on 5 Dec. Hospitals can share priority blood types so we can focus on those during the event.",
-    time: "Yesterday"
-  }
-];
+const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5050";
+
+const formatTime = (dateStr) => {
+  const d = new Date(dateStr);
+  const now = new Date();
+  const diffMs = now.getTime() - d.getTime();
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHrs = Math.floor(diffMs / 3600000);
+  const diffDays = Math.floor(diffMs / 86400000);
+  if (diffMins < 1) return "Just now";
+  if (diffMins < 60) return `${diffMins} min ago`;
+  if (diffHrs < 24) return `${diffHrs} hr${diffHrs > 1 ? "s" : ""} ago`;
+  if (diffDays === 1) return "Yesterday";
+  if (diffDays < 7) return `${diffDays} days ago`;
+  return d.toLocaleDateString("en-GB", { timeZone: "Asia/Muscat" });
+};
 
 const Community = () => {
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [showPostModal, setShowPostModal] = useState(false);
+  const [postForm, setPostForm] = useState({ title: "", body: "" });
+  const [posting, setPosting] = useState(false);
+  const [replyingTo, setReplyingTo] = useState(null);
+  const [replyText, setReplyText] = useState("");
+  const [acknowledging, setAcknowledging] = useState(null);
+  const [deleting, setDeleting] = useState(null);
+  const [deleteConfirmPost, setDeleteConfirmPost] = useState(null);
+
+  const user = JSON.parse(localStorage.getItem("bdmsUser") || "null");
+  const canPost = user && (user.role === "Hospital" || user.role === "Blood Bank");
+  const userRole = user?.role === "Blood Bank" ? "Blood Bank" : user?.role === "Hospital" ? "Hospital" : null;
+
+  const fetchPosts = () => {
+    fetch(`${API_BASE}/api/community/posts`)
+      .then((res) => (res.ok ? res.json() : []))
+      .then((data) => setPosts(Array.isArray(data) ? data : []))
+      .catch(() => setPosts([]))
+      .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    fetchPosts();
+  }, []);
+
+  const handleCreatePost = async (e) => {
+    e.preventDefault();
+    if (!canPost || !postForm.title.trim() || !postForm.body.trim()) return;
+    setPosting(true);
+    try {
+      const res = await fetch(`${API_BASE}/api/community/posts`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: user._id,
+          title: postForm.title.trim(),
+          body: postForm.body.trim(),
+          role: userRole,
+        }),
+      });
+      if (res.ok) {
+        setPostForm({ title: "", body: "" });
+        setShowPostModal(false);
+        fetchPosts();
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setPosting(false);
+    }
+  };
+
+  const handleReply = async (postId) => {
+    if (!user?._id || !replyText.trim()) return;
+    try {
+      const res = await fetch(`${API_BASE}/api/community/posts/${postId}/reply`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: user._id, body: replyText.trim() }),
+      });
+      if (res.ok) {
+        setReplyingTo(null);
+        setReplyText("");
+        fetchPosts();
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleAcknowledge = async (postId) => {
+    if (!user?._id) return;
+    setAcknowledging(postId);
+    try {
+      const res = await fetch(`${API_BASE}/api/community/posts/${postId}/acknowledge`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: user._id }),
+      });
+      if (res.ok) {
+        fetchPosts();
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setAcknowledging(null);
+    }
+  };
+
+  const handleDeleteClick = (post) => {
+    setDeleteConfirmPost(post);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!user?._id || !deleteConfirmPost) return;
+    const postId = deleteConfirmPost._id;
+    setDeleteConfirmPost(null);
+    setDeleting(postId);
+    try {
+      const res = await fetch(`${API_BASE}/api/community/posts/${postId}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: user._id, isAdmin: user.isAdmin === true }),
+      });
+      if (res.ok) {
+        fetchPosts();
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setDeleting(null);
+    }
+  };
+
+  const canDeletePost = (post) => {
+    if (!user?._id) return false;
+    const authorId = post.authorId?._id || post.authorId;
+    return user.isAdmin === true || String(authorId) === String(user._id);
+  };
+
+  const getHandle = (author) => {
+    if (!author?.fName) return "@Unknown";
+    const name = String(author.fName).replace(/\s+/g, "");
+    return `@${name}`;
+  };
+
+  const isAcknowledged = (post) =>
+    user?._id && post.acknowledgedBy?.some((id) => String(id) === String(user._id));
+
   return (
     <div className="community-page">
-      <header className="bdms-navbar shadow-sm community-navbar">
-        <div className="container d-flex align-items-center justify-content-between py-3">
-          <div className="d-flex align-items-center gap-2">
-            <img
-              src={mlogo}
-              alt="BDMS Logo"
-              style={{
-                width: "70px",
-                height: "70px",
-                borderRadius: "12px",
-                objectFit: "cover"
-              }}
-            />
-            <div className="lh-1 text-white">
-              <h5 className="mb-0 fw-bold">
-                <span className="text-danger">BLOOD</span> DONATION
-              </h5>
-              <small className="text-muted">MANAGEMENT SYSTEM</small>
-            </div>
-          </div>
-
-          <nav className="d-none d-md-flex align-items-center gap-4">
-
-
-            <button
-              className="btn btn-outline-light ms-3"
-              onClick={() => (window.location.href = "/")}
-            >
-              Log Out
-            </button>
-          </nav>
-        </div>
-      </header>
-
       <main className="community-main py-5">
         <div className="container">
           <div className="d-flex justify-content-between align-items-center mb-4">
-            <h2 className="text-white fw-bold mb-0">Blood Bank Community</h2>
-            <button className="btn btn-danger px-4">
-              + New Post
-            </button>
+            <h2 className="fw-bold mb-0">Blood Bank Community</h2>
+            {canPost && (
+              <button
+                className="btn btn-danger px-4"
+                onClick={() => setShowPostModal(true)}
+              >
+                + New Post
+              </button>
+            )}
           </div>
 
           <p className="mb-4">
@@ -104,48 +170,275 @@ const Community = () => {
             requests, stock updates and donation drives.
           </p>
 
-          <div className="row g-4">
-            {threads.map((t) => (
-              <div key={t.id} className="col-md-4">
-                <article className="community-card h-100 d-flex flex-column">
-                  <div className="d-flex align-items-center mb-3">
-                    <div className="community-avatar me-3">
-                      {t.handle.charAt(1).toUpperCase()}
-                    </div>
-                    <div>
-                      <div className="text-white fw-semibold small">
-                        {t.handle}
+          {loading ? (
+            <div className="text-center py-5">
+              <div className="spinner-border text-danger" role="status" />
+              <p className="mt-2 text-muted">Loading posts…</p>
+            </div>
+          ) : posts.length === 0 ? (
+            <div className="text-center py-5 border rounded bg-light">
+              <p className="text-muted mb-3">No posts yet.</p>
+              {canPost && (
+                <button
+                  className="btn btn-danger"
+                  onClick={() => setShowPostModal(true)}
+                >
+                  Create the first post
+                </button>
+              )}
+            </div>
+          ) : (
+            <div className="row g-4">
+              {posts.map((t) => (
+                <div key={t._id} className="col-md-4">
+                  <article className="community-card h-100 d-flex flex-column">
+                    <div className="d-flex align-items-center justify-content-between mb-3">
+                      <div className="d-flex align-items-center">
+                        <div className="community-avatar me-3">
+                          {getHandle(t.authorId).charAt(1).toUpperCase()}
+                        </div>
+                        <div>
+                          <div className="fw-semibold small text-dark">
+                            {getHandle(t.authorId)}
+                          </div>
+                          <div className="community-role-badge">{t.role}</div>
+                        </div>
                       </div>
-                      <div className="community-role-badge">
-                        {t.role}
+                      {canDeletePost(t) && (
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-outline-danger border-0 p-1"
+                          onClick={() => handleDeleteClick(t)}
+                          disabled={deleting === t._id}
+                          title="Delete post"
+                        >
+                          {deleting === t._id ? (
+                            <span className="spinner-border spinner-border-sm" />
+                          ) : (
+                            "🗑️"
+                          )}
+                        </button>
+                      )}
+                    </div>
+
+                    <h6 className="fw-semibold mb-2">{t.title}</h6>
+                    <p className="text-muted small flex-grow-1">{t.body}</p>
+
+                    <div className="d-flex justify-content-between align-items-center mt-3 pt-2 border-top border-secondary">
+                      <span className="text-muted small">
+                        {formatTime(t.createdAt)}
+                      </span>
+                      <div className="d-flex gap-3">
+                        <button
+                          className={`community-icon-btn ${isAcknowledged(t) ? "text-danger fw-bold" : ""}`}
+                          type="button"
+                          onClick={() => handleAcknowledge(t._id)}
+                          disabled={!user?._id || acknowledging === t._id}
+                        >
+                          👍{" "}
+                          <span className="small">
+                            Acknowledge
+                            {t.acknowledgedBy?.length > 0 &&
+                              ` (${t.acknowledgedBy.length})`}
+                          </span>
+                        </button>
+                        <button
+                          className="community-icon-btn"
+                          type="button"
+                          onClick={() =>
+                            setReplyingTo(replyingTo === t._id ? null : t._id)
+                          }
+                          disabled={!user?._id}
+                        >
+                          💬{" "}
+                          <span className="small">
+                            Reply
+                            {t.replies?.length > 0 && ` (${t.replies.length})`}
+                          </span>
+                        </button>
                       </div>
                     </div>
-                  </div>
 
-                  <h6 className="text-white fw-semibold mb-2">
-                    {t.title}
-                  </h6>
-                  <p className="text-muted small flex-grow-1">
-                    {t.body}
-                  </p>
+                    {t.replies?.length > 0 && (
+                      <div className="mt-3 pt-2 border-top border-secondary">
+                        <div className="small fw-semibold text-muted mb-2">
+                          Replies
+                        </div>
+                        {t.replies.map((r) => (
+                          <div
+                            key={r._id}
+                            className="d-flex align-items-start mb-2"
+                          >
+                            <div className="community-avatar me-2" style={{ width: 28, height: 28, fontSize: "0.7rem" }}>
+                              {getHandle(r.authorId).charAt(1).toUpperCase()}
+                            </div>
+                            <div className="flex-grow-1">
+                              <span className="fw-semibold small text-dark">
+                                {getHandle(r.authorId)}
+                              </span>
+                              <span className="text-muted small ms-1">
+                                {formatTime(r.createdAt)}
+                              </span>
+                              <p className="small text-muted mb-0 mt-1">
+                                {r.body}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
 
-                  <div className="d-flex justify-content-between align-items-center mt-3 pt-2 border-top border-secondary">
-                    <span className="text-muted small">{t.time}</span>
-                    <div className="d-flex gap-3">
-                      <button className="community-icon-btn" type="button">
-                        👍 <span className="small">Acknowledge</span>
-                      </button>
-                      <button className="community-icon-btn" type="button">
-                        💬 <span className="small">Reply</span>
-                      </button>
-                    </div>
-                  </div>
-                </article>
-              </div>
-            ))}
-          </div>
+                    {replyingTo === t._id && (
+                      <div className="mt-3 pt-2 border-top border-secondary">
+                        <textarea
+                          className="form-control form-control-sm mb-2"
+                          rows={2}
+                          placeholder="Write a reply…"
+                          value={replyText}
+                          onChange={(e) => setReplyText(e.target.value)}
+                        />
+                        <div className="d-flex gap-2">
+                          <button
+                            className="btn btn-sm btn-danger"
+                            onClick={() => handleReply(t._id)}
+                          >
+                            Post Reply
+                          </button>
+                          <button
+                            className="btn btn-sm btn-outline-secondary"
+                            onClick={() => {
+                              setReplyingTo(null);
+                              setReplyText("");
+                            }}
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </article>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </main>
+
+      {showPostModal && (
+        <div
+          className="modal show d-block"
+          style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
+          onClick={() => !posting && setShowPostModal(false)}
+        >
+          <div
+            className="modal-dialog modal-dialog-centered"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">New Post</h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => !posting && setShowPostModal(false)}
+                />
+              </div>
+              <form onSubmit={handleCreatePost}>
+                <div className="modal-body">
+                  <div className="mb-3">
+                    <label className="form-label">Title</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      placeholder="e.g. Urgent A- units needed tonight"
+                      value={postForm.title}
+                      onChange={(e) =>
+                        setPostForm((p) => ({ ...p, title: e.target.value }))
+                      }
+                      required
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <label className="form-label">Message</label>
+                    <textarea
+                      className="form-control"
+                      rows={4}
+                      placeholder="Share your update or request…"
+                      value={postForm.body}
+                      onChange={(e) =>
+                        setPostForm((p) => ({ ...p, body: e.target.value }))
+                      }
+                      required
+                    />
+                  </div>
+                </div>
+                <div className="modal-footer">
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={() => !posting && setShowPostModal(false)}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="btn btn-danger"
+                    disabled={posting || !postForm.title.trim() || !postForm.body.trim()}
+                  >
+                    {posting ? "Posting…" : "Post"}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {deleteConfirmPost && (
+        <div
+          className="modal show d-block"
+          style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
+          onClick={() => setDeleteConfirmPost(null)}
+        >
+          <div
+            className="modal-dialog modal-dialog-centered"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Delete post?</h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setDeleteConfirmPost(null)}
+                />
+              </div>
+              <div className="modal-body">
+                <p className="mb-0">
+                  Are you sure you want to delete &quot;{deleteConfirmPost.title}&quot;?
+                  This cannot be undone and all replies will be removed.
+                </p>
+              </div>
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => setDeleteConfirmPost(null)}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-danger"
+                  onClick={handleDeleteConfirm}
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

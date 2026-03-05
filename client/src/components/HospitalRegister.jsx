@@ -131,7 +131,7 @@ const HospitalRegister = () => {
         >
 
 
-          <h3 className="mb-3 fw-semibold" style={{ color: "#d10000" }}>
+          <h3 className="mb-3 fw-semibold" className="text-danger">
             Hospital Registration
           </h3>
 
