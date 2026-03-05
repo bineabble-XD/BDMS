@@ -5,6 +5,7 @@ import "./App.css";
 import { applySettings } from "./utils/settingsUtils";
 import { LanguageProvider } from "./context/LanguageContext";
 
+import WidgetMenu from "./components/WidgetMenu.jsx";
 import Home from "./components/Home.jsx";
 import Login from "./components/login.jsx";
 import Register from "./components/Register.jsx";
@@ -38,6 +39,7 @@ import NLPAssistant from "./components/NLPAssistant.jsx"
 import AdminBloodBankView from "./components/AdminBloodBankView.jsx";
 import BloodBankManagement from "./components/BloodBankManagement.jsx";
 import MyAppointments from "./components/MyAppointments.jsx";
+import Widgets from "./components/Widgets.jsx";
 
 function App() {
   useEffect(() => {
@@ -71,6 +73,7 @@ function App() {
             <Route path="/admin-blood-bank" element={<AdminBloodBankView />} />
 
             <Route element={<MainLayout />}>
+            <Route path="/widgets" element={<Widgets />} />
               <Route path="/home" element={<Home />} />
               <Route path="/about" element={<About />} />
               <Route path="/feedback" element={<Feedback />} />
@@ -88,7 +91,7 @@ function App() {
             </Route>
           </Routes>
         </div>
-
+        <WidgetMenu />
         <Footer />
       </div>
       </LanguageProvider>

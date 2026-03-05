@@ -4,6 +4,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../features/authSlice";
 import heroImg from "../assets/2+.png";
 import bdmslogo from "../assets/bdmslogo.png";
+import SocialFeed from "./SocialFeed.jsx";
 
 const Home = () => {
   const dispatch = useDispatch();
@@ -68,11 +69,8 @@ const Home = () => {
 
       <section id="urgent" className="urgent-section py-5 bg-light">
         <div className="container">
-          <h4 className="mb-3 fw-semibold">Social Media - Announcement</h4>
-          <p className="text-muted mb-0">
-            Show real-time announcements or social media posts from hospitals
-            and blood donation campaigns.
-          </p>
+          <SocialFeed />
+
         </div>
       </section>
     </div>

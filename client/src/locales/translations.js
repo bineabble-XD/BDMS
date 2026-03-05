@@ -48,6 +48,15 @@ export const translations = {
     admin: "Admin",
     hospital: "Hospital",
     bloodBank: "Blood Bank",
+
+    widgetsBtn: "Widgets",
+    widgetsTitle: "Quick Widgets",
+    widgetsColorBlind: "Color Blindness",
+    widgetsReminders: "Reminders",
+    widgetsManageLink: "Manage Widgets",
+    widgetsSettingsLink: "Settings",
+    widgetsPageTitle: "Widgets & Features",
+    widgetsMoreHint: "More widgets can be added here (e.g., text-to-speech, high contrast, quick shortcuts).",
   },
   AR: {
     navHome: "الرئيسية",
@@ -93,5 +102,15 @@ export const translations = {
 
     navMyAppointments: "مواعيدي",
     navFeedback: "الملاحظات",
+
+
+    widgetsBtn: "الودجات",
+widgetsTitle: "ودجات سريعة",
+widgetsColorBlind: "وضع عمى الألوان",
+widgetsReminders: "التذكيرات",
+widgetsManageLink: "إدارة الودجات",
+widgetsSettingsLink: "الإعدادات",
+widgetsPageTitle: "الودجات والميزات",
+widgetsMoreHint: "يمكن إضافة ودجات أخرى هنا (مثل تحويل النص إلى كلام، تباين عالي، اختصارات سريعة).",
   },
 };

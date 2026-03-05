@@ -3,6 +3,8 @@ export const SETTINGS_KEYS = {
   LANGUAGE: "bdms_language",
   FONT_SIZE: "bdms_font_size",
   COLOR_BLIND: "bdms_colorblind",
+  REMINDERS: "bdms_reminders",
+
 };
 
 export function applySettings() {
