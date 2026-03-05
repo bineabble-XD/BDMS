@@ -5,6 +5,9 @@ import { logout } from "../features/authSlice";
 import heroImg from "../assets/2+.png";
 import bdmslogo from "../assets/bdmslogo.png";
 import SocialFeed from "./SocialFeed.jsx";
+import { FaInstagram } from "react-icons/fa";
+import { FaXTwitter } from "react-icons/fa6";
+import ChatbotWidget from "./ChatbotWidget.jsx";
 
 const Home = () => {
   const dispatch = useDispatch();
@@ -73,6 +76,32 @@ const Home = () => {
 
         </div>
       </section>
+       <section className="social-section py-4 text-center">
+              <div className="container">
+                <h4 className="mb-3">Follow BDMS</h4>
+      
+                <div
+                  style={{ display: "flex", justifyContent: "center", gap: "25px" }}
+                >
+                  <a
+                    href="https://www.instagram.com/bdmstech?igsh=MWI1b3U1cjdqeGp1dw%3D%3D&utm_source=qr"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <FaInstagram size={35} color="#E1306C" />
+                  </a>
+      
+                  <a
+                    href="https://x.com/bdmsoman?s=21"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <FaXTwitter size={35} />
+                  </a>
+                </div>
+              </div>
+            </section>
+            <ChatbotWidget />
     </div>
   );
 };
