@@ -233,6 +233,15 @@ nav .active-link {
   border-radius: 6px;
 }
 
+.appointment-form-card {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  background-color: #fff;
+}
+
 .appt-submit-btn {
   font-weight: 500;
 }
@@ -450,7 +459,7 @@ nav .active-link {
 
 .admin-app-row:hover,
 .admin-req-row:hover {
-  background-color: #fafafc;
+  background-color: transparent;
 }
 
 .admin-app-illustration {
@@ -1466,6 +1475,28 @@ body.bdms-dark .appointment-page .form-select {
   color: #f5f5f5 !important;
 }
 
+body.bdms-dark .appointment-form-card {
+  background-color: #1f1f1f !important;
+  border-color: #333 !important;
+  color: #f5f5f5;
+}
+
+body.bdms-dark .appointment-form-card .form-check-label,
+body.bdms-dark .appointment-form-card .text-muted {
+  color: #b0b0b0 !important;
+}
+
+body.bdms-dark .appointment-form-card .btn-outline-secondary {
+  border-color: #555 !important;
+  color: #e0e0e0 !important;
+}
+
+body.bdms-dark .appointment-form-card .btn-outline-secondary:hover {
+  background-color: #333 !important;
+  border-color: #666 !important;
+  color: #fff !important;
+}
+
 /* Admin report filters & content */
 body.bdms-dark .admin-report-filters .form-select,
 body.bdms-dark .admin-report-page .form-select {
@@ -1552,9 +1583,12 @@ body.bdms-dark .appointment-row {
   color: #f5f5f5;
 }
 
-body.bdms-dark .item-row:hover,
-body.bdms-dark .appointment-row:hover {
+body.bdms-dark .item-row:hover {
   background-color: #2a2a2a !important;
+}
+
+body.bdms-dark .appointment-row:hover {
+  background-color: transparent !important;
 }
 
 /* Admin/Hospital appointments */
@@ -1680,9 +1714,12 @@ body.bdms-dark .settings-page .setting-label {
   padding: 24px;
 }
 
-.dashboard-card .item-row:hover,
-.dashboard-side-card .appointment-row:hover {
+.dashboard-card .item-row:hover {
   background: #f9f9fb;
+}
+
+.dashboard-side-card .appointment-row:hover {
+  background: transparent;
 }
 
 .urgent-dot {

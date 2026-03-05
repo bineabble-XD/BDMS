@@ -184,20 +184,11 @@ const Appointment = () => {
     <div className="appointment-page container-fluid" style={{ paddingBottom: "80px" }}>
       <div className="row min-vh-100 align-items-center">
         <div className="col-md-7 auth-left">
-          <h3 className="fw-semibold mb-4 mt-3" className="text-danger">
+          <h3 className="fw-semibold mb-4 mt-3 text-danger">
             Book an Appointment
           </h3>
 
-          <div
-            style={{
-              maxWidth: "700px",
-              margin: "0 auto",
-              padding: "20px",
-              border: "1px solid #ddd",
-              borderRadius: "10px",
-              backgroundColor: "#fff",
-            }}
-          >
+          <div className="appointment-form-card">
             <form onSubmit={handleSubmit}>
               <h5 className="mb-3">Appointment Details</h5>
 
