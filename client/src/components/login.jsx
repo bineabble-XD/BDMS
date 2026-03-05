@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { loginUser, clearAuthMessage } from "../features/authSlice";
 import donorIllustration from "../assets/1+.png";
@@ -12,6 +12,7 @@ const INVENTORY_PASSWORD = "Blood@123";
 const Login = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const auth = useSelector((state) => state.auth || {});
   const { loading, error, user } = auth;
@@ -87,8 +88,18 @@ const Login = () => {
       return;
     }
 
+    const from = location.state?.from;
+    if (from === "/appointments") {
+      const { urgentHospitalId, urgentBloodType } = location.state || {};
+      navigate("/appointments", {
+        replace: true,
+        state: urgentHospitalId ? { urgentHospitalId, urgentBloodType } : undefined,
+      });
+      return;
+    }
+
     navigate("/home");
-  }, [user, navigate]);
+  }, [user, navigate, location.state]);
 
 
 

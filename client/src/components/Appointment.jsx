@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import donorIllustration from "../assets/11+.png";
 import { createBooking, resetBooking } from "../features/bookingSlice";
@@ -9,9 +9,27 @@ const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5050";
 
 const Appointment = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const dispatch = useDispatch();
 
+  const urgentHospitalId = location.state?.urgentHospitalId;
+  const urgentBloodType = location.state?.urgentBloodType;
+
   const { user } = useSelector((state) => state.auth);
+
+  useEffect(() => {
+    if (!user) {
+      navigate("/login", {
+        replace: true,
+        state: {
+          from: "/appointments",
+          urgentHospitalId,
+          urgentBloodType,
+        },
+      });
+    }
+  }, [user, navigate, urgentHospitalId, urgentBloodType]);
+
   const { loading, success, error } = useSelector((state) => state.booking);
 
   const [hospitals, setHospitals] = useState([]);
@@ -164,13 +182,15 @@ const Appointment = () => {
       .then((data) => {
         if (Array.isArray(data)) {
           setHospitals(data);
-          if (data.length > 0) {
-            setForm((prev) => (prev.hospital ? prev : { ...prev, hospital: data[0]._id }));
+          if (urgentHospitalId && data.some((h) => h._id === urgentHospitalId)) {
+            setForm((prev) => ({ ...prev, hospital: urgentHospitalId }));
+          } else if (data.length > 0 && !form.hospital) {
+            setForm((prev) => ({ ...prev, hospital: data[0]._id }));
           }
         }
       })
       .catch(() => setHospitals([]));
-  }, []);
+  }, [urgentHospitalId]);
 
   useEffect(() => {
     if (success) {
@@ -180,6 +200,14 @@ const Appointment = () => {
     }
   }, [success, dispatch, navigate]);
 
+  if (!user) {
+    return (
+      <div className="appointment-page container-fluid py-5 text-center">
+        <p className="text-muted">Redirecting to login...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="appointment-page container-fluid" style={{ paddingBottom: "80px" }}>
       <div className="row min-vh-100 align-items-center">
@@ -188,13 +216,19 @@ const Appointment = () => {
             Book an Appointment
           </h3>
 
+          {urgentHospitalId && (
+            <div className="alert alert-info mb-3 py-2">
+              Booking for an urgent blood request. Select an available slot below.
+            </div>
+          )}
+
           <div className="appointment-form-card">
             <form onSubmit={handleSubmit}>
               <h5 className="mb-3">Appointment Details</h5>
 
               <div className="mb-4">
                 <label className="form-label fw-semibold">
-                  Preferred Hospital
+                  {urgentHospitalId ? "Hospital" : "Preferred Hospital"}
                 </label>
                 <select
                   className="form-select"
@@ -202,6 +236,7 @@ const Appointment = () => {
                   value={form.hospital}
                   onChange={handleChange}
                   required
+                  disabled={!!urgentHospitalId}
                 >
                   <option value="">Select hospital</option>
                   {hospitals.map((h) => (
@@ -210,6 +245,9 @@ const Appointment = () => {
                     </option>
                   ))}
                 </select>
+                {urgentHospitalId && (
+                  <small className="text-muted d-block mt-1">Hospital fixed for this urgent request.</small>
+                )}
                 {hospitals.length === 0 && (
                   <small className="text-muted">No approved hospitals available. Please try again later.</small>
                 )}

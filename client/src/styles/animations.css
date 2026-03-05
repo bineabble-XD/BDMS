@@ -1,0 +1,235 @@
+/* BDMS Fluid Animations */
+:root {
+  --animate-duration: 0.3s;
+  --animate-duration-slow: 0.45s;
+  --animate-ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --animate-ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --animate-ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Page content fade-in */
+.page-content {
+  animation: bdms-fade-in var(--animate-duration) var(--animate-ease-out);
+}
+
+@keyframes bdms-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Navbar & nav links */
+.bdms-navbar,
+.bdms-navbar .container {
+  transition: background-color var(--animate-duration) var(--animate-ease),
+    border-color var(--animate-duration) var(--animate-ease),
+    box-shadow var(--animate-duration) var(--animate-ease);
+}
+
+nav .nav-link {
+  transition: color var(--animate-duration) var(--animate-ease),
+    border-color var(--animate-duration) var(--animate-ease),
+    opacity var(--animate-duration) var(--animate-ease),
+    transform var(--animate-duration) var(--animate-ease);
+}
+
+nav .nav-link:hover {
+  transform: translateY(-1px);
+}
+
+/* Buttons */
+.btn {
+  transition: background-color var(--animate-duration) var(--animate-ease),
+    border-color var(--animate-duration) var(--animate-ease),
+    color var(--animate-duration) var(--animate-ease),
+    transform var(--animate-duration) var(--animate-ease),
+    box-shadow var(--animate-duration) var(--animate-ease),
+    opacity var(--animate-duration) var(--animate-ease);
+}
+
+.btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.btn:active:not(:disabled) {
+  transform: translateY(0);
+  transition-duration: 0.1s;
+}
+
+/* Cards */
+.card,
+.urgent-card,
+.dashboard-card,
+.dashboard-side-card,
+.admin-app-card,
+.admin-requests-card,
+.admin-report-card-inner,
+.about-card,
+.appointment-form-card,
+.settings-box,
+.manage-card,
+.community-card {
+  transition: transform var(--animate-duration) var(--animate-ease),
+    box-shadow var(--animate-duration) var(--animate-ease),
+    border-color var(--animate-duration) var(--animate-ease),
+    background-color var(--animate-duration) var(--animate-ease);
+}
+
+.card:hover,
+.urgent-card:hover,
+.dashboard-card:hover,
+.dashboard-side-card:hover,
+.admin-app-card:hover,
+.about-card:hover,
+.settings-box:hover,
+.manage-card:hover,
+.community-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+}
+
+/* Form controls */
+.form-control,
+.form-select {
+  transition: border-color var(--animate-duration) var(--animate-ease),
+    box-shadow var(--animate-duration) var(--animate-ease),
+    background-color var(--animate-duration) var(--animate-ease);
+}
+
+.form-control:focus,
+.form-select:focus {
+  transition-duration: 0.2s;
+}
+
+/* Modal */
+.modal,
+.modal.show {
+  animation: bdms-modal-backdrop var(--animate-duration) var(--animate-ease-out);
+}
+
+.modal .modal-dialog {
+  animation: bdms-modal-slide var(--animate-duration) var(--animate-ease-out);
+}
+
+@keyframes bdms-modal-backdrop {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes bdms-modal-slide {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Toggle buttons (Settings) */
+.toggle-btn,
+.lang-btn,
+.font-btn {
+  transition: background-color var(--animate-duration) var(--animate-ease),
+    color var(--animate-duration) var(--animate-ease),
+    transform var(--animate-duration) var(--animate-ease),
+    border-color var(--animate-duration) var(--animate-ease);
+}
+
+.toggle-btn:hover,
+.lang-btn:hover,
+.font-btn:hover {
+  transform: scale(1.02);
+}
+
+/* List items & rows */
+.admin-app-row,
+.admin-req-row,
+.dashboard-card .item-row,
+.dashboard-side-card .appointment-row,
+.urgent-field-row {
+  transition: background-color var(--animate-duration) var(--animate-ease);
+}
+
+/* Footer */
+.bdms-footer {
+  transition: background var(--animate-duration) var(--animate-ease),
+    opacity var(--animate-duration) var(--animate-ease);
+}
+
+/* Urgent cards - stagger children */
+.urgent-page .row.g-4 > [class*="col-"],
+.page-content .row.g-4 > [class*="col-"] {
+  animation: bdms-fade-in var(--animate-duration-slow) var(--animate-ease-out) backwards;
+}
+
+.urgent-page .row.g-4 > [class*="col-"]:nth-child(1) { animation-delay: 0.05s; }
+.urgent-page .row.g-4 > [class*="col-"]:nth-child(2) { animation-delay: 0.1s; }
+.urgent-page .row.g-4 > [class*="col-"]:nth-child(3) { animation-delay: 0.15s; }
+.urgent-page .row.g-4 > [class*="col-"]:nth-child(4) { animation-delay: 0.2s; }
+.urgent-page .row.g-4 > [class*="col-"]:nth-child(5) { animation-delay: 0.25s; }
+.urgent-page .row.g-4 > [class*="col-"]:nth-child(6) { animation-delay: 0.3s; }
+
+/* Links */
+a:not(.nav-link):not(.btn) {
+  transition: color var(--animate-duration) var(--animate-ease),
+    opacity var(--animate-duration) var(--animate-ease);
+}
+
+/* Badges */
+.badge {
+  transition: background-color var(--animate-duration) var(--animate-ease),
+    transform var(--animate-duration) var(--animate-ease);
+}
+
+/* Input groups & alerts */
+.alert {
+  animation: bdms-fade-in var(--animate-duration) var(--animate-ease-out);
+}
+
+/* Hero section */
+.hero-section,
+.hero-section .container {
+  transition: background-color var(--animate-duration) var(--animate-ease);
+}
+
+/* Profile icon & avatar */
+.profile-icon-btn,
+.community-avatar,
+.admin-profile-icon {
+  transition: transform var(--animate-duration) var(--animate-ease),
+    box-shadow var(--animate-duration) var(--animate-ease),
+    background-color var(--animate-duration) var(--animate-ease);
+}
+
+.profile-icon-btn:hover,
+.admin-profile-icon:hover {
+  transform: scale(1.08);
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .page-content {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}

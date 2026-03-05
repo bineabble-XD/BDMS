@@ -7,7 +7,6 @@ const urgentRequestSchema = new mongoose.Schema(
       ref: "HospitalProfile",
       required: true,
     },
-    bookingId: { type: mongoose.Schema.Types.ObjectId, ref: "Booking", default: null },
     bloodType: {
       type: String,
       required: true,

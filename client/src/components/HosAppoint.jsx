@@ -25,8 +25,6 @@ const formatDate = (d) => {
 
 const HosAppoint = () => {
   const [appointments, setAppointments] = useState([]);
-  const [urgentList, setUrgentList] = useState([]);
-  const [postedUrgentMap, setPostedUrgentMap] = useState({}); // bookingId -> urgentRequestId
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState(null);
   const [searchName, setSearchName] = useState("");
@@ -37,27 +35,12 @@ const HosAppoint = () => {
   const fetchData = async () => {
     if (!userId) return;
     try {
-      const [bookingsRes, urgentRes] = await Promise.all([
-        fetch(`${API_BASE}/bookings/hospital/${userId}`),
-        fetch(`${API_BASE}/urgent-requests/hospital/${userId}`),
-      ]);
+      const bookingsRes = await fetch(`${API_BASE}/bookings/hospital/${userId}`);
       if (bookingsRes.ok) {
         const data = await bookingsRes.json();
         const upcoming = data.appointments || [];
         const done = data.completed || [];
         setAppointments([...upcoming, ...done]);
-      }
-      if (urgentRes.ok) {
-        const list = await urgentRes.json();
-        setUrgentList(list || []);
-        const map = {};
-        (list || []).forEach((ur) => {
-          const bid = ur.bookingId;
-          if (!bid) return;
-          const key = String(bid);
-          map[key] = String(ur._id);
-        });
-        setPostedUrgentMap(map);
       }
     } catch (err) {
       console.error("HosAppoint fetch error:", err);
@@ -91,35 +74,6 @@ const HosAppoint = () => {
     }
   };
 
-  const handlePostUrgent = async (booking) => {
-    if (!userId || !booking) return;
-    setBusyId(booking._id);
-    try {
-      const res = await fetch(`${API_BASE}/urgent-requests`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          userId,
-          bloodType: booking.bloodType,
-          quantity: 1,
-          message: "",
-          bookingId: booking._id,
-        }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (res.ok && data?._id) {
-        setPostedUrgentMap((prev) => ({ ...prev, [String(booking._id)]: data._id }));
-        setUrgentList((prev) => [...prev, { ...data, bookingId: booking._id }]);
-      } else {
-        alert(data?.message || "Failed to post urgent");
-      }
-    } catch (err) {
-      alert("Network error");
-    } finally {
-      setBusyId(null);
-    }
-  };
-
   const handleConfirmDonation = async (booking) => {
     if (!userId || !booking) return;
     setBusyId(booking._id);
@@ -142,35 +96,6 @@ const HosAppoint = () => {
     }
   };
 
-  const handleUnpost = async (urgentRequestId, bookingId) => {
-    const urId = String(urgentRequestId);
-    if (!urId || !userId) return;
-    setBusyId(urId);
-    const url = `${API_BASE}/urgent-requests/${urId}?userId=${encodeURIComponent(userId)}`;
-    try {
-      const res = await fetch(url, { method: "DELETE" });
-      const data = await res.json().catch(() => ({}));
-      if (res.ok) {
-        setPostedUrgentMap((prev) => {
-          const next = { ...prev };
-          if (bookingId) delete next[String(bookingId)];
-          Object.keys(next).forEach((k) => {
-            if (String(next[k]) === urId) delete next[k];
-          });
-          return next;
-        });
-        setUrgentList((prev) => prev.filter((ur) => String(ur._id) !== urId));
-        fetchData();
-      } else {
-        alert(`${res.status}: ${data?.message || "Failed to unpost"}`);
-      }
-    } catch (err) {
-      alert("Network error: " + (err.message || "Unknown"));
-    } finally {
-      setBusyId(null);
-    }
-  };
-
   const pendingCount = 0; // Pending are in HosDash; this page focuses on appointments
 
   return (
@@ -181,7 +106,7 @@ const HosAppoint = () => {
             <div>
               <h3 className="fw-semibold mb-1">Appointments overview</h3>
               <p className="text-muted small mb-0">
-                Review upcoming donations and manage urgent requests.
+                Review upcoming donations and confirm completed donations.
               </p>
             </div>
           </div>
@@ -226,11 +151,6 @@ const HosAppoint = () => {
                     const donor = item.donor || {};
                     const name = donor.fName || "Donor";
                     const hospitalName = item.hospital?.hospitalName || "Hospital";
-                    const bid = String(item._id);
-                    const fromMap = postedUrgentMap[bid];
-                    const fromList = urgentList.find((ur) => String(ur.bookingId || "") === bid);
-                    const urgentId = fromMap || fromList?._id;
-                    const isPosted = !!urgentId;
                     const isCompleted = item.status === "completed";
                     const canConfirm = isAppointmentReached(item.appointmentDate);
                     return (
@@ -266,24 +186,14 @@ const HosAppoint = () => {
                               </button>
                             )}
                             {!isCompleted && (
-                              <>
-                                <button
-                                  className={`btn btn-sm ${isPosted ? "btn-outline-secondary" : "btn-outline-danger"}`}
-                                  style={{ minWidth: "100px" }}
-                                  disabled={!!busyId}
-                                  onClick={() => isPosted ? handleUnpost(urgentId, bid) : handlePostUrgent(item)}
-                                >
-                                  {busyId === (isPosted ? urgentId : item._id) ? "..." : isPosted ? "Unpost" : "Post urgent"}
-                                </button>
-                                <button
-                                  className="btn btn-outline-secondary btn-sm"
-                                  style={{ minWidth: "100px" }}
-                                  disabled={!!busyId}
-                                  onClick={() => handleCancel(item._id)}
-                                >
-                                  {busyId === item._id ? "..." : "Cancel"}
-                                </button>
-                              </>
+                              <button
+                                className="btn btn-outline-secondary btn-sm"
+                                style={{ minWidth: "100px" }}
+                                disabled={!!busyId}
+                                onClick={() => handleCancel(item._id)}
+                              >
+                                {busyId === item._id ? "..." : "Cancel"}
+                              </button>
                             )}
                             <Link
                               to="/HosManRequest"
@@ -313,35 +223,14 @@ const HosAppoint = () => {
 
               <div className="admin-requests-card p-3">
                 <div className="d-flex justify-content-between align-items-center mb-3">
-                  <h6 className="mb-0">Your urgent requests</h6>
-                  <span className="badge rounded-pill text-bg-danger-subtle">
-                    {urgentList.length} open
-                  </span>
+                  <h6 className="mb-0">Urgent requests</h6>
+                  <Link to="/urgent-requests" className="btn btn-link p-0 admin-link small">
+                    View / Create
+                  </Link>
                 </div>
-
-                {urgentList.length === 0 ? (
-                  <p className="text-muted small mb-0">No urgent requests posted.</p>
-                ) : (
-                  urgentList.map((ur) => (
-                    <div key={ur._id}>
-                      <div className="admin-req-row d-flex justify-content-between align-items-start py-2">
-                        <div>
-                          <div className="fw-semibold small">{ur.bloodType}</div>
-                          <div className="text-muted small">{ur.donorName || "—"}</div>
-                          <div className="text-muted small">{ur.donorPhone ? `+${ur.donorPhone}` : "—"}</div>
-                        </div>
-                        <button
-                          className="btn btn-link p-0 admin-link small"
-                          disabled={!!busyId}
-                          onClick={() => handleUnpost(ur._id, ur.bookingId ? String(ur.bookingId) : null)}
-                        >
-                          Unpost
-                        </button>
-                      </div>
-                      <hr className="my-1" />
-                    </div>
-                  ))
-                )}
+                <p className="text-muted small mb-0">
+                  Post urgent blood supply requests from the Urgent Requests page. Donors can book appointments directly.
+                </p>
               </div>
             </div>
           </div>

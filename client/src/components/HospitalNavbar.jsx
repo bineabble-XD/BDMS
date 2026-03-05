@@ -69,6 +69,12 @@ const HospitalNavbar = () => {
           >
             {t("navNLPAssistant")}
           </Link>
+          <Link
+            className={`nav-link ${isActive("/urgent-requests")}`}
+            to="/urgent-requests"
+          >
+            {t("navUrgentRequests")}
+          </Link>
           {(hospital?._id || hospital?.id) && (
             <Link
               className={`nav-link ${isActive("/blood-bank")}`}

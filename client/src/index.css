@@ -71,13 +71,32 @@ html.bdms-font-large {
   font-size: 18px;
 }
 
-/* Color blindness mode - high contrast, avoid red-green reliance */
-body.bdms-colorblind .text-danger,
+/* Color blindness mode - replace red with blue, avoid red-green reliance */
+body.bdms-colorblind {
+  --bdms-primary: #0066cc;
+  --bdms-primary-hover: #0052a3;
+  --bdms-primary-light: rgba(0, 102, 204, 0.12);
+}
+
+/* .text-danger = colored text only (no background) — e.g. "BLOOD", page titles */
+body.bdms-colorblind .text-danger {
+  color: #0066cc !important;
+  background-color: transparent !important;
+  border-color: transparent !important;
+}
+
+/* .btn-danger & .badge.bg-danger = filled elements (blue bg, white text) */
 body.bdms-colorblind .btn-danger,
 body.bdms-colorblind .badge.bg-danger {
-  color: #0066cc !important;
+  color: white !important;
   background-color: #0066cc !important;
   border-color: #0066cc !important;
+}
+
+/* .badge.bg-light.text-danger = keep light bg, blue text (e.g. About page) */
+body.bdms-colorblind .badge.bg-light.text-danger {
+  color: #0066cc !important;
+  background-color: #f8f9fa !important;
 }
 
 body.bdms-colorblind .btn-outline-danger {
@@ -124,6 +143,82 @@ body.bdms-colorblind .community-avatar {
 
 body.bdms-colorblind .settings-back-btn:hover {
   color: #0066cc !important;
+}
+
+/* Widgets & notification bell (use CSS vars, but ensure overrides for inline fallbacks) */
+body.bdms-colorblind .widget-fab,
+body.bdms-colorblind .widget-show-tab {
+  background: var(--bdms-primary) !important;
+}
+
+body.bdms-colorblind .widget-fab:hover,
+body.bdms-colorblind .widget-show-tab:hover {
+  background: var(--bdms-primary-hover) !important;
+}
+
+body.bdms-colorblind .nav-notif-btn:hover {
+  color: #0066cc !important;
+}
+
+body.bdms-colorblind .nav-notif-badge {
+  background: #0066cc !important;
+  color: white !important;
+}
+
+body.bdms-colorblind .nav-notif-footer,
+body.bdms-colorblind .widget-link {
+  color: #0066cc !important;
+}
+
+body.bdms-colorblind .nav-notif-footer:hover {
+  background: rgba(0, 102, 204, 0.1) !important;
+}
+
+body.bdms-colorblind .widget-toggle-btn.active {
+  background: var(--bdms-primary-light) !important;
+}
+
+/* Status badges - distinguish green/yellow/red for colorblind users */
+body.bdms-colorblind .badge.bg-success {
+  background-color: #009688 !important;
+  color: white !important;
+}
+
+body.bdms-colorblind .badge.bg-warning {
+  background-color: #ff9800 !important;
+  color: #111 !important;
+}
+
+body.bdms-colorblind .text-success {
+  color: #009688 !important;
+}
+
+body.bdms-colorblind .spinner-border.text-danger {
+  color: #0066cc !important;
+}
+
+body.bdms-colorblind .badge.bg-danger.bg-opacity-10,
+body.bdms-colorblind .badge.bg-danger.bg-opacity-10.text-danger {
+  background-color: rgba(0, 102, 204, 0.15) !important;
+  color: #0066cc !important;
+}
+
+body.bdms-colorblind .badge.text-bg-danger-subtle {
+  background-color: rgba(0, 102, 204, 0.15) !important;
+  color: #0066cc !important;
+}
+
+/* Small status dots (e.g. appointment status) */
+body.bdms-colorblind .rounded-circle.bg-success {
+  background-color: #009688 !important;
+}
+
+body.bdms-colorblind .rounded-circle.bg-warning {
+  background-color: #ff9800 !important;
+}
+
+body.bdms-colorblind .rounded-circle.bg-danger {
+  background-color: #0066cc !important;
 }
 
 /* RTL: flip back arrow when direction is right-to-left */

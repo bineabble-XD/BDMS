@@ -70,6 +70,12 @@ const AdminNavbar = () => {
             {t("navNLPAssistant")}
           </Link>
           <Link
+            className={`nav-link ${isActive("/urgent-requests")}`}
+            to="/urgent-requests"
+          >
+            {t("navUrgentRequests")}
+          </Link>
+          <Link
             className={`nav-link ${isActive("/blood-bank")}`}
             to="/admin-blood-bank"
           >

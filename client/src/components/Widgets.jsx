@@ -11,19 +11,11 @@ const Widgets = () => {
   const [colorBlind, setColorBlind] = useState(
     localStorage.getItem(SETTINGS_KEYS.COLOR_BLIND) === "true"
   );
-  const [reminders, setReminders] = useState(
-    localStorage.getItem(SETTINGS_KEYS.REMINDERS) === "true"
-  );
 
   useEffect(() => {
     localStorage.setItem(SETTINGS_KEYS.COLOR_BLIND, colorBlind ? "true" : "false");
     applySettings();
   }, [colorBlind]);
-
-  useEffect(() => {
-    localStorage.setItem(SETTINGS_KEYS.REMINDERS, reminders ? "true" : "false");
-    window.dispatchEvent(new CustomEvent("bdms-widgets-changed"));
-  }, [reminders]);
 
   return (
     <div className="widgets-page">
@@ -48,24 +40,6 @@ const Widgets = () => {
               <span
                 className={`toggle-btn ${colorBlind ? "active" : ""}`}
                 onClick={() => setColorBlind(true)}
-              >
-                {t("settingsOn")}
-              </span>
-            </div>
-          </div>
-
-          <div className="setting-row">
-            <span className="setting-label">{t("widgetsReminders")}</span>
-            <div className="toggle-group">
-              <span
-                className={`toggle-btn ${!reminders ? "active" : ""}`}
-                onClick={() => setReminders(false)}
-              >
-                {t("settingsOff")}
-              </span>
-              <span
-                className={`toggle-btn ${reminders ? "active" : ""}`}
-                onClick={() => setReminders(true)}
               >
                 {t("settingsOn")}
               </span>

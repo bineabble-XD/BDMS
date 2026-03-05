@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
 import { applySettings } from "./utils/settingsUtils";
@@ -41,17 +41,12 @@ import BloodBankManagement from "./components/BloodBankManagement.jsx";
 import MyAppointments from "./components/MyAppointments.jsx";
 import Widgets from "./components/Widgets.jsx";
 
-function App() {
-  useEffect(() => {
-    applySettings();
-  }, []);
-
+function AppContent() {
+  const location = useLocation();
   return (
-    <BrowserRouter>
-      <LanguageProvider>
-      <div className="app-shell">
-        <AppNavbar />
-        <div className="page-content">
+    <>
+      <AppNavbar />
+      <div className="page-content" key={location.pathname}>
           <Routes>
             <Route path="/reports" element={<AdminReport />} />
             <Route path="/admin-appointments" element={<AdminAppoint />} />
@@ -91,9 +86,23 @@ function App() {
             </Route>
           </Routes>
         </div>
-        <WidgetMenu />
-        <Footer />
-      </div>
+      <WidgetMenu />
+      <Footer />
+    </>
+  );
+}
+
+function App() {
+  useEffect(() => {
+    applySettings();
+  }, []);
+
+  return (
+    <BrowserRouter>
+      <LanguageProvider>
+        <div className="app-shell">
+          <AppContent />
+        </div>
       </LanguageProvider>
     </BrowserRouter>
   );

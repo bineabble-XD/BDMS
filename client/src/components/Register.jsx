@@ -17,7 +17,6 @@ const Register = () => {
     Age: "",
     gender: "",
     bloodType: "",
-    role: "Donor", 
     email: "",
     password: "",
     address: "",
@@ -226,39 +225,26 @@ const Register = () => {
                 </div>
               </div>
 
-              {/* Blood Type, Email, and Address */}
-              <div className="row">
-                <div className="col-md-6 mb-3">
-                  <label className="form-label">Blood Type</label>
-                  <select
-                    className="form-select"
-                    name="bloodType"
-                    value={formData.bloodType}
-                    onChange={handleChange}
-                    required
-                  >
-                    <option value="">Select blood type</option>
-                    <option>A+</option>
-                    <option>A-</option>
-                    <option>B+</option>
-                    <option>B-</option>
-                    <option>AB+</option>
-                    <option>AB-</option>
-                    <option>O+</option>
-                    <option>O-</option>
-                  </select>
-                </div>
-
-                <div className="col-md-6 mb-3">
-                  <label className="form-label">Role</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    value="Donor"
-                    disabled
-                    readOnly
-                  />
-                </div>
+              {/* Blood Type */}
+              <div className="mb-3">
+                <label className="form-label">Blood Type</label>
+                <select
+                  className="form-select"
+                  name="bloodType"
+                  value={formData.bloodType}
+                  onChange={handleChange}
+                  required
+                >
+                  <option value="">Select blood type</option>
+                  <option>A+</option>
+                  <option>A-</option>
+                  <option>B+</option>
+                  <option>B-</option>
+                  <option>AB+</option>
+                  <option>AB-</option>
+                  <option>O+</option>
+                  <option>O-</option>
+                </select>
               </div>
 
               <div className="mb-3">

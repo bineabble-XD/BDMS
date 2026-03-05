@@ -726,15 +726,9 @@ app.get("/bookings/hospital/:userId", async (req, res) => {
   }
 });
 
-// ✅ UPDATED: Send email when approved + DEBUG LOGS
 app.patch("/bookings/:id/status", async (req, res) => {
   try {
     const { status, userId } = req.body;
-
-    console.log("✅ Status update route called");
-    console.log("Booking ID:", req.params.id);
-    console.log("New status:", status);
-    console.log("Hospital userId:", userId);
 
     if (!["approved", "rejected"].includes(status)) {
       return res.status(400).json({ message: "Status must be approved or rejected" });
@@ -757,12 +751,10 @@ app.patch("/bookings/:id/status", async (req, res) => {
       return res.status(403).json({ message: "Hospital profile not found" });
     }
 
-    // ✅ populate donor to guarantee we get donor email
-    const booking = await Booking.findById(req.params.id).populate("donor", "email fName");
+    const booking = await Booking.findById(req.params.id)
+      .populate("donor", "email fName")
+      .populate("hospital", "hospitalName city contactPhone contactPerson");
     if (!booking) return res.status(404).json({ message: "Booking not found" });
-
-    console.log("Booking donor:", booking?.donor);
-    console.log("Booking hospital:", booking?.hospital);
 
     const bhId = booking.hospital?._id ?? booking.hospital;
     const bhp = await HospitalProfileModel.findById(bhId);
@@ -784,47 +776,42 @@ app.patch("/bookings/:id/status", async (req, res) => {
     booking.status = status;
     await booking.save();
 
-    // ✅ NEW: Confirmation email to donor when APPROVED
     if (status === "approved") {
       try {
-        console.log("✅ Approved booking → preparing email...");
-
         const donorEmail = booking?.donor?.email;
         const donorName = booking?.donor?.fName || "Donor";
-
-        console.log("Donor email:", donorEmail);
-
-        const hospitalName =
-          bhp?.hospitalName || profile?.hospitalName || "Hospital";
-
+        const hospitalName = bhp?.hospitalName || profile?.hospitalName || "Hospital";
+        const hospitalCity = bhp?.city || "";
+        const hospitalPhone = bhp?.contactPhone || "";
+        const contactPerson = bhp?.contactPerson || "";
         const dateStr = formatDateTimeOman(booking.appointmentDate);
 
-        if (!donorEmail) {
-          console.log("❌ No donor email found. Email will not be sent.");
-        } else {
-          const info = await transporter.sendMail({
+        if (donorEmail) {
+          await transporter.sendMail({
             from: `"BDMS" <${process.env.EMAIL_USER || "bdmsbtech@gmail.com"}>`,
             to: donorEmail,
-            subject: "Appointment Confirmed ✅",
+            subject: "Your Blood Donation Appointment Has Been Approved",
             html: `
-              <div style="font-family: Arial, sans-serif; line-height: 1.6">
-                <h2>Appointment Confirmed ✅</h2>
+              <div style="font-family: Arial, sans-serif; line-height: 1.6; max-width: 520px">
+                <h2 style="color: #c0392b;">Your Appointment Has Been Approved</h2>
                 <p>Hello <b>${donorName}</b>,</p>
-                <p>Your blood donation appointment has been <b>confirmed</b> by <b>${hospitalName}</b>.</p>
-                <p><b>Date & Time:</b> ${dateStr}</p>
-                <p><b>Blood Type:</b> ${booking.bloodType || "-"}</p>
-                <p><b>Status:</b> ${booking.status}</p>
-                <hr/>
-                <p>Thank you for donating!<br/>BDMS</p>
+                <p>Great news! <b>${hospitalName}</b> has approved your blood donation appointment.</p>
+                <p style="background: #f8f9fa; padding: 12px; border-radius: 6px;">
+                  <b>Date & Time:</b> ${dateStr}<br/>
+                  <b>Blood Type:</b> ${booking.bloodType || "—"}<br/>
+                  <b>Hospital:</b> ${hospitalName}${hospitalCity ? `, ${hospitalCity}` : ""}
+                </p>
+                ${contactPerson || hospitalPhone ? `
+                <p><b>Contact:</b> ${contactPerson || "—"}${hospitalPhone ? ` | Phone: ${hospitalPhone}` : ""}</p>
+                ` : ""}
+                <hr style="border: none; border-top: 1px solid #eee"/>
+                <p>Please arrive on time. Thank you for donating and saving lives!<br/><b>BDMS</b></p>
               </div>
             `,
           });
-
-          console.log("✅ Email SENT successfully:", info?.response || info);
         }
       } catch (emailErr) {
-        console.error("❌ Email sending failed:", emailErr?.message || emailErr);
-        // do not block approval if email fails
+        console.error("Email send error on approval:", emailErr?.message || emailErr);
       }
     }
 
@@ -985,7 +972,7 @@ app.patch("/urgent-requests/:id/unpost", deleteUrgentRequest);
 app.get("/urgent-requests", async (req, res) => {
   try {
     const requests = await UrgentRequest.find({ status: "open" })
-      .populate("hospital", "hospitalName city contactPerson contactPhone")
+      .populate("hospital", "hospitalName city contactPerson contactPhone contactEmail")
       .sort({ createdAt: -1 });
     res.json(requests);
   } catch (error) {
@@ -994,10 +981,10 @@ app.get("/urgent-requests", async (req, res) => {
   }
 });
 
-// Urgent requests - POST (hospital creates)
+// Urgent requests - POST (hospital creates urgent blood supply request)
 app.post("/urgent-requests", async (req, res) => {
   try {
-    const { userId, bloodType, quantity, message, bookingId } = req.body;
+    const { userId, bloodType, quantity, message } = req.body;
 
     if (!userId || !bloodType)
       return res.status(400).json({ message: "userId and bloodType are required" });
@@ -1005,34 +992,87 @@ app.post("/urgent-requests", async (req, res) => {
     const profile = await HospitalProfileModel.findOne({ userId });
     if (!profile) return res.status(404).json({ message: "Hospital profile not found" });
 
-    if (bookingId) {
-      const existing = await UrgentRequest.findOne({ bookingId, status: "open" });
-      if (existing) {
-        const populated = await UrgentRequest.findById(existing._id).populate(
-          "hospital",
-          "hospitalName city contactPerson contactPhone"
-        );
-        return res.status(200).json(populated);
-      }
-    }
-
     const request = await UrgentRequest.create({
       hospital: profile._id,
       bloodType,
       quantity: quantity || 1,
       message: message || "",
-      bookingId: bookingId || null,
     });
 
     const populated = await UrgentRequest.findById(request._id).populate(
       "hospital",
-      "hospitalName city contactPerson contactPhone"
+      "hospitalName city contactPerson contactPhone contactEmail"
     );
+
+    // Notify donors with matching blood type (email + in-app)
+    const normalizedReq = (bloodType || "").trim();
+    const escapedBt = normalizedReq.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const matchingDonors = await donorModel.find({
+      bloodType: { $regex: new RegExp(`^${escapedBt}$`, "i") },
+      isHospital: { $ne: true },
+      isAdmin: { $ne: true },
+      email: { $exists: true, $ne: "" },
+    });
+
+    const hospitalName = profile?.hospitalName || populated?.hospital?.hospitalName || "A hospital";
+    const hospitalCity = profile?.city || populated?.hospital?.city || "";
+
+    for (const donor of matchingDonors) {
+      try {
+        if (donor.email) {
+          await transporter.sendMail({
+            from: `"BDMS" <${process.env.EMAIL_USER || "bdmsbtech@gmail.com"}>`,
+            to: donor.email,
+            subject: `Urgent: ${hospitalName} needs your blood type (${bloodType})`,
+            html: `
+              <div style="font-family: Arial, sans-serif; line-height: 1.6; max-width: 520px">
+                <h2 style="color: #c0392b;">Urgent Blood Request Matching Your Type</h2>
+                <p>Hello <b>${donor.fName || "Donor"}</b>,</p>
+                <p><b>${hospitalName}</b>${hospitalCity ? ` (${hospitalCity})` : ""} has posted an urgent request for <b>${bloodType}</b> blood.</p>
+                <p>Your blood type matches — you can help save a life! Log in to BDMS to view details and book an appointment.</p>
+                <p style="background: #f8f9fa; padding: 12px; border-radius: 6px;">
+                  <b>Blood type needed:</b> ${bloodType}<br/>
+                  <b>Quantity:</b> ${quantity || 1} unit(s)<br/>
+                  ${message ? `<b>Message:</b> ${message}` : ""}
+                </p>
+                <hr style="border: none; border-top: 1px solid #eee"/>
+                <p>Thank you for being a donor!<br/><b>BDMS</b></p>
+              </div>
+            `,
+          });
+        }
+      } catch (emailErr) {
+        console.error("Urgent request email error for", donor.email, ":", emailErr?.message || emailErr);
+      }
+    }
 
     res.status(201).json(populated);
   } catch (error) {
     console.error("Urgent request create error:", error);
     res.status(500).json({ message: "Failed to create urgent request" });
+  }
+});
+
+// Urgent requests matching donor's blood type (for notification bell)
+app.get("/urgent-requests/matching/:donorId", async (req, res) => {
+  try {
+    const donor = await donorModel.findById(req.params.donorId).select("bloodType");
+    if (!donor || !donor.bloodType)
+      return res.json({ requests: [] });
+
+    const escapedBt = (donor.bloodType || "").trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const requests = await UrgentRequest.find({
+      status: "open",
+      bloodType: { $regex: new RegExp(`^${escapedBt}$`, "i") },
+    })
+      .populate("hospital", "hospitalName city contactPerson contactPhone contactEmail")
+      .sort({ createdAt: -1 })
+      .limit(10);
+
+    res.json({ requests });
+  } catch (err) {
+    console.error("Urgent requests matching error:", err);
+    res.status(500).json({ message: "Failed to fetch matching urgent requests" });
   }
 });
 
@@ -1053,18 +1093,10 @@ app.get("/urgent-requests/hospital/:userId", async (req, res) => {
       hospital: profile._id,
       status: "open",
     })
-      .populate("hospital", "hospitalName city contactPerson contactPhone")
-      .populate({ path: "bookingId", populate: { path: "donor", select: "fName phoneNum" } })
-      .sort({ createdAt: -1 })
-      .lean();
+      .populate("hospital", "hospitalName city contactPerson contactPhone contactEmail")
+      .sort({ createdAt: -1 });
 
-    const normalized = requests.map((r) => ({
-      ...r,
-      bookingId: r.bookingId?._id ? String(r.bookingId._id) : null,
-      donorName: r.bookingId?.donor?.fName || r.hospital?.contactPerson || null,
-      donorPhone: r.bookingId?.donor?.phoneNum || r.hospital?.contactPhone || null,
-    }));
-    res.json(normalized);
+    res.json(requests);
   } catch (error) {
     console.error("Urgent requests fetch error:", error);
     res.status(500).json({ message: "Failed to fetch urgent requests" });
@@ -1077,7 +1109,7 @@ app.get("/bookings/donor/:donorId", async (req, res) => {
     const { donorId } = req.params;
 
     const bookings = await Booking.find({ donor: donorId })
-      .populate("hospital", "hospitalName city contactPhone contactEmail")
+      .populate("hospital", "hospitalName city contactPerson contactPhone contactEmail")
       .sort({ appointmentDate: 1 });
 
     res.json({ bookings });

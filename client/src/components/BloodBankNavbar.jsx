@@ -59,6 +59,12 @@ const BloodBankNavbar = () => {
             {t("navNLPAssistant")}
           </Link>
           <Link
+            className={`nav-link ${isActive("/urgent-requests")}`}
+            to="/urgent-requests"
+          >
+            {t("navUrgentRequests")}
+          </Link>
+          <Link
             className={`nav-link ${isActive("/settings")}`}
             to="/settings"
           >

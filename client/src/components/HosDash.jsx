@@ -133,12 +133,12 @@ const HosDash = () => {
                   </>
                 )}
 
-                <h6 className="mb-3">Urgent Requests</h6>
+                <h6 className="mb-3">Urgent Blood Requests</h6>
 
                 {loading ? (
                   <p className="text-muted small">Loading...</p>
                 ) : urgentRequests.length === 0 ? (
-                  <p className="text-muted small">No urgent requests.</p>
+                  <p className="text-muted small">No urgent requests posted. Create one to request blood supply.</p>
                 ) : (
                   <>
                     {urgentRequests.map((ur) => (
@@ -150,9 +150,8 @@ const HosDash = () => {
                           <div className="d-flex align-items-center gap-2">
                             <span className="urgent-dot" />
                             <span className="fw-semibold small">{ur.bloodType}</span>
+                            <span className="text-muted small">× {ur.quantity || 1}</span>
                           </div>
-                          <div className="text-muted small">{ur.donorName || "—"}</div>
-                          <div className="text-muted small">{ur.donorPhone ? `+${ur.donorPhone}` : "—"}</div>
                         </div>
                         <Link
                           to="/urgent-requests"
@@ -165,14 +164,12 @@ const HosDash = () => {
                   </>
                 )}
 
-                {urgentRequests.length > 0 && (
-                  <Link
-                    to="/urgent-requests"
-                    className="btn btn-link p-0 dashboard-view-link mt-2"
-                  >
-                    View all &gt;
-                  </Link>
-                )}
+                <Link
+                  to="/urgent-requests"
+                  className="btn btn-link p-0 dashboard-view-link mt-2"
+                >
+                  {urgentRequests.length > 0 ? "View all" : "Create request"}&nbsp;&gt;
+                </Link>
               </div>
             </div>
 
