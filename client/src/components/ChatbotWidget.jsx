@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { FaRobot } from "react-icons/fa";
 
 export default function ChatbotWidget() {
   const [open, setOpen] = useState(false);
@@ -65,13 +66,12 @@ export default function ChatbotWidget() {
 
   return (
     <>
-      {/* Floating button */}
       <button
         onClick={() => setOpen((v) => !v)}
         style={{
           position: "fixed",
           right: 20,
-          bottom: 90, // ✅ Above your Widgets button
+          bottom: 110,
           zIndex: 9999,
           width: 56,
           height: 56,
@@ -79,7 +79,7 @@ export default function ChatbotWidget() {
           border: "none",
           cursor: "pointer",
           boxShadow: "0 10px 25px rgba(0,0,0,0.2)",
-          background: "#dc3545", // BDMS red
+          background: "#dc3545",
           color: "white",
           fontSize: 22,
           display: "flex",
@@ -89,16 +89,15 @@ export default function ChatbotWidget() {
         aria-label="Open chat"
         title="Chat with BDMS"
       >
-        {open ? "✕" : "💬"}
+        {open ? "✕" : <FaRobot size={24} />}
       </button>
 
-      {/* Chat window */}
       {open && (
         <div
           style={{
             position: "fixed",
             right: 20,
-            bottom: 155, // sits above the button
+            bottom: 150,
             width: 320,
             maxWidth: "90vw",
             height: 420,
@@ -112,7 +111,6 @@ export default function ChatbotWidget() {
             flexDirection: "column",
           }}
         >
-          {/* Header */}
           <div
             style={{
               background: "#dc3545",
@@ -141,7 +139,6 @@ export default function ChatbotWidget() {
             </button>
           </div>
 
-          {/* Messages */}
           <div
             style={{
               padding: 12,
@@ -177,7 +174,6 @@ export default function ChatbotWidget() {
             <div ref={endRef} />
           </div>
 
-          {/* Input */}
           <div
             style={{
               padding: 10,
