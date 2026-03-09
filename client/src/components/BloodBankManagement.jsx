@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { getMinDateInOman, getTodayInOman, getCurrentMinutesInOman, getNowDatetimeLocalOman } from "../utils/omanTime";
+import { getMinDateInOman, getTodayInOman } from "../utils/omanTime";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5050";
 const BLOOD_TYPES = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
@@ -11,17 +11,31 @@ const BloodBankManagement = () => {
   const [profileId, setProfileId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [newRecord, setNewRecord] = useState({
-    bloodType: "",
-    availability: "",
-    donationDate: "",
-    expiryDate: "",
-  });
+
+  const getExpiryDateFromDonation = (donationDate) => {
+    const donation = new Date(donationDate);
+    donation.setDate(donation.getDate() + 35);
+    return donation.toISOString().split("T")[0];
+  };
+
+  const getDefaultRecord = () => {
+    const donationDate = getTodayInOman();
+
+    return {
+      bloodType: "",
+      availability: "",
+      donationDate,
+      expiryDate: getExpiryDateFromDonation(donationDate),
+    };
+  };
+
+  const [newRecord, setNewRecord] = useState(getDefaultRecord);
 
   const fetchRecords = () => {
     if (!hospitalId) return;
     setLoading(true);
     setError(null);
+
     fetch(`${API_BASE}/blood-bank/${hospitalId}`)
       .then((res) => (res.ok ? res.json() : Promise.reject(new Error("Failed to load"))))
       .then((data) => {
@@ -40,50 +54,44 @@ const BloodBankManagement = () => {
     fetchRecords();
   }, [hospitalId]);
 
+  useEffect(() => {
+    if (!newRecord.donationDate) return;
+
+    setNewRecord((prev) => ({
+      ...prev,
+      expiryDate: getExpiryDateFromDonation(prev.donationDate),
+    }));
+  }, [newRecord.donationDate]);
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setNewRecord({ ...newRecord, [name]: value });
+    setNewRecord((prev) => ({ ...prev, [name]: value }));
   };
 
   const addBloodRecord = async (e) => {
     e.preventDefault();
     const targetProfileId = profileId || hospitalId;
+
     if (!targetProfileId || !newRecord.bloodType || !newRecord.availability || !newRecord.expiryDate) return;
 
     if (newRecord.donationDate) {
-      const donationDt = new Date(newRecord.donationDate);
-      const now = new Date();
-      if (donationDt > now) {
-        setError("Donation date and time cannot be in the future. You cannot add a record for a time that has not been reached yet.");
+      const donationDate = newRecord.donationDate;
+      const today = getTodayInOman();
+      const minDate = getMinDateInOman(-14);
+
+      if (donationDate > today) {
+        setError("Donation date cannot be in the future.");
         return;
       }
-      const minDate = new Date(getMinDateInOman(-14) + "T00:00:00+04:00");
-      if (donationDt < minDate) {
+
+      if (donationDate < minDate) {
         setError("Donation date must be within the last 2 weeks.");
         return;
-      }
-      const [h, m] = newRecord.donationDate.split("T")[1]?.split(":").map(Number) || [0, 0];
-      if (h < 9 || h > 22 || (h === 22 && m > 0)) {
-        setError("Donation time must be between 9:00 AM and 10:00 PM.");
-        return;
-      }
-      if (m % 15 !== 0) {
-        setError("Time must be in 15-minute intervals.");
-        return;
-      }
-      const today = getTodayInOman();
-      const donationDateStr = newRecord.donationDate.split("T")[0];
-      if (donationDateStr === today) {
-        const currentMinutes = getCurrentMinutesInOman();
-        const slotMinutes = h * 60 + m;
-        if (slotMinutes > currentMinutes) {
-          setError("Donation time cannot be in the future. You cannot add a record for a time that has not been reached yet.");
-          return;
-        }
       }
     }
 
     setError(null);
+
     try {
       const res = await fetch(`${API_BASE}/blood-bank`, {
         method: "POST",
@@ -96,8 +104,9 @@ const BloodBankManagement = () => {
           hospitalId: targetProfileId,
         }),
       });
+
       if (res.ok) {
-        setNewRecord({ bloodType: "", availability: "", donationDate: "", expiryDate: "" });
+        setNewRecord(getDefaultRecord());
         fetchRecords();
       } else {
         const data = await res.json().catch(() => ({}));
@@ -157,6 +166,7 @@ const BloodBankManagement = () => {
                       ))}
                     </select>
                   </div>
+
                   <div className="col-md-2">
                     <label className="form-label small mb-1">Availability</label>
                     <input
@@ -169,20 +179,20 @@ const BloodBankManagement = () => {
                       min={0}
                     />
                   </div>
+
                   <div className="col-md-2">
-                    <label className="form-label small mb-1">Donation Date & Time</label>
+                    <label className="form-label small mb-1">Donation Date</label>
                     <input
-                      type="datetime-local"
+                      type="date"
                       name="donationDate"
                       className="form-control form-control-sm"
                       value={newRecord.donationDate}
                       onChange={handleInputChange}
-                      min={`${getMinDateInOman(-14)}T09:00`}
-                      max={getNowDatetimeLocalOman()}
-                      step={900}
-                      title="Within last 2 weeks, 9 AM–10 PM, 15-min intervals. Cannot be in the future."
+                      min={getMinDateInOman(-14)}
+                      max={getTodayInOman()}
                     />
                   </div>
+
                   <div className="col-md-2">
                     <label className="form-label small mb-1">Expiry Date</label>
                     <input
@@ -190,9 +200,10 @@ const BloodBankManagement = () => {
                       name="expiryDate"
                       className="form-control form-control-sm"
                       value={newRecord.expiryDate}
-                      onChange={handleInputChange}
+                      readOnly
                     />
                   </div>
+
                   <div className="col-md-2">
                     <button type="submit" className="btn btn-danger btn-sm w-100">
                       Add Record

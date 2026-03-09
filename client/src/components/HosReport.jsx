@@ -11,6 +11,7 @@ import {
 } from "chart.js";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
+import * as XLSX from "xlsx";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5050";
 
@@ -33,6 +34,7 @@ const HosReport = () => {
     window.addEventListener("bdms-settings-changed", onSettingsChange);
     return () => window.removeEventListener("bdms-settings-changed", onSettingsChange);
   }, []);
+
   const userId = user?._id || user?.id;
 
   const [bloodData, setBloodData] = useState([]);
@@ -45,8 +47,10 @@ const HosReport = () => {
       setLoading(false);
       return;
     }
+
     setLoading(true);
     setError(null);
+
     fetch(`${API_BASE}/api/blood-stock-report?hospitalId=${encodeURIComponent(userId)}`)
       .then((res) => (res.ok ? res.json() : Promise.reject(new Error("Failed to load"))))
       .then(({ data, records: recs }) => {
@@ -102,16 +106,30 @@ const HosReport = () => {
     },
   };
 
+  const addPdfFooter = (pdf) => {
+    const pageCount = pdf.getNumberOfPages();
+
+    for (let i = 1; i <= pageCount; i++) {
+      pdf.setPage(i);
+      pdf.setFontSize(10);
+      pdf.setTextColor(120);
+      pdf.text("© BDMS SYSTEM. All rights reserved.", 105, 287, { align: "center" });
+    }
+  };
+
   const handleExportPDF = async () => {
     if (!reportRef.current) return;
+
     try {
       const canvas = await html2canvas(reportRef.current, {
         scale: 2,
         useCORS: true,
         logging: false,
       });
+
       const imgData = canvas.toDataURL("image/png");
       const pdf = new jsPDF("p", "mm", "a4");
+
       const imgWidth = 190;
       const pageHeight = 277;
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
@@ -128,11 +146,45 @@ const HosReport = () => {
         heightLeft -= pageHeight;
       }
 
+      addPdfFooter(pdf);
+
       const filename = `blood-stock-report-${user?.fName || "hospital"}-${new Date().toISOString().slice(0, 10)}.pdf`;
       pdf.save(filename);
     } catch (err) {
       console.error("PDF export error:", err);
       alert("Failed to export PDF");
+    }
+  };
+
+  const handleExportExcel = () => {
+    try {
+      const summaryRows = bloodData.map((item) => ({
+        "Blood Type": item.type,
+        "Units Available": item.total,
+      }));
+
+      const detailRows = records.map((r) => ({
+        "Blood Type": r.bloodType || "—",
+        Units: r.units ?? "—",
+        Date: r.date
+          ? new Date(r.date).toLocaleDateString("en-GB", { timeZone: "Asia/Muscat" })
+          : "—",
+        Location: r.location || "—",
+      }));
+
+      const workbook = XLSX.utils.book_new();
+
+      const summarySheet = XLSX.utils.json_to_sheet(summaryRows);
+      const detailsSheet = XLSX.utils.json_to_sheet(detailRows);
+
+      XLSX.utils.book_append_sheet(workbook, summarySheet, "Summary");
+      XLSX.utils.book_append_sheet(workbook, detailsSheet, "Details");
+
+      const filename = `blood-stock-report-${user?.fName || "hospital"}-${new Date().toISOString().slice(0, 10)}.xlsx`;
+      XLSX.writeFile(workbook, filename);
+    } catch (err) {
+      console.error("Excel export error:", err);
+      alert("Failed to export Excel");
     }
   };
 
@@ -148,11 +200,21 @@ const HosReport = () => {
             <button
               type="button"
               className="btn admin-report-btn"
+              onClick={handleExportExcel}
+              disabled={loading}
+            >
+              Export Excel
+            </button>
+
+            <button
+              type="button"
+              className="btn admin-report-btn"
               onClick={handleExportPDF}
               disabled={loading}
             >
               Export PDF
             </button>
+
             <button
               type="button"
               className="btn admin-report-btn"
@@ -162,6 +224,7 @@ const HosReport = () => {
               Print
             </button>
           </div>
+
           <div className="admin-report-card" ref={reportRef}>
             <div className="admin-report-card-inner">
               <div className="mb-3">
@@ -219,7 +282,6 @@ const HosReport = () => {
                           <th>Blood Type</th>
                           <th className="text-end">Units</th>
                           <th>Date</th>
-                          <th>Time</th>
                           <th>Location</th>
                         </tr>
                       </thead>
@@ -234,15 +296,6 @@ const HosReport = () => {
                                     day: "numeric",
                                     month: "short",
                                     year: "numeric",
-                                    timeZone: "Asia/Muscat",
-                                  })
-                                : "—"}
-                            </td>
-                            <td>
-                              {r.date
-                                ? new Date(r.date).toLocaleTimeString("en-GB", {
-                                    hour: "2-digit",
-                                    minute: "2-digit",
                                     timeZone: "Asia/Muscat",
                                   })
                                 : "—"}

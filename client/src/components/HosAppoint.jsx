@@ -54,7 +54,14 @@ const HosAppoint = () => {
       setLoading(false);
       return;
     }
+
     fetchData();
+
+    const interval = setInterval(() => {
+      fetchData();
+    }, 60000);
+
+    return () => clearInterval(interval);
   }, [userId]);
 
   const handleCancel = async (bookingId) => {
@@ -186,14 +193,9 @@ const HosAppoint = () => {
                               </button>
                             )}
                             {!isCompleted && (
-                              <button
-                                className="btn btn-outline-secondary btn-sm"
-                                style={{ minWidth: "100px" }}
-                                disabled={!!busyId}
-                                onClick={() => handleCancel(item._id)}
-                              >
-                                {busyId === item._id ? "..." : "Cancel"}
-                              </button>
+                              <span className="badge bg-info text-dark">
+                                Will auto-confirm when donation time is reached
+                              </span>
                             )}
                             <Link
                               to="/HosManRequest"

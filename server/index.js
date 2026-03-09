@@ -1425,6 +1425,46 @@ app.delete("/api/community/posts/:id", async (req, res) => {
   }
 });
 
+// -------------------------
+// AUTO COMPLETE APPOINTMENTS
+// -------------------------
+
+const autoCompleteAppointments = async () => {
+  try {
+    const now = new Date();
+
+    const bookings = await Booking.find({
+      status: "approved",
+    });
+
+    for (const booking of bookings) {
+      const appointmentDate = new Date(booking.appointmentDate);
+
+      if (now >= appointmentDate) {
+        booking.status = "completed";
+        await booking.save();
+
+        const expiryDate = new Date();
+        expiryDate.setDate(expiryDate.getDate() + 35);
+
+        await BloodBank.create({
+          bloodType: booking.bloodType,
+          availability: 1,
+          expiryDate,
+          donationDate: new Date(),
+          hospitalId: booking.hospital,
+        });
+
+        console.log("Auto completed booking:", booking._id);
+      }
+    }
+  } catch (err) {
+    console.error("Auto complete error:", err);
+  }
+};
+
+setInterval(autoCompleteAppointments, 60000);
+
 mongoose
   .connect(connectionString)
   .then(() => {
