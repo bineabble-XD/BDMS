@@ -1,63 +1,469 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { FaRobot } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
+
+const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5050";
+
+const formatTime = (date = new Date()) =>
+  new Date(date).toLocaleTimeString("en-GB", {
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: "Asia/Muscat",
+  });
+
+const getUserRole = (user) => {
+  if (!user) return "guest";
+  if (user.isAdmin) return "admin";
+  if (user.isHospital || user.role === "Hospital") return "hospital";
+  return "donor";
+};
+
+const normalize = (text) => (text || "").trim().toLowerCase();
 
 export default function ChatbotWidget() {
+  const navigate = useNavigate();
+  const endRef = useRef(null);
+
+  const user = useMemo(() => {
+    try {
+      return JSON.parse(localStorage.getItem("bdmsUser") || "null");
+    } catch {
+      return null;
+    }
+  }, []);
+
+  const role = getUserRole(user);
+  const userName = user?.fName || "there";
+
+  const donorQuickActions = [
+    { label: "How to Donate", action: "how_to_donate" },
+    { label: "Register", action: "register" },
+    { label: "Login Help", action: "login_help" },
+    { label: "Urgent Requests", action: "urgent_requests" },
+    { label: "My Appointments", action: "my_appointments" },
+    { label: "Eligibility", action: "check_eligibility" },
+    { label: "Contact Info", action: "contact_info" },
+  ];
+
+  const hospitalQuickActions = [
+    { label: "Hospital Help", action: "hospital_help" },
+    { label: "Appointments", action: "hospital_appointments" },
+    { label: "Blood Bank", action: "hospital_blood_bank" },
+    { label: "Inventory", action: "hospital_inventory" },
+    { label: "Urgent Requests", action: "hospital_urgent_requests" },
+    { label: "Reports", action: "hospital_reports" },
+    { label: "Contact Info", action: "contact_info" },
+  ];
+
+  const adminQuickActions = [
+    { label: "Dashboard", action: "admin_dashboard" },
+    { label: "Reports", action: "admin_reports" },
+    { label: "Hospital Requests", action: "admin_hospitals" },
+    { label: "Contact Info", action: "contact_info" },
+  ];
+
+  const guestQuickActions = [
+    { label: "How to Donate", action: "how_to_donate" },
+    { label: "Register", action: "register" },
+    { label: "Login Help", action: "login_help" },
+    { label: "Urgent Requests", action: "urgent_requests" },
+    { label: "Hospital Help", action: "hospital_help" },
+    { label: "Contact Info", action: "contact_info" },
+  ];
+
+  const quickActions =
+    role === "donor"
+      ? donorQuickActions
+      : role === "hospital"
+      ? hospitalQuickActions
+      : role === "admin"
+      ? adminQuickActions
+      : guestQuickActions;
+
+  const buildWelcomeMessage = () => {
+    if (role === "donor") {
+      return `Hi ${userName} 👋 I’m BDMS Assistant. How can I help you today?
+
+You can ask:
+- How to donate blood?
+- Where to register?
+- Urgent requests?
+- Login help?
+- Contact info?
+- My appointments?
+- Eligibility?`;
+    }
+
+    if (role === "hospital") {
+      return `Hi ${userName} 👋 I’m BDMS Assistant. How can I help you today?
+
+You can ask:
+- Hospital dashboard help?
+- Appointments?
+- Inventory?
+- Blood bank?
+- Urgent requests?
+- Reports?
+- Contact info?`;
+    }
+
+    if (role === "admin") {
+      return `Hi ${userName} 👋 I’m BDMS Assistant. How can I help you today?
+
+You can ask:
+- Dashboard?
+- Reports?
+- Hospital requests?
+- Contact info?`;
+    }
+
+    return `Hi 👋 I’m BDMS Assistant. How can I help you today?
+
+You can ask:
+- How to donate blood?
+- Where to register?
+- Urgent requests?
+- Login help?
+- Contact info?
+- Hospital help?`;
+  };
+
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
+  const [isTyping, setIsTyping] = useState(false);
   const [messages, setMessages] = useState([
     {
+      id: 1,
       from: "bot",
-      text: "Hi 👋 I’m BDMS Assistant. How can I help you today?\n\nYou can ask:\n- How to donate blood?\n- Where to register?\n- Urgent requests?\n- Contact info?",
+      text: buildWelcomeMessage(),
+      time: formatTime(),
+      quickActions,
     },
   ]);
 
-  const endRef = useRef(null);
-
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, open]);
+  }, [messages, open, isTyping]);
 
-  const quickReply = (text) => {
-    const t = (text || "").toLowerCase();
+  const addMessage = (from, text, extra = {}) => {
+    setMessages((prev) => [
+      ...prev,
+      {
+        id: Date.now() + Math.random(),
+        from,
+        text,
+        time: formatTime(),
+        ...extra,
+      },
+    ]);
+  };
 
-    if (t.includes("donate") || t.includes("donation")) {
-      return "To donate blood:\n1) Register/Login\n2) Complete your profile\n3) Check eligibility\n4) Find nearby hospitals / requests\n5) Confirm appointment (if available).\n\nIf you want, tell me your blood type and city.";
+  const replyWithTyping = (text, extra = {}) => {
+    setIsTyping(true);
+    setTimeout(() => {
+      setIsTyping(false);
+      addMessage("bot", text, extra);
+    }, 450);
+  };
+
+  const navigateByAction = (action) => {
+    const routes = {
+      register: "/register",
+      my_appointments: "/my-appointments",
+      urgent_requests: "/urgent-requests",
+      hospital_appointments: "/hospital-appointments",
+      hospital_blood_bank: `/blood-bank/${user?._id || user?.id || ""}`,
+      hospital_inventory: "/inventory",
+      hospital_urgent_requests: "/urgent-requests",
+      hospital_reports: "/hospital-reports",
+      admin_dashboard: "/admin-dash",
+      admin_reports: "/admin-report",
+      admin_hospitals: "/admin-hospital-requests",
+    };
+
+    const route = routes[action];
+    if (route) navigate(route);
+  };
+
+  const fetchMatchingUrgentRequests = async () => {
+    try {
+      if (!user?._id || role !== "donor") return null;
+      const res = await fetch(`${API_BASE}/urgent-requests/matching/${user._id}`);
+      if (!res.ok) return null;
+      const data = await res.json();
+      return data?.requests || [];
+    } catch {
+      return null;
+    }
+  };
+
+  const quickReply = async (text) => {
+    const t = normalize(text);
+
+    if (t.includes("donate") || t.includes("donation") || t.includes("how to donate")) {
+      return {
+        text: `To donate blood:
+1) Register/Login
+2) Complete your profile
+3) Check eligibility
+4) Find nearby hospitals / requests
+5) Confirm appointment (if available)
+
+If you want, tell me your blood type and city.`,
+        quickActions: [
+          { label: "Register", action: "register" },
+          { label: "Urgent Requests", action: "urgent_requests" },
+          { label: "Eligibility", action: "check_eligibility" },
+        ],
+      };
     }
 
     if (t.includes("register") || t.includes("sign up") || t.includes("signup")) {
-      return "To register:\n- Click Register from the top menu\n- Fill your details\n- Verify your email (if enabled)\n- Login and complete your profile.";
+      return {
+        text: `To register:
+- Click Register from the top menu
+- Fill your details
+- Verify your email (if enabled)
+- Login and complete your profile.`,
+        quickActions: [{ label: "Register", action: "register" }],
+      };
     }
 
     if (t.includes("urgent") || t.includes("request")) {
-      return "For urgent requests:\n- Go to “Urgent Requests” in the menu\n- You can view current requests\n- If you are a donor, you can respond to help.\n\nDo you want donors-only or hospital-side help?";
+      const requests = await fetchMatchingUrgentRequests();
+
+      if (requests && requests.length > 0) {
+        const first = requests[0];
+        const hospitalName = first?.hospital?.hospitalName || "a hospital";
+        return {
+          text: `For urgent requests:
+- Go to “Urgent Requests” in the menu
+- You can view current requests
+- If you are a donor, you can respond to help
+
+Right now, there are ${requests.length} urgent request(s) matching your type. The latest is from ${hospitalName}.`,
+          quickActions: [{ label: "Urgent Requests", action: "urgent_requests" }],
+        };
+      }
+
+      return {
+        text: `For urgent requests:
+- Go to “Urgent Requests” in the menu
+- You can view current requests
+- If you are a donor, you can respond to help
+
+Do you want donors-only or hospital-side help?`,
+        quickActions: [{ label: "Urgent Requests", action: "urgent_requests" }],
+      };
     }
 
     if (t.includes("login") || t.includes("log in")) {
-      return "To login:\n- Click Log In from the menu\n- Enter your email and password\n- If you forgot password, use “Forgot Password”.";
+      return {
+        text: `To login:
+- Click Log In from the menu
+- Enter your email and password
+- If you forgot password, use “Forgot Password”.`,
+      };
     }
 
     if (t.includes("contact") || t.includes("help") || t.includes("support")) {
-      return "For support:\n- Use the Feedback page in the menu\n- Or tell me your issue here and I’ll guide you step-by-step.";
+      return {
+        text: `For support:
+- Use the Feedback page in the menu
+- Or tell me your issue here and I’ll guide you step-by-step.`,
+      };
     }
 
     if (t.includes("hospital")) {
-      return "If you are a hospital user:\n- Register as Hospital\n- Manage requests in Hospital Dashboard\n- Track inventory and urgent requests.\n\nDo you want to add a new urgent request or manage inventory?";
+      return {
+        text: `If you are a hospital user:
+- Register as Hospital
+- Manage requests in Hospital Dashboard
+- Track inventory and urgent requests
+
+Do you want to add a new urgent request or manage inventory?`,
+        quickActions: [
+          { label: "Appointments", action: "hospital_appointments" },
+          { label: "Blood Bank", action: "hospital_blood_bank" },
+          { label: "Inventory", action: "hospital_inventory" },
+          { label: "Reports", action: "hospital_reports" },
+        ],
+      };
     }
 
-    return "Thanks! I can help with:\n- Donation steps\n- Register/Login\n- Urgent requests\n- Hospital dashboard\n\nType what you need, and I’ll guide you.";
+    if (
+      t.includes("eligible") ||
+      t.includes("eligibility") ||
+      t.includes("can i donate")
+    ) {
+      return {
+        text: `Basic donation eligibility usually depends on:
+- age
+- general health
+- time since last donation
+- medical condition
+- medication use
+
+A strong next step for your project is to make this a mini eligibility checker.`,
+        quickActions: [{ label: "Eligibility", action: "check_eligibility" }],
+      };
+    }
+
+    if (t.includes("appointment") && role === "donor") {
+      return {
+        text: "You can manage and review your bookings from the My Appointments page.",
+        quickActions: [{ label: "My Appointments", action: "my_appointments" }],
+      };
+    }
+
+    if (t.includes("appointment") && role === "hospital") {
+      return {
+        text: "You can review approved donations and completed donations from the hospital appointments page.",
+        quickActions: [{ label: "Appointments", action: "hospital_appointments" }],
+      };
+    }
+
+    if (t.includes("inventory") || t.includes("stock") || t.includes("blood bank")) {
+      return {
+        text: "You can manage blood stock, donation records, and expiry dates from the Blood Bank and Inventory pages.",
+        quickActions: [
+          { label: "Blood Bank", action: "hospital_blood_bank" },
+          { label: "Inventory", action: "hospital_inventory" },
+        ],
+      };
+    }
+
+    if (t.includes("report") || t.includes("pdf") || t.includes("excel")) {
+      return {
+        text: "You can use the Reports page to view stock summaries and export data as PDF or Excel.",
+        quickActions:
+          role === "hospital"
+            ? [{ label: "Reports", action: "hospital_reports" }]
+            : role === "admin"
+            ? [{ label: "Reports", action: "admin_reports" }]
+            : [],
+      };
+    }
+
+    return {
+      text: `Thanks! I can help with:
+- Donation steps
+- Register/Login
+- Urgent requests
+- Hospital dashboard
+- Inventory and reports
+- Contact/support
+
+Type what you need, and I’ll guide you.`,
+      quickActions,
+    };
   };
 
-  const send = () => {
+  const handleAction = async (action) => {
+    const labels = {
+      how_to_donate: "How to Donate",
+      register: "Register",
+      login_help: "Login Help",
+      urgent_requests: "Urgent Requests",
+      my_appointments: "My Appointments",
+      check_eligibility: "Eligibility",
+      contact_info: "Contact Info",
+      hospital_help: "Hospital Help",
+      hospital_appointments: "Appointments",
+      hospital_blood_bank: "Blood Bank",
+      hospital_inventory: "Inventory",
+      hospital_urgent_requests: "Urgent Requests",
+      hospital_reports: "Reports",
+      admin_dashboard: "Dashboard",
+      admin_reports: "Reports",
+      admin_hospitals: "Hospital Requests",
+    };
+
+    const label = labels[action] || action;
+    addMessage("user", label);
+
+    if (action === "how_to_donate") {
+      replyWithTyping(
+        `To donate blood:
+1) Register/Login
+2) Complete your profile
+3) Check eligibility
+4) Find nearby hospitals / requests
+5) Confirm appointment (if available)
+
+If you want, tell me your blood type and city.`
+      );
+      return;
+    }
+
+    if (action === "login_help") {
+      replyWithTyping(
+        `To login:
+- Click Log In from the menu
+- Enter your email and password
+- If you forgot password, use “Forgot Password”.`
+      );
+      return;
+    }
+
+    if (action === "check_eligibility") {
+      replyWithTyping(
+        `Basic donation eligibility usually depends on:
+- age
+- general health
+- time since last donation
+- medical condition
+- medication use
+
+You can also turn this into a full eligibility checker in your project.`
+      );
+      return;
+    }
+
+    if (action === "contact_info") {
+      replyWithTyping(
+        `For support:
+- Use the Feedback / Instagram page in the menu
+- Or tell me your issue here and I’ll guide you step-by-step.`
+      );
+      return;
+    }
+
+    if (action === "hospital_help") {
+      replyWithTyping(
+        `If you are a hospital user:
+- Register as Hospital
+- Manage requests in Hospital Dashboard
+- Track inventory and urgent requests
+
+Do you want help with appointments, inventory, or reports?`,
+        {
+          quickActions: [
+            { label: "Appointments", action: "hospital_appointments" },
+            { label: "Blood Bank", action: "hospital_blood_bank" },
+            { label: "Inventory", action: "hospital_inventory" },
+            { label: "Reports", action: "hospital_reports" },
+          ],
+        }
+      );
+      return;
+    }
+
+    navigateByAction(action);
+    replyWithTyping(`Opening ${label} for you.`);
+  };
+
+  const send = async () => {
     const text = input.trim();
     if (!text) return;
 
-    setMessages((prev) => [...prev, { from: "user", text }]);
+    addMessage("user", text);
     setInput("");
 
-    const reply = quickReply(text);
-    setTimeout(() => {
-      setMessages((prev) => [...prev, { from: "bot", text: reply }]);
-    }, 400);
+    const reply = await quickReply(text);
+    replyWithTyping(reply.text, {
+      quickActions: reply.quickActions || [],
+    });
   };
 
   const onKeyDown = (e) => {
@@ -98,10 +504,10 @@ export default function ChatbotWidget() {
             position: "fixed",
             right: 20,
             bottom: 150,
-            width: 320,
+            width: 360,
             maxWidth: "90vw",
-            height: 420,
-            maxHeight: "70vh",
+            height: 500,
+            maxHeight: "75vh",
             background: "white",
             borderRadius: 16,
             boxShadow: "0 18px 45px rgba(0,0,0,0.25)",
@@ -109,6 +515,7 @@ export default function ChatbotWidget() {
             overflow: "hidden",
             display: "flex",
             flexDirection: "column",
+            border: "1px solid #eee",
           }}
         >
           <div
@@ -147,9 +554,9 @@ export default function ChatbotWidget() {
               background: "#f7f7f7",
             }}
           >
-            {messages.map((m, idx) => (
+            {messages.map((m) => (
               <div
-                key={idx}
+                key={m.id}
                 style={{
                   display: "flex",
                   justifyContent: m.from === "user" ? "flex-end" : "flex-start",
@@ -167,10 +574,76 @@ export default function ChatbotWidget() {
                     boxShadow: "0 6px 16px rgba(0,0,0,0.08)",
                   }}
                 >
-                  {m.text}
+                  <div>{m.text}</div>
+
+                  {m.quickActions?.length > 0 && (
+                    <div
+                      style={{
+                        display: "flex",
+                        flexWrap: "wrap",
+                        gap: 8,
+                        marginTop: 10,
+                      }}
+                    >
+                      {m.quickActions.map((btn) => (
+                        <button
+                          key={btn.action}
+                          type="button"
+                          onClick={() => handleAction(btn.action)}
+                          style={{
+                            border: "1px solid #dc3545",
+                            background: "#fff5f6",
+                            color: "#dc3545",
+                            borderRadius: 999,
+                            padding: "6px 10px",
+                            fontSize: 12,
+                            fontWeight: 700,
+                            cursor: "pointer",
+                          }}
+                        >
+                          {btn.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  <div
+                    style={{
+                      marginTop: 6,
+                      fontSize: 11,
+                      opacity: 0.7,
+                    }}
+                  >
+                    {m.time}
+                  </div>
                 </div>
               </div>
             ))}
+
+            {isTyping && (
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "flex-start",
+                  marginBottom: 10,
+                }}
+              >
+                <div
+                  style={{
+                    maxWidth: "85%",
+                    padding: "10px 12px",
+                    borderRadius: 14,
+                    background: "white",
+                    color: "#666",
+                    boxShadow: "0 6px 16px rgba(0,0,0,0.08)",
+                    fontStyle: "italic",
+                  }}
+                >
+                  BDMS Assistant is typing...
+                </div>
+              </div>
+            )}
+
             <div ref={endRef} />
           </div>
 
@@ -198,14 +671,16 @@ export default function ChatbotWidget() {
             />
             <button
               onClick={send}
+              disabled={!input.trim()}
               style={{
                 padding: "10px 12px",
                 borderRadius: 12,
                 border: "none",
-                cursor: "pointer",
+                cursor: input.trim() ? "pointer" : "not-allowed",
                 background: "#dc3545",
                 color: "white",
                 fontWeight: 700,
+                opacity: input.trim() ? 1 : 0.6,
               }}
             >
               Send
