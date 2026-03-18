@@ -728,7 +728,7 @@ app.get("/bookings/hospital/:userId", async (req, res) => {
 
 app.patch("/bookings/:id/status", async (req, res) => {
   try {
-    const { status, userId } = req.body;
+    const { status, userId, rejectionReason } = req.body;
 
     if (!["approved", "rejected"].includes(status)) {
       return res.status(400).json({ message: "Status must be approved or rejected" });
@@ -736,6 +736,10 @@ app.patch("/bookings/:id/status", async (req, res) => {
 
     if (!userId) {
       return res.status(401).json({ message: "Authentication required (userId)" });
+    }
+
+    if (status === "rejected" && (!rejectionReason || !String(rejectionReason).trim())) {
+      return res.status(400).json({ message: "Rejection reason is required when declining an appointment" });
     }
 
     let profile = null;
@@ -774,6 +778,9 @@ app.patch("/bookings/:id/status", async (req, res) => {
     }
 
     booking.status = status;
+    if (status === "rejected") {
+      booking.rejectionReason = String(rejectionReason || "").trim();
+    }
     await booking.save();
 
     if (status === "approved") {
@@ -812,6 +819,43 @@ app.patch("/bookings/:id/status", async (req, res) => {
         }
       } catch (emailErr) {
         console.error("Email send error on approval:", emailErr?.message || emailErr);
+      }
+    }
+
+    if (status === "rejected") {
+      try {
+        const donorEmail = booking?.donor?.email;
+        const donorName = booking?.donor?.fName || "Donor";
+        const hospitalName = bhp?.hospitalName || profile?.hospitalName || "Hospital";
+        const hospitalCity = bhp?.city || "";
+        const dateStr = formatDateTimeOman(booking.appointmentDate);
+        const reason = booking.rejectionReason || "No reason provided.";
+
+        if (donorEmail) {
+          await transporter.sendMail({
+            from: `"BDMS" <${process.env.EMAIL_USER || "bdmsbtech@gmail.com"}>`,
+            to: donorEmail,
+            subject: "Your Blood Donation Appointment Was Declined",
+            html: `
+              <div style="font-family: Arial, sans-serif; line-height: 1.6; max-width: 520px">
+                <h2 style="color: #c0392b;">Appointment Declined</h2>
+                <p>Hello <b>${donorName}</b>,</p>
+                <p><b>${hospitalName}</b>${hospitalCity ? ` (${hospitalCity})` : ""} has declined your blood donation appointment request.</p>
+                <p style="background: #f8f9fa; padding: 12px; border-radius: 6px;">
+                  <b>Date & Time:</b> ${dateStr}<br/>
+                  <b>Blood Type:</b> ${booking.bloodType || "—"}<br/>
+                  <b>Hospital:</b> ${hospitalName}${hospitalCity ? `, ${hospitalCity}` : ""}
+                </p>
+                <p><b>Reason:</b></p>
+                <p style="background: #fff3cd; padding: 12px; border-radius: 6px; border-left: 4px solid #ffc107;">${reason.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</p>
+                <hr style="border: none; border-top: 1px solid #eee"/>
+                <p>You can book another appointment at a different time or hospital. Thank you for your willingness to donate!<br/><b>BDMS</b></p>
+              </div>
+            `,
+          });
+        }
+      } catch (emailErr) {
+        console.error("Email send error on rejection:", emailErr?.message || emailErr);
       }
     }
 

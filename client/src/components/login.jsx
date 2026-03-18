@@ -1,9 +1,9 @@
-
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { loginUser, clearAuthMessage } from "../features/authSlice";
 import donorIllustration from "../assets/1+.png";
+import { useLanguage } from "../context/LanguageContext";
 
 const INVENTORY_EMAIL = "inventory@bdms.com";
 const INVENTORY_PASSWORD = "Blood@123";
@@ -13,6 +13,7 @@ const Login = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useLanguage();
 
   const auth = useSelector((state) => state.auth || {});
   const { loading, error, user } = auth;
@@ -117,8 +118,8 @@ const Login = () => {
         <div className="col-md-7 d-flex justify-content-end">
           <div style={{ width: "100%", maxWidth: "480px" }}>
 
-            <h4 className="text-center mb-4" className="text-danger fw-semibold">
-              Login
+            <h4 className="text-center mb-4 text-danger fw-semibold">
+              {t("loginTitle")}
             </h4>
 
             <div className="form-wrapper">
@@ -126,27 +127,27 @@ const Login = () => {
               <form onSubmit={handleSubmit}>
 
                 <div className="mb-3">
-                  <label className="form-label small text-muted">Email</label>
+                  <label className="form-label small text-muted">{t("loginEmailPlaceholder")}</label>
                   <input
                     type="email"
                     className="form-control"
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
-                    placeholder="Enter Your Email"
+                    placeholder={t("loginEmailPlaceholder")}
                     required
                   />
                 </div>
 
                 <div className="mb-3">
-                  <label className="form-label small text-muted">Password</label>
+                  <label className="form-label small text-muted">{t("loginPasswordPlaceholder")}</label>
                   <input
                     type="password"
                     className="form-control"
                     name="password"
                     value={formData.password}
                     onChange={handleChange}
-                    placeholder="Enter Your Password"
+                    placeholder={t("loginPasswordPlaceholder")}
                     required
                   />
                 </div>
@@ -156,22 +157,22 @@ const Login = () => {
                   className="btn btn-danger w-100 mb-3"
                   disabled={loading}
                 >
-                  {loading ? "Logging in..." : "Login"}
+                  {loading ? "..." : t("loginSubmit")}
                 </button>
               </form>
 
 
               <p className="small mb-1">
-                Forget password?{" "}
+                {t("forgetPassword")}{" "}
                 <Link to="/forget-password" className="text-danger text-decoration-none">
-                  Reset here
+                  {t("resetHere")}
                 </Link>
               </p>
 
               <p className="small mb-0">
-                Don’t have an account?{" "}
+                Don’t {t("noAccount")}{" "}
                 <Link to="/register" className="text-danger text-decoration-none">
-                  Sign up
+                  {t("signUp")}
                 </Link>
               </p>
 

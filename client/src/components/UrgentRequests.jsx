@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { FaTint } from "react-icons/fa";
+import { useLanguage } from "../context/LanguageContext";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5050";
 const BLOOD_TYPES = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
@@ -8,6 +9,7 @@ const BLOOD_TYPES = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
 const UrgentRequests = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [requests, setRequests] = useState([]);
   const [myRequests, setMyRequests] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -111,16 +113,14 @@ const UrgentRequests = () => {
     <div className="urgent-page">
       <main className="urgent-main">
         <div className="container py-5">
-          <h3 className="fw-semibold mb-3">Urgent Requests</h3>
+          <h3 className="fw-semibold mb-3">{t("urgentTitle")}</h3>
           <p className="text-muted mb-4">
-            {isHospital
-              ? "Request urgent blood supply by blood type. Donors can book appointments directly at your hospital."
-              : "Hospitals needing urgent blood supply. Click Book to schedule an appointment at the listed hospital."}
+            {isHospital ? t("urgentDescHospital") : t("urgentDescDonor")}
           </p>
 
           {isHospital && (
             <div className="card p-3 mb-4">
-              <h6 className="mb-3">Request urgent blood supply</h6>
+              <h6 className="mb-3">{t("requestUrgentSupply")}</h6>
               <form onSubmit={handlePostUrgent}>
                 <div className="row g-2 mb-2">
                   <div className="col-md-4">
@@ -132,10 +132,10 @@ const UrgentRequests = () => {
                       }
                       required
                     >
-                      <option value="">Blood type</option>
-                      {BLOOD_TYPES.map((t) => (
-                        <option key={t} value={t}>
-                          {t}
+                      <option value="">{t("bloodTypePlaceholder")}</option>
+                      {BLOOD_TYPES.map((bt) => (
+                        <option key={bt} value={bt}>
+                          {bt}
                         </option>
                       ))}
                     </select>
@@ -144,7 +144,7 @@ const UrgentRequests = () => {
                     <input
                       type="number"
                       className="form-control form-control-sm"
-                      placeholder="Quantity"
+                      placeholder={t("quantityPlaceholder")}
                       min={1}
                       value={postForm.quantity}
                       onChange={(e) =>
@@ -156,7 +156,7 @@ const UrgentRequests = () => {
                     <input
                       type="text"
                       className="form-control form-control-sm"
-                      placeholder="Message (optional)"
+                      placeholder={t("messageOptional")}
                       value={postForm.message}
                       onChange={(e) =>
                         setPostForm({ ...postForm, message: e.target.value })
@@ -169,10 +169,10 @@ const UrgentRequests = () => {
                   className="btn btn-danger btn-sm"
                   disabled={posting || !postForm.bloodType}
                 >
-                  {posting ? "Posting..." : "Post request"}
+                  {posting ? t("posting") : t("postRequest")}
                 </button>
                 {postSuccess && (
-                  <span className="ms-2 text-success small">Posted successfully!</span>
+                  <span className="ms-2 text-success small">{t("postedSuccess")}</span>
                 )}
               </form>
             </div>
@@ -180,7 +180,7 @@ const UrgentRequests = () => {
 
           {isHospital && myRequests.length > 0 && (
             <div className="card p-3 mb-4">
-              <h6 className="mb-3">Your urgent requests</h6>
+              <h6 className="mb-3">{t("myPostedRequests")}</h6>
               <div className="list-group list-group-flush">
                 {myRequests.map((ur) => (
                   <div key={ur._id} className="d-flex justify-content-between align-items-center py-2 border-bottom">
@@ -195,7 +195,7 @@ const UrgentRequests = () => {
                       disabled={removingId === ur._id}
                       onClick={() => handleRemoveRequest(ur._id)}
                     >
-                      {removingId === ur._id ? "..." : "Remove"}
+                      {removingId === ur._id ? "..." : t("remove")}
                     </button>
                   </div>
                 ))}
@@ -204,9 +204,9 @@ const UrgentRequests = () => {
           )}
 
           {loading ? (
-            <p className="text-muted">Loading...</p>
+            <p className="text-muted">{t("loading")}</p>
           ) : requests.length === 0 ? (
-            <p className="text-muted">No urgent requests at this time.</p>
+            <p className="text-muted">{t("noUrgentAtTime")}</p>
           ) : (
             <div className="row g-4">
               {requests.map((item) => (
@@ -216,10 +216,10 @@ const UrgentRequests = () => {
                       <FaTint />
                     </div>
 
-                    <h6 className="mb-2 fw-semibold">Urgent blood needed: {item.bloodType}</h6>
+                    <h6 className="mb-2 fw-semibold">{t("urgentBloodNeeded")}: {item.bloodType}</h6>
 
                     <div className="urgent-field-row">
-                      <span className="urgent-field-label">Hospital:</span>
+                      <span className="urgent-field-label">{t("navNotifHospital")}:</span>
                       <span className="urgent-field-value">
                         {item.hospital?.hospitalName || "—"}
                         {item.hospital?.city ? `, ${item.hospital.city}` : ""}
@@ -227,12 +227,12 @@ const UrgentRequests = () => {
                     </div>
 
                     <div className="urgent-field-row">
-                      <span className="urgent-field-label">Quantity:</span>
+                      <span className="urgent-field-label">{t("quantity")}:</span>
                       <span className="urgent-field-value">{item.quantity}</span>
                     </div>
 
                     <div className="urgent-field-row">
-                      <span className="urgent-field-label">Posted:</span>
+                      <span className="urgent-field-label">{t("posted")}:</span>
                       <span className="urgent-field-value">
                         {formatDate(item.createdAt)}
                       </span>
@@ -240,13 +240,13 @@ const UrgentRequests = () => {
 
                     {item.message && (
                       <div className="urgent-field-row">
-                        <span className="urgent-field-label">Note:</span>
+                        <span className="urgent-field-label">{t("note")}:</span>
                         <span className="urgent-field-value">{item.message}</span>
                       </div>
                     )}
 
                     <div className="urgent-field-row mb-3">
-                      <span className="urgent-field-label">Contact:</span>
+                      <span className="urgent-field-label">{t("contactLabel")}:</span>
                       <span className="urgent-field-value">
                         {item.hospital?.contactPerson || "—"}
                       </span>
@@ -266,7 +266,7 @@ const UrgentRequests = () => {
                             })
                           }
                         >
-                          Book
+                          {t("book")}
                         </button>
                       )}
                       {!user && (
@@ -283,7 +283,7 @@ const UrgentRequests = () => {
                             })
                           }
                         >
-                          Book
+                          {t("book")}
                         </button>
                       )}
                       <button
@@ -291,7 +291,7 @@ const UrgentRequests = () => {
                         className="btn btn-outline-danger btn-sm px-4"
                         onClick={() => setContactModalHospital(item.hospital)}
                       >
-                        Contact
+                        {t("contact")}
                       </button>
                     </div>
                   </div>
@@ -316,7 +316,7 @@ const UrgentRequests = () => {
             <div className="modal-content">
               <div className="modal-header">
                 <h5 className="modal-title">
-                  {contactModalHospital.hospitalName || "Hospital Details"}
+                  {contactModalHospital.hospitalName || t("navNotifHospitalDetails")}
                 </h5>
                 <button
                   type="button"
@@ -327,19 +327,19 @@ const UrgentRequests = () => {
               </div>
               <div className="modal-body">
                 <div className="mb-2">
-                  <strong>Hospital:</strong> {contactModalHospital.hospitalName || "—"}
+                  <strong>{t("navNotifHospital")}:</strong> {contactModalHospital.hospitalName || "—"}
                 </div>
                 {contactModalHospital.city && (
                   <div className="mb-2">
-                    <strong>City:</strong> {contactModalHospital.city}
+                    <strong>{t("navNotifCity")}:</strong> {contactModalHospital.city}
                   </div>
                 )}
                 <div className="mb-2">
-                  <strong>Contact Person:</strong> {contactModalHospital.contactPerson || "—"}
+                  <strong>{t("navNotifContactPerson")}:</strong> {contactModalHospital.contactPerson || "—"}
                 </div>
                 {contactModalHospital.contactPhone && (
                   <div className="mb-2">
-                    <strong>Phone:</strong>{" "}
+                    <strong>{t("navNotifPhone")}:</strong>{" "}
                     <a href={`tel:${contactModalHospital.contactPhone}`}>
                       {contactModalHospital.contactPhone}
                     </a>
@@ -347,7 +347,7 @@ const UrgentRequests = () => {
                 )}
                 {contactModalHospital.contactEmail && (
                   <div className="mb-2">
-                    <strong>Email:</strong>{" "}
+                    <strong>{t("navNotifEmail")}:</strong>{" "}
                     <a href={`mailto:${contactModalHospital.contactEmail}`}>
                       {contactModalHospital.contactEmail}
                     </a>
@@ -360,7 +360,7 @@ const UrgentRequests = () => {
                     href={`tel:${contactModalHospital.contactPhone}`}
                     className="btn btn-danger"
                   >
-                    Call
+                    {t("navNotifCall")}
                   </a>
                 )}
                 <button
@@ -368,7 +368,7 @@ const UrgentRequests = () => {
                   className="btn btn-secondary"
                   onClick={() => setContactModalHospital(null)}
                 >
-                  Close
+                  {t("navNotifClose")}
                 </button>
               </div>
             </div>
