@@ -3,20 +3,21 @@ import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../features/authSlice";
 import heroImg from "../assets/2+.png";
-import bdmslogo from "../assets/bdmslogo.png";
 import SocialFeed from "./SocialFeed.jsx";
 import { FaInstagram } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
 import ChatbotWidget from "./ChatbotWidget.jsx";
+import { useLanguage } from "../context/LanguageContext";
 
 const Home = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   const user = useSelector((state) => state.auth.user);
 
   const displayName =
-    user?.fName || user?.uname || user?.name || user?.email || "User";
+    user?.fName || user?.uname || user?.name || user?.email || t("user");
 
   const handleLogout = () => {
     dispatch(logout());
@@ -30,15 +31,13 @@ const Home = () => {
         <div className="container h-100">
           <div className="row align-items-center h-100">
             <div className="col-md-6 mb-4 mb-md-0">
-              <p className="hero-tagline mb-2">Donate blood • Save lives</p>
+              <p className="hero-tagline mb-2">{t("heroTagline")}</p>
               <h1 className="hero-title mb-3">
-                <span>Save Life</span> <br />
-                <span>Donate Blood</span>
+                <span>{t("heroTitle1")}</span> <br />
+                <span>{t("heroTitle2")}</span>
               </h1>
               <p className="hero-text mb-4">
-                Donate blood and be a hero – your generosity can save lives.
-                Join a proud tradition that has made a difference for centuries.
-                Make an impact today with a simple, lifesaving act.
+                {t("heroText")}
               </p>
             </div>
 
@@ -55,17 +54,12 @@ const Home = () => {
 
       <section id="about" className="about-section py-5">
         <div className="container">
-          <h3 className="mb-3 fw-semibold">About</h3>
+          <h3 className="mb-3 fw-semibold">{t("aboutTitle")}</h3>
           <p className="lead mb-3">
-            Our goal is to make blood donation easier by linking donors to
-            hospitals and aligning with Oman&apos;s 2040 Vision for health and
-            well-being.
+            {t("aboutGoal")}
           </p>
           <p className="text-muted mb-0">
-            Through this Blood Donation Management System, we aim to provide a
-            simple and efficient platform where donors, hospitals, and
-            recipients can connect quickly in times of need. Your single
-            donation can be the reason someone gets a second chance at life.
+            {t("aboutPlatform")}
           </p>
         </div>
       </section>
@@ -78,7 +72,7 @@ const Home = () => {
       </section>
        <section className="social-section py-4 text-center">
               <div className="container">
-                <h4 className="mb-3">Follow BDMS</h4>
+                <h4 className="mb-3">{t("followBdms")}</h4>
       
                 <div
                   style={{ display: "flex", justifyContent: "center", gap: "25px" }}

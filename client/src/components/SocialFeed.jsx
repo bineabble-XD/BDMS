@@ -1,4 +1,5 @@
 import React from "react";
+import { useLanguage } from "../context/LanguageContext";
 
 const posts = [
   {
@@ -32,6 +33,7 @@ const posts = [
 ];
 
 const SocialFeed = () => {
+  const { t } = useLanguage();
   return (
     <section className="social-media-section">
       <div className="container">
@@ -42,7 +44,7 @@ const SocialFeed = () => {
             color: "#0d2b52",
           }}
         >
-          Social Media · Announcements
+          {t("socialTitle")}
         </h2>
 
         <p
@@ -51,7 +53,7 @@ const SocialFeed = () => {
             marginBottom: "30px",
           }}
         >
-          Highlights from our official social media accounts and campaigns.
+          {t("socialSubtitle")}
         </p>
 
         <div className="row g-4">
@@ -174,7 +176,7 @@ const SocialFeed = () => {
                       textDecoration: "none",
                     }}
                   >
-                    View on {post.platform} →
+                    {t("viewOn")} {post.platform} →
                   </a>
                 </div>
               </div>

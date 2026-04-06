@@ -4,6 +4,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
 import { applySettings } from "./utils/settingsUtils";
 import { LanguageProvider } from "./context/LanguageContext";
+import { FloatingPanelProvider } from "./context/FloatingPanelContext";
 
 import WidgetMenu from "./components/WidgetMenu.jsx";
 import ChatbotWidget from "./components/ChatbotWidget.jsx";
@@ -89,8 +90,10 @@ function AppContent() {
         </Routes>
       </div>
 
-      <WidgetMenu />
-      <ChatbotWidget />
+      <FloatingPanelProvider>
+        <WidgetMenu />
+        <ChatbotWidget />
+      </FloatingPanelProvider>
       <Footer />
     </>
   );

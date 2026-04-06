@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useLocation, Link, useNavigate } from "react-router-dom";
+import { useLanguage } from "../context/LanguageContext";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5050";
 
@@ -73,6 +74,8 @@ const HospitalManageRequest = () => {
   const userId = user?._id || user?.id;
 
   const [completing, setCompleting] = useState(false);
+  const [showRejectModal, setShowRejectModal] = useState(false);
+  const [rejectionReason, setRejectionReason] = useState("");
 
   const handleConfirmDonation = async () => {
     if (!userId || booking.status !== "approved") return;
@@ -97,17 +100,21 @@ const HospitalManageRequest = () => {
     }
   };
 
-  const handleStatusUpdate = async (status) => {
+  const handleStatusUpdate = async (status, reason) => {
     try {
+      const body = { status, userId };
+      if (status === "rejected") body.rejectionReason = reason || "";
       const res = await fetch(`${API_BASE}/bookings/${booking._id}/status`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status, userId }),
+        body: JSON.stringify(body),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) return alert(data?.message || "Failed to update booking");
 
       alert(`Booking ${status} successfully`);
+      setShowRejectModal(false);
+      setRejectionReason("");
       navigate("/hospital-dash");
     } catch (e) {
       alert("Network error");
@@ -118,7 +125,7 @@ const HospitalManageRequest = () => {
     <div className="admin-app-page">
       <main className="admin-app-main">
         <div className="container py-4">
-          <h2 className="mb-3">Manage Request</h2>
+          <h2 className="mb-3">{t("manageRequest")}</h2>
 
           <div className="card p-4 shadow-sm">
             <div className="d-flex flex-wrap justify-content-between gap-3">
@@ -126,15 +133,15 @@ const HospitalManageRequest = () => {
                 <h4 className="mb-2">{donorName}</h4>
 
                 <p className="mb-1">
-                  <strong>Appointment:</strong> {appointmentDate}
+                  <strong>{t("appointment")}:</strong> {appointmentDate}
                 </p>
 
                 <p className="mb-1">
-                  <strong>Blood Type:</strong> {bloodType}
+                  <strong>{t("bloodType")}:</strong> {bloodType}
                 </p>
 
                 <p className="mb-1">
-                  <strong>Hospital:</strong> {hospital.hospitalName || "—"}
+                  <strong>{t("navNotifHospital")}:</strong> {hospital.hospitalName || "—"}
                 </p>
 
                 <p className="mb-0">
@@ -166,7 +173,7 @@ const HospitalManageRequest = () => {
 
             <hr />
 
-            <h6 className="mb-2">Eligibility / Reason</h6>
+            <h6 className="mb-2">{t("eligibilityReason")}</h6>
             <textarea
               className="form-control"
               rows={6}
@@ -177,11 +184,50 @@ const HospitalManageRequest = () => {
             {booking.status === "pending" && (
               <div className="d-flex gap-3 mt-3">
                 <button className="btn btn-danger" onClick={() => handleStatusUpdate("approved")}>
-                  Approve
+                  {t("approve")}
                 </button>
-                <button className="btn btn-outline-dark" onClick={() => handleStatusUpdate("rejected")}>
-                  Decline
+                <button className="btn btn-outline-dark" onClick={() => setShowRejectModal(true)}>
+                  {t("decline")}
                 </button>
+              </div>
+            )}
+
+            {showRejectModal && (
+              <div className="modal d-block" style={{ backgroundColor: "rgba(0,0,0,0.5)" }} tabIndex={-1} onClick={() => setShowRejectModal(false)}>
+                <div className="modal-dialog modal-dialog-centered" onClick={(e) => e.stopPropagation()}>
+                  <div className="modal-content">
+                    <div className="modal-header">
+                      <h5 className="modal-title">{t("declineModalTitle")}</h5>
+                      <button type="button" className="btn-close" onClick={() => setShowRejectModal(false)} aria-label="Close" />
+                    </div>
+                    <div className="modal-body">
+                      <p className="text-muted small mb-2">
+                        {t("declineModalDesc")}
+                      </p>
+                      <label className="form-label">{t("rejectReasonLabel")} <span className="text-danger">*</span></label>
+                      <textarea
+                        className="form-control"
+                        rows={4}
+                        placeholder="e.g. No available slots at requested time, donor eligibility concerns..."
+                        value={rejectionReason}
+                        onChange={(e) => setRejectionReason(e.target.value)}
+                      />
+                    </div>
+                    <div className="modal-footer">
+                      <button type="button" className="btn btn-secondary" onClick={() => setShowRejectModal(false)}>
+                        {t("cancel")}
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-danger"
+                        disabled={!rejectionReason.trim()}
+                        onClick={() => handleStatusUpdate("rejected", rejectionReason.trim())}
+                      >
+                        {t("decline")}
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
             {booking.status === "approved" && (

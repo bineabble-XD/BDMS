@@ -1,8 +1,10 @@
 import React, { useState } from "react";
+import { useLanguage } from "../context/LanguageContext";
 
-const API_BASE = "http://localhost:5050";
+const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5050";
 
 const Feedback = () => {
+  const { t } = useLanguage();
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
   const [text, setText] = useState("");
@@ -50,14 +52,14 @@ const Feedback = () => {
     <div className="feedback-page">
       <section className="feedback-section">
         <div className="container text-center">
-          <h1 className="feedback-title mb-3">Feedback</h1>
+          <h1 className="feedback-title mb-3">{t("feedbackTitle")}</h1>
           <p className="feedback-subtitle mb-4">
-            We hope your visit goes well
+            {t("feedbackSubtitle")}
           </p>
 
           <form className="feedback-form mx-auto" onSubmit={handleSubmit}>
             <p className="mb-2 fw-semibold">
-              How would you rate overall experience?
+              {t("feedbackRateQuestion")}
             </p>
 
             <div className="feedback-stars mb-4">
@@ -78,7 +80,7 @@ const Feedback = () => {
             </div>
 
             <p className="mb-2 fw-semibold">
-              Kindly take a moment to tell us what you think
+              {t("feedbackCommentLabel")}
             </p>
 
             <textarea
@@ -86,7 +88,7 @@ const Feedback = () => {
               rows="5"
               value={text}
               onChange={(e) => setText(e.target.value)}
-              placeholder="Write your feedback here..."
+              placeholder={t("feedbackPlaceholder")}
             />
 
             {error && <p className="text-danger small mb-2">{error}</p>}
@@ -100,7 +102,7 @@ const Feedback = () => {
             )}
 
             <button type="submit" className="btn btn-danger feedback-submit" disabled={submitting}>
-              {submitting ? "Submitting..." : "Submit Feedback"}
+              {submitting ? t("feedbackSubmitting") : t("feedbackSubmit")}
             </button>
           </form>
         </div>

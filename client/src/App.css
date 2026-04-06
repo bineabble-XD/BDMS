@@ -2040,12 +2040,32 @@ body.bdms-dark .settings-page .setting-label {
 }
 
 
-/* Floating Widgets Menu */
+/* Floating Widgets Menu + Chatbot */
 .widget-menu-wrap {
   position: fixed;
   right: 12px;
   bottom: 12px;
   z-index: 9999;
+}
+
+.chatbot-fab {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  background: #dc3545;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.chatbot-fab:hover {
+  background: #c82333;
+  transform: scale(1.05);
 }
 
 .widget-show-tab {
@@ -2084,16 +2104,22 @@ body.bdms-dark .widget-show-tab:hover {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  width: 40px;
+  height: 40px;
   border: none;
-  border-radius: var(--bdms-border-radius-lg);
-  padding: 8px 12px;
-  font-size: 0.8125rem;
+  border-radius: 50%;
+  padding: 0;
+  font-size: 0.75rem;
   font-weight: 600;
   background: var(--bdms-primary);
   color: white;
   cursor: pointer;
   box-shadow: var(--bdms-shadow-lg);
-  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.widget-fab:hover {
+  transform: scale(1.05);
 }
 
 .widget-fab:hover {

@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { FaRobot } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import { useFloatingPanel } from "../context/FloatingPanelContext";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5050";
 
@@ -128,7 +129,8 @@ You can ask:
 - Hospital help?`;
   };
 
-  const [open, setOpen] = useState(false);
+  const { openPanel, setOpenPanel } = useFloatingPanel();
+  const open = openPanel === "chatbot";
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [messages, setMessages] = useState([
@@ -473,37 +475,26 @@ Do you want help with appointments, inventory, or reports?`,
   return (
     <>
       <button
-        onClick={() => setOpen((v) => !v)}
+        onClick={() => setOpenPanel(open ? null : "chatbot")}
+        className="chatbot-fab"
         style={{
           position: "fixed",
-          right: 20,
-          bottom: 110,
+          right: 98,
+          bottom: 12,
           zIndex: 9999,
-          width: 56,
-          height: 56,
-          borderRadius: "50%",
-          border: "none",
-          cursor: "pointer",
-          boxShadow: "0 10px 25px rgba(0,0,0,0.2)",
-          background: "#dc3545",
-          color: "white",
-          fontSize: 22,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
         }}
         aria-label="Open chat"
         title="Chat with BDMS"
       >
-        {open ? "✕" : <FaRobot size={24} />}
+        {open ? "✕" : <FaRobot size={18} />}
       </button>
 
       {open && (
         <div
           style={{
             position: "fixed",
-            right: 20,
-            bottom: 150,
+            right: 98,
+            bottom: 64,
             width: 360,
             maxWidth: "90vw",
             height: 500,
@@ -531,7 +522,7 @@ Do you want help with appointments, inventory, or reports?`,
           >
             <span>BDMS Chatbot</span>
             <button
-              onClick={() => setOpen(false)}
+              onClick={() => setOpenPanel(null)}
               style={{
                 background: "transparent",
                 border: "none",

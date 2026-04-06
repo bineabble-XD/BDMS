@@ -1,29 +1,28 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import bdmslogo from "../assets/bdmslogo.png";
+import { useLanguage } from "../context/LanguageContext";
 
 const About = () => {
+  const { t } = useLanguage();
   return (
     <div className="about-page">
       <section className="about-hero text-center text-white">
         <div className="container py-5">
-          <h1 className="fw-bold mb-3">About Us</h1>
+          <h1 className="fw-bold mb-3">{t("aboutUsTitle")}</h1>
           <p className="lead mb-4">
-            BDMS is a non-profit platform that connects blood donors with
-            hospitals in need across Oman.  
-            Our goal is to make every critical request reach the right donor at
-            the right time.
+            {t("aboutUsLead")}
           </p>
 
           <div className="d-flex justify-content-center gap-3 flex-wrap">
             <div className="badge bg-light text-danger px-3 py-2">
-              🎯 Save lives faster
+              🎯 {t("badgeSaveLives")}
             </div>
             <div className="badge bg-light text-danger px-3 py-2">
-              🤝 Donors &amp; hospitals together
+              🤝 {t("badgeDonorsHospitals")}
             </div>
             <div className="badge bg-light text-danger px-3 py-2">
-              📍 Focused on Oman
+              📍 {t("badgeFocusedOman")}
             </div>
           </div>
         </div>
@@ -34,38 +33,30 @@ const About = () => {
           <div className="row g-4 mb-4">
             <div className="col-md-4">
               <div className="about-card h-100">
-                <h5 className="fw-semibold mb-2">Our Mission</h5>
+                <h5 className="fw-semibold mb-2">{t("ourMission")}</h5>
                 <p className="mb-0 text-muted">
-                  To bridge the gap between hospitals and blood donors through a
-                  simple, reliable and secure platform – ensuring that no
-                  emergency is delayed due to lack of blood.
+                  {t("missionText")}
                 </p>
               </div>
             </div>
 
             <div className="col-md-4">
               <div className="about-card h-100">
-                <h5 className="fw-semibold mb-2">Our Vision</h5>
+                <h5 className="fw-semibold mb-2">{t("ourVision")}</h5>
                 <p className="mb-0 text-muted">
-                  Support Oman&apos;s 2040 health vision by building a culture
-                  of regular donation, better stock management, and faster
-                  response to urgent cases.
+                  {t("visionText")}
                 </p>
               </div>
             </div>
 
             <div className="col-md-4">
               <div className="about-card h-100">
-                <h5 className="fw-semibold mb-2">How BDMS Helps</h5>
+                <h5 className="fw-semibold mb-2">{t("howBdmsHelps")}</h5>
                 <ul className="mb-0 text-muted small ps-3">
-                  <li>Donors can register and manage their profiles.</li>
-                  <li>Hospitals can post urgent blood requests.</li>
-                  <li>
-                    Blood banks can update stock and coordinate with hospitals.
-                  </li>
-                  <li>
-                    Smart notifications help reach the right donors quickly.
-                  </li>
+                  <li>{t("helpItem1")}</li>
+                  <li>{t("helpItem2")}</li>
+                  <li>{t("helpItem3")}</li>
+                  <li>{t("helpItem4")}</li>
                 </ul>
               </div>
             </div>
@@ -74,17 +65,17 @@ const About = () => {
           <div className="row align-items-center g-4">
             <div className="col-md-6">
               <div className="about-card h-100">
-                <h5 className="fw-semibold mb-3">Contact Info</h5>
+                <h5 className="fw-semibold mb-3">{t("contactInfo")}</h5>
                 <p className="mb-2">
-                  <span className="fw-semibold me-1">📞 Phone:</span>
+                  <span className="fw-semibold me-1">📞 {t("contactPhone")}:</span>
                   +968 9982 9982
                 </p>
                 <p className="mb-2">
-                  <span className="fw-semibold me-1">✉ Email:</span>
+                  <span className="fw-semibold me-1">✉ {t("contactEmail")}:</span>
                   BDMS@gmail.com
                 </p>
                 <p className="mb-0">
-                  <span className="fw-semibold me-1">📍 Location:</span>
+                  <span className="fw-semibold me-1">📍 {t("contactLocation")}:</span>
                   Muscat, Oman
                 </p>
               </div>
@@ -98,11 +89,9 @@ const About = () => {
                   className="mb-3"
                   style={{ width: 90, height: 90, objectFit: "contain" }}
                 />
-                <h6 className="fw-semibold mb-2">Want to get involved?</h6>
+                <h6 className="fw-semibold mb-2">{t("wantToGetInvolved")}</h6>
                 <p className="text-muted small mb-3">
-                  You can register as a donor, partner with us as a hospital or
-                  blood bank, or help by spreading awareness about regular blood
-                  donation.
+                  {t("getInvolvedText")}
                 </p>
                 
               </div>

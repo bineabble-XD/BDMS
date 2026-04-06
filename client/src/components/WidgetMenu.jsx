@@ -1,14 +1,16 @@
 // client/src/components/WidgetMenu.jsx
 import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import { FiGrid } from "react-icons/fi";
 
 import { SETTINGS_KEYS, applySettings } from "../utils/settingsUtils";
 import { useLanguage } from "../context/LanguageContext";
+import { useFloatingPanel } from "../context/FloatingPanelContext";
 
 const WidgetMenu = () => {
   const { t } = useLanguage();
-
-  const [open, setOpen] = useState(false);
+  const { openPanel, setOpenPanel } = useFloatingPanel();
+  const open = openPanel === "widget";
   const [visible, setVisible] = useState(() => {
     const stored = localStorage.getItem(SETTINGS_KEYS.WIDGET_VISIBLE);
     return stored === null || stored === "true";
@@ -20,13 +22,17 @@ const WidgetMenu = () => {
   );
 
   const panelRef = useRef(null);
+  const fabRef = useRef(null);
 
-  // Close menu when clicking outside
+  // Close panel when clicking outside (but not when clicking the widget button itself)
   useEffect(() => {
     const onDown = (e) => {
       if (!open) return;
-      if (panelRef.current && !panelRef.current.contains(e.target)) {
-        setOpen(false);
+      const inPanel = panelRef.current?.contains(e.target);
+      const onFab = fabRef.current?.contains(e.target);
+      const onChatbot = e.target.closest?.(".chatbot-fab");
+      if (!inPanel && !onFab && !onChatbot) {
+        setOpenPanel(null);
       }
     };
     document.addEventListener("mousedown", onDown);
@@ -36,7 +42,7 @@ const WidgetMenu = () => {
   const toggleVisible = (value) => {
     setVisible(value);
     localStorage.setItem(SETTINGS_KEYS.WIDGET_VISIBLE, value ? "true" : "false");
-    if (!value) setOpen(false);
+    if (!value) setOpenPanel(null);
   };
 
   const toggleColorBlind = (value) => {
@@ -63,12 +69,14 @@ const WidgetMenu = () => {
       {visible && (
         <>
           <button
+            ref={fabRef}
             type="button"
             className="widget-fab"
-            onClick={() => setOpen((s) => !s)}
+            onClick={() => setOpenPanel(open ? null : "widget")}
             aria-expanded={open}
+            title={t?.("widgetsBtn") || "Widgets"}
           >
-            {t?.("widgetsBtn") || "Widgets"}
+            <FiGrid size={18} />
           </button>
 
           {/* Panel */}
@@ -79,7 +87,7 @@ const WidgetMenu = () => {
             <button
               type="button"
               className="widget-close"
-              onClick={() => setOpen(false)}
+              onClick={() => setOpenPanel(null)}
               aria-label="Close"
             >
               ✕
@@ -128,7 +136,7 @@ const WidgetMenu = () => {
           </div>
 
           <div className="widget-links">
-            <Link to="/settings" className="widget-link" onClick={() => setOpen(false)}>
+            <Link to="/settings" className="widget-link" onClick={() => setOpenPanel(null)}>
               {t?.("widgetsSettingsLink") || "Settings"}
             </Link>
           </div>
