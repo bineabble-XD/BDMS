@@ -23,7 +23,7 @@ app.use(cors());
 app.use(express.json());
 
 const connectionString =
-  "mongodb+srv://admin:admin@btech.mun6zsy.mongodb.net/BDMS?retryWrites=true&w=majority&appName=btech";
+  "mongodb+srv://bdms12221_db_user:<admin>@cluster0.cpa4u7p.mongodb.net/?appName=Cluster0";
 
 // ✅ UPDATED: use .env if available, fallback to your current values
 const transporter = nodemailer.createTransport({
