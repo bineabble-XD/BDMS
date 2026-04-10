@@ -2,8 +2,17 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { registerHospital, resetHospitalState } from "../features/hospitalSlice";
-import donorIllustration from "../assets/1+.png"; 
+import donorIllustration from "../assets/1+.png";
+import {
+  GCC_COUNTRY_CODES,
+  localLiveError,
+  maxLocalDigitsForCountry,
+  phoneLocalErrorForCountry,
+} from "../utils/phoneValidation";
+import { useLanguage } from "../context/LanguageContext";
+
 const HospitalRegister = () => {
+  const { t, language } = useLanguage();
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -15,10 +24,13 @@ const HospitalRegister = () => {
     type: "",
     contactPerson: "",
     contactEmail: "",
-    contactPhone: "",
+    contactPhone: "", // local digits only (same as donor Register phone field)
     email: "", 
     password: "", 
   });
+
+  const [countryCode, setCountryCode] = useState("+968");
+  const [phoneError, setPhoneError] = useState("");
 
   const [passwordValidations, setPasswordValidations] = useState({
     lower: false,
@@ -53,6 +65,15 @@ const HospitalRegister = () => {
       if (value.length > 20) return; 
     }
 
+    if (name === "contactPhone") {
+      const numericValue = value.replace(/[^0-9]/g, "");
+      const maxLen = maxLocalDigitsForCountry(countryCode);
+      if (numericValue.length > maxLen) return;
+      setForm((prev) => ({ ...prev, contactPhone: numericValue }));
+      setPhoneError(localLiveError(countryCode, numericValue));
+      return;
+    }
+
     if (name === "password") {
       validatePassword(value);
     }
@@ -70,47 +91,47 @@ const HospitalRegister = () => {
     const contactEmail = form.contactEmail.trim();
     const loginEmail = form.email.trim();
     const password = form.password;
-    const phone = form.contactPhone.trim();
+    const phoneErr = phoneLocalErrorForCountry(countryCode, form.contactPhone);
+    if (phoneErr) {
+      setPhoneError(phoneErr);
+      return;
+    }
+
+    const numericCode = countryCode.replace("+", "");
+    const fullContactPhone = `${numericCode}${form.contactPhone}`;
 
     if (!emailRegex.test(contactEmail)) {
-      alert("Please enter a valid contact email.");
+      alert(t("hospAlertContactEmail"));
       return;
     }
 
     if (!emailRegex.test(loginEmail)) {
-      alert("Please enter a valid login email.");
+      alert(t("hospAlertLoginEmail"));
       return;
     }
 
     if (!password) {
-      alert("Please enter a password.");
+      alert(t("hospAlertPassword"));
       return;
     }
 
     const rulesPassed = Object.values(passwordValidations).every((x) => x);
     if (!rulesPassed) {
-      alert("Password does not meet the required criteria.");
-      return;
-    }
-
-    if (!/^[0-9]+$/.test(phone)) {
-      alert("Contact phone must contain digits only.");
+      alert(t("hospAlertPwRules"));
       return;
     }
 
     dispatch(
       registerHospital({
         ...form,
+        contactPhone: fullContactPhone,
         contactEmail,
         email: loginEmail,
       })
     )
       .unwrap()
       .then((data) => {
-        alert(
-          data?.message ||
-          "Hospital registration submitted and pending admin approval."
-        );
+        alert(data?.message || t("hospAlertPending"));
         navigate("/login");
       })
       .catch(() => {
@@ -121,7 +142,11 @@ const HospitalRegister = () => {
   };
 
   return (
-    <div className="register-page container-fluid">
+    <div
+      className="register-page container-fluid"
+      dir={language === "AR" ? "rtl" : "ltr"}
+      lang={language === "AR" ? "ar" : "en"}
+    >
       <div className="row min-vh-100 align-items-center">
         <div
           className="col-md-7 auth-left"
@@ -131,9 +156,7 @@ const HospitalRegister = () => {
         >
 
 
-          <h3 className="mb-3 fw-semibold" className="text-danger">
-            Hospital Registration
-          </h3>
+          <h3 className="mb-3 fw-semibold text-danger">{t("hospRegTitle")}</h3>
 
           <div
             style={{
@@ -153,7 +176,7 @@ const HospitalRegister = () => {
 
             <form onSubmit={handleSubmit}>
               <div className="mb-3">
-                <label className="form-label">Hospital Name</label>
+                <label className="form-label">{t("hospRegName")}</label>
                 <input
                   type="text"
                   className="form-control"
@@ -166,7 +189,7 @@ const HospitalRegister = () => {
 
               <div className="row">
                 <div className="col-md-6 mb-3">
-                  <label className="form-label">City</label>
+                  <label className="form-label">{t("hospRegCity")}</label>
                   <input
                     type="text"
                     className="form-control"
@@ -178,25 +201,25 @@ const HospitalRegister = () => {
                 </div>
 
                 <div className="col-md-6 mb-3">
-                  <label className="form-label">Hospital Type</label>
+                  <label className="form-label">{t("hospRegType")}</label>
                   <select
                     className="form-select"
                     name="type"
                     value={form.type}
                     onChange={handleChange}
                   >
-                    <option value="">Select type</option>
-                    <option>Government</option>
-                    <option>Private</option>
-                    <option>Military</option>
-                    <option>Blood Inventory</option>
-                    <option>Other</option>
+                    <option value="">{t("hospRegSelectType")}</option>
+                    <option value="Government">{t("hospTypeGov")}</option>
+                    <option value="Private">{t("hospTypePrivate")}</option>
+                    <option value="Military">{t("hospTypeMilitary")}</option>
+                    <option value="Blood Inventory">{t("hospTypeBloodInv")}</option>
+                    <option value="Other">{t("hospTypeOther")}</option>
                   </select>
                 </div>
               </div>
 
               <div className="mb-3">
-                <label className="form-label">Contact Person</label>
+                <label className="form-label">{t("hospContactPerson")}</label>
                 <input
                   type="text"
                   className="form-control"
@@ -205,26 +228,53 @@ const HospitalRegister = () => {
                   onChange={handleChange}
                   required
                 />
-                <small className="text-muted">
-                  Name only (letters, max 20 characters).
-                </small>
+                <small className="text-muted">{t("hospContactPersonHint")}</small>
               </div>
 
               <div className="row">
                 <div className="col-md-6 mb-3">
-                  <label className="form-label">Contact Phone</label>
-                  <input
-                    type="tel"
-                    className="form-control"
-                    name="contactPhone"
-                    value={form.contactPhone}
-                    onChange={handleChange}
-                    required
-                  />
+                  <label className="form-label">{t("hospContactPhone")}</label>
+                  <div className="row g-2">
+                    <div className="col-4">
+                      <select
+                        className="form-select"
+                        value={countryCode}
+                        onChange={(e) => {
+                          const next = e.target.value;
+                          const trimmed = form.contactPhone.slice(
+                            0,
+                            maxLocalDigitsForCountry(next)
+                          );
+                          setCountryCode(next);
+                          setForm((prev) => ({ ...prev, contactPhone: trimmed }));
+                          setPhoneError(localLiveError(next, trimmed));
+                        }}
+                      >
+                        {GCC_COUNTRY_CODES.map((c) => (
+                          <option key={c} value={c}>
+                            {c}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="col-8">
+                      <input
+                        type="tel"
+                        className="form-control"
+                        name="contactPhone"
+                        value={form.contactPhone}
+                        onChange={handleChange}
+                        required
+                      />
+                      {phoneError && (
+                        <small className="text-danger d-block">{phoneError}</small>
+                      )}
+                    </div>
+                  </div>
                 </div>
 
                 <div className="col-md-6 mb-3">
-                  <label className="form-label">Contact Email</label>
+                  <label className="form-label">{t("hospContactEmail")}</label>
                   <input
                     type="email"
                     className="form-control"
@@ -237,7 +287,7 @@ const HospitalRegister = () => {
               </div>
 
               <div className="mb-3">
-                <label className="form-label">Login Email</label>
+                <label className="form-label">{t("hospLoginEmail")}</label>
                 <input
                   type="email"
                   className="form-control"
@@ -249,7 +299,7 @@ const HospitalRegister = () => {
               </div>
 
               <div className="mb-3 position-relative">
-                <label className="form-label">Login Password</label>
+                <label className="form-label">{t("hospLoginPassword")}</label>
                 <input
                   type="password"
                   className="form-control"
@@ -278,9 +328,7 @@ const HospitalRegister = () => {
                       minWidth: "250px",
                     }}
                   >
-                    <strong style={{ fontSize: "11px" }}>
-                      PASSWORD MUST CONTAIN:
-                    </strong>
+                    <strong style={{ fontSize: "11px" }}>{t("regPasswordMustContain")}</strong>
                     <ul
                       style={{
                         listStyle: "none",
@@ -294,40 +342,35 @@ const HospitalRegister = () => {
                           color: passwordValidations.lower ? "green" : "red",
                         }}
                       >
-                        {passwordValidations.lower ? "✔" : "✘"} At least one
-                        lowercase letter
+                        {passwordValidations.lower ? "✔" : "✘"} {t("regPwLower")}
                       </li>
                       <li
                         style={{
                           color: passwordValidations.upper ? "green" : "red",
                         }}
                       >
-                        {passwordValidations.upper ? "✔" : "✘"} At least one
-                        uppercase letter
+                        {passwordValidations.upper ? "✔" : "✘"} {t("regPwUpper")}
                       </li>
                       <li
                         style={{
                           color: passwordValidations.number ? "green" : "red",
                         }}
                       >
-                        {passwordValidations.number ? "✔" : "✘"} At least one
-                        number
+                        {passwordValidations.number ? "✔" : "✘"} {t("regPwNumber")}
                       </li>
                       <li
                         style={{
                           color: passwordValidations.special ? "green" : "red",
                         }}
                       >
-                        {passwordValidations.special ? "✔" : "✘"} At least one
-                        special character
+                        {passwordValidations.special ? "✔" : "✘"} {t("regPwSpecial")}
                       </li>
                       <li
                         style={{
                           color: passwordValidations.length ? "green" : "red",
                         }}
                       >
-                        {passwordValidations.length ? "✔" : "✘"} Minimum 8
-                        characters
+                        {passwordValidations.length ? "✔" : "✘"} {t("regPwLength")}
                       </li>
                     </ul>
                   </div>
@@ -339,15 +382,15 @@ const HospitalRegister = () => {
                 className="btn btn-danger w-100"
                 disabled={loading}
               >
-                {loading ? "Submitting..." : "Register Hospital"}
+                {loading ? t("hospSubmitting") : t("hospRegisterBtn")}
               </button>
             </form>
           </div>
 
           <p className="mt-3">
-            Already registered?{" "}
+            {t("hospAlreadyReg")}{" "}
             <Link to="/login" className="text-decoration-underline">
-              Login
+              {t("regLoginLink")}
             </Link>
           </p>
         </div>
@@ -355,7 +398,7 @@ const HospitalRegister = () => {
         <div className="col-md-5 text-center d-none d-md-block">
           <img
             src={donorIllustration}
-            alt="Hospital"
+            alt={t("hospital")}
             className="auth-illustration img-fluid"
             style={{ maxWidth: "70%", height: "auto" }}
           />

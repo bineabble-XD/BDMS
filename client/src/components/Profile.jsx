@@ -3,19 +3,18 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, Link } from "react-router-dom";
 import bdmslogo from "../assets/bdmslogo.png";
 import { updateProfile } from "../features/authSlice.jsx";
-
-const COUNTRY_CODES = ["+968", "+971", "+966", "+974", "+973", "+965"];
+import {
+  GCC_COUNTRY_CODES,
+  localLiveError,
+  maxLocalDigitsForCountry,
+  phoneLocalErrorForCountry,
+  splitStoredPhoneToForm,
+} from "../utils/phoneValidation";
+import { useLanguage } from "../context/LanguageContext";
 
 const splitPhone = (phoneNum) => {
-  if (!phoneNum) return { code: "+968", local: "" };
-  const s = String(phoneNum);
-
-  // assume last 8 digits are local number
-  const local = s.slice(-8);
-  const prefix = s.slice(0, -8);
-
-  const code = COUNTRY_CODES.find((c) => c.replace("+", "") === prefix) || "+968";
-  return { code, local };
+  const { countryCode, local } = splitStoredPhoneToForm(phoneNum);
+  return { code: countryCode, local };
 };
 
 const isValidEmail = (email) => {
@@ -24,6 +23,7 @@ const isValidEmail = (email) => {
 };
 
 const Profile = () => {
+  const { t, language } = useLanguage();
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
   const { loading } = useSelector((state) => state.auth);
@@ -79,13 +79,13 @@ const Profile = () => {
   const onChange = (e) => {
     const { name, value } = e.target;
 
-    // same as Register.jsx phone validation: numeric + max 8 digits
+    // same as Register.jsx: length and first-digit rules per country code
     if (name === "phoneLocal") {
       const numericValue = value.replace(/[^0-9]/g, "");
-      if (numericValue.length > 8) return;
+      const maxLen = maxLocalDigitsForCountry(countryCode);
+      if (numericValue.length > maxLen) return;
       setPhoneLocal(numericValue);
-
-      if (numericValue.length === 8) setPhoneError("");
+      setPhoneError(localLiveError(countryCode, numericValue));
       return;
     }
 
@@ -115,33 +115,33 @@ const Profile = () => {
     const requiredFields = ["fName", "email", "Age", "gender", "bloodType", "address"];
     for (const field of requiredFields) {
       if (!String(form[field] ?? "").trim()) {
-        alert(`Please fill out the ${field}`);
+        alert(t("regFillAllFields"));
         return false;
       }
     }
 
     // full name max 20
     if (String(form.fName).length > 20) {
-      alert("Full Name must be max 20 letters.");
+      alert(t("profNameMax"));
       return false;
     }
 
     // email format
     if (!isValidEmail(form.email)) {
-      alert("Please enter a valid email address (example: name@gmail.com).");
+      alert(t("profEmailInvalid"));
       return false;
     }
 
-    // phone exactly 8 digits
-    if (phoneLocal.length !== 8) {
-      setPhoneError("Phone number must be exactly 8 digits.");
+    const phoneErr = phoneLocalErrorForCountry(countryCode, phoneLocal);
+    if (phoneErr) {
+      setPhoneError(phoneErr);
       return false;
     }
 
     // age min 18
     const ageNum = Number(form.Age);
     if (!Number.isFinite(ageNum) || ageNum < 18) {
-      alert("Age must be 18 or above.");
+      alert(t("profAgeMin"));
       return false;
     }
 
@@ -162,15 +162,19 @@ const Profile = () => {
 
     const res = await dispatch(updateProfile({ userId: user._id, updates }));
     if (updateProfile.fulfilled.match(res)) {
-      alert("Profile updated successfully");
+      alert(t("profUpdated"));
       setIsEditing(false);
     } else {
-      alert(res.payload || "Update failed");
+      alert(res.payload || t("profUpdateFailed"));
     }
   };
 
   return (
-    <div className="profile-page">
+    <div
+      className="profile-page"
+      dir={language === "AR" ? "rtl" : "ltr"}
+      lang={language === "AR" ? "ar" : "en"}
+    >
       <header className="bdms-navbar shadow-sm">
         <div className="container d-flex align-items-center justify-content-between py-3">
           <div className="d-flex align-items-center gap-2">
@@ -183,12 +187,12 @@ const Profile = () => {
               <h5 className="mb-0 fw-bold">
                 <span className="text-danger">BLOOD</span> <span>DONATION</span>
               </h5>
-              <small className="text-muted">MANAGEMENT SYSTEM</small>
+              <small className="text-muted">{t("profNavBrandSub")}</small>
             </div>
           </div>
 
           <nav className="d-none d-md-flex align-items-center gap-4">
-            <span className="nav-link active-link">My Profile</span>
+            <span className="nav-link active-link">{t("profTitle")}</span>
           </nav>
         </div>
       </header>
@@ -198,13 +202,13 @@ const Profile = () => {
           <div className="col-md-8">
             <div className="card shadow-sm">
               <div className="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
-                <h5 className="mb-0">My Profile</h5>
+                <h5 className="mb-0">{t("profTitle")}</h5>
                 <div className="d-flex gap-2">
                   <Link to="/home" className="btn btn-sm btn-outline-secondary">
-                    Back to Home
+                    {t("profBackHome")}
                   </Link>
                   <Link to="/forget-password" className="btn btn-sm btn-outline-secondary">
-                    Reset Password
+                    {t("profResetPw")}
                   </Link>
                 </div>
               </div>
@@ -221,15 +225,15 @@ const Profile = () => {
 
                   {!isEditing ? (
                     <button className="btn btn-outline-primary" onClick={() => setIsEditing(true)}>
-                      Edit
+                      {t("edit")}
                     </button>
                   ) : (
                     <div className="d-flex gap-2">
                       <button className="btn btn-primary" disabled={loading} onClick={onSave}>
-                        {loading ? "Saving..." : "Save"}
+                        {loading ? t("profSaving") : t("save")}
                       </button>
                       <button className="btn btn-outline-secondary" disabled={loading} onClick={onCancel}>
-                        Cancel
+                        {t("cancel")}
                       </button>
                     </div>
                   )}
@@ -237,34 +241,34 @@ const Profile = () => {
 
                 {!isEditing ? (
                   <dl className="row mb-0">
-                    <dt className="col-sm-4">Full Name</dt>
+                    <dt className="col-sm-4">{t("regFullName")}</dt>
                     <dd className="col-sm-8">{user.fName}</dd>
 
-                    <dt className="col-sm-4">Email</dt>
+                    <dt className="col-sm-4">{t("regEmail")}</dt>
                     <dd className="col-sm-8">{user.email}</dd>
 
-                    <dt className="col-sm-4">Phone Number</dt>
+                    <dt className="col-sm-4">{t("regPhone")}</dt>
                     <dd className="col-sm-8">{user.phoneNum}</dd>
 
-                    <dt className="col-sm-4">Age</dt>
+                    <dt className="col-sm-4">{t("regAge")}</dt>
                     <dd className="col-sm-8">{user.Age}</dd>
 
-                    <dt className="col-sm-4">Gender</dt>
+                    <dt className="col-sm-4">{t("regGender")}</dt>
                     <dd className="col-sm-8">{user.gender}</dd>
 
-                    <dt className="col-sm-4">Blood Type</dt>
+                    <dt className="col-sm-4">{t("regBloodType")}</dt>
                     <dd className="col-sm-8">{user.bloodType}</dd>
 
-                    <dt className="col-sm-4">Role</dt>
+                    <dt className="col-sm-4">{t("profRole")}</dt>
                     <dd className="col-sm-8">{user.role}</dd>
 
-                    <dt className="col-sm-4">Address</dt>
+                    <dt className="col-sm-4">{t("regAddress")}</dt>
                     <dd className="col-sm-8">{user.address}</dd>
                   </dl>
                 ) : (
                   <div className="row g-3">
                     <div className="col-md-6">
-                      <label className="form-label">Full Name</label>
+                      <label className="form-label">{t("regFullName")}</label>
                       <input
                         className="form-control"
                         name="fName"
@@ -273,11 +277,11 @@ const Profile = () => {
                         maxLength={20}
                         required
                       />
-                      <small className="text-muted">Max 20 letters.</small>
+                      <small className="text-muted">{t("regMax20")}</small>
                     </div>
 
                     <div className="col-md-6">
-                      <label className="form-label">Email</label>
+                      <label className="form-label">{t("regEmail")}</label>
                       <input
                         className="form-control"
                         type="email"
@@ -290,15 +294,24 @@ const Profile = () => {
 
                     {/* Phone same as Register */}
                     <div className="col-md-6">
-                      <label className="form-label">Phone Number</label>
+                      <label className="form-label">{t("regPhone")}</label>
                       <div className="row g-2">
                         <div className="col-4">
                           <select
                             className="form-select"
                             value={countryCode}
-                            onChange={(e) => setCountryCode(e.target.value)}
+                            onChange={(e) => {
+                              const next = e.target.value;
+                              const trimmed = phoneLocal.slice(
+                                0,
+                                maxLocalDigitsForCountry(next)
+                              );
+                              setCountryCode(next);
+                              setPhoneLocal(trimmed);
+                              setPhoneError(localLiveError(next, trimmed));
+                            }}
                           >
-                            {COUNTRY_CODES.map((c) => (
+                            {GCC_COUNTRY_CODES.map((c) => (
                               <option key={c} value={c}>
                                 {c}
                               </option>
@@ -320,7 +333,7 @@ const Profile = () => {
                     </div>
 
                     <div className="col-md-6">
-                      <label className="form-label">Age</label>
+                      <label className="form-label">{t("regAge")}</label>
                       <input
                         type="number"
                         className="form-control"
@@ -333,7 +346,7 @@ const Profile = () => {
                     </div>
 
                     <div className="col-md-6">
-                      <label className="form-label">Gender</label>
+                      <label className="form-label">{t("regGender")}</label>
                       <select
                         className="form-select"
                         name="gender"
@@ -341,15 +354,15 @@ const Profile = () => {
                         onChange={onChange}
                         required
                       >
-                        <option value="">Select gender</option>
-                        <option>Male</option>
-                        <option>Female</option>
-                        <option>Other</option>
+                        <option value="">{t("regSelectGender")}</option>
+                        <option value="Male">{t("regMale")}</option>
+                        <option value="Female">{t("regFemale")}</option>
+                        <option value="Other">{t("regOther")}</option>
                       </select>
                     </div>
 
                     <div className="col-md-6">
-                      <label className="form-label">Blood Type</label>
+                      <label className="form-label">{t("regBloodType")}</label>
                       <select
                         className="form-select"
                         name="bloodType"
@@ -357,7 +370,7 @@ const Profile = () => {
                         onChange={onChange}
                         required
                       >
-                        <option value="">Select blood type</option>
+                        <option value="">{t("regSelectBloodType")}</option>
                         <option>A+</option>
                         <option>A-</option>
                         <option>B+</option>
@@ -370,13 +383,13 @@ const Profile = () => {
                     </div>
 
                     <div className="col-md-6">
-                      <label className="form-label">Role</label>
+                      <label className="form-label">{t("profRole")}</label>
                       <input className="form-control" value={user.role} disabled readOnly />
-                      <div className="form-text">Role cannot be changed.</div>
+                      <div className="form-text">{t("profRoleLocked")}</div>
                     </div>
 
                     <div className="col-md-6">
-                      <label className="form-label">Address</label>
+                      <label className="form-label">{t("regAddress")}</label>
                       <input
                         className="form-control"
                         name="address"

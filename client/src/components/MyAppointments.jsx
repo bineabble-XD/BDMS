@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useSelector } from "react-redux";
 import { getTodayInOman, getMaxDateInOman, getCurrentMinutesInOman } from "../utils/omanTime";
+import { useLanguage } from "../context/LanguageContext";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5050";
 
@@ -12,48 +13,60 @@ for (let h = 9; h <= 22; h++) {
   }
 }
 
-const formatDate = (d) => {
-  if (!d) return "—";
-  const dt = new Date(d);
-  return dt.toLocaleString("en-GB", { timeZone: "Asia/Muscat" });
-};
-
-const getStatusDisplay = (status) => {
-  const config = {
-    completed: { dot: "bg-success", label: "Completed" },
-    approved: { dot: "bg-warning", label: "Pending donation" },
-    pending: { dot: "bg-secondary", label: "Pending" },
-    rejected: { dot: "bg-danger", label: "Cancelled" },
-    cancelled: { dot: "bg-danger", label: "Cancelled" },
-  };
-  const c = config[status] || { dot: "bg-secondary", label: status || "—" };
-  return (
-    <span className="d-inline-flex align-items-center gap-1">
-      <span className={`rounded-circle d-inline-block ${c.dot}`} style={{ width: 8, height: 8 }} />
-      {c.label}
-    </span>
-  );
-};
-
-const getDateLabel = (dateStr, today) => {
-  if (!dateStr) return "";
-  const d = new Date(dateStr).toLocaleDateString("en-CA", { timeZone: "Asia/Muscat" });
-  if (d === today) return "Today";
-  const tomorrow = new Date(today + "T12:00:00+04:00");
-  tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
-  const tomorrowStr = tomorrow.toISOString().split("T")[0];
-  if (d === tomorrowStr) return "Tomorrow";
-  return new Date(dateStr).toLocaleDateString("en-GB", {
-    weekday: "short",
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-    timeZone: "Asia/Muscat",
-  });
-};
-
 const MyAppointments = () => {
+  const { t, language } = useLanguage();
   const { user } = useSelector((state) => state.auth);
+
+  const getStatusDisplay = useCallback(
+    (status) => {
+      const config = {
+        completed: { dot: "bg-success", label: t("statusCompleted") },
+        approved: { dot: "bg-warning", label: t("statusPendingDonation") },
+        pending: { dot: "bg-secondary", label: t("statusPending") },
+        rejected: { dot: "bg-danger", label: t("statusCancelled") },
+        cancelled: { dot: "bg-danger", label: t("statusCancelled") },
+      };
+      const c = config[status] || { dot: "bg-secondary", label: status || "—" };
+      return (
+        <span className="d-inline-flex align-items-center gap-1">
+          <span className={`rounded-circle d-inline-block ${c.dot}`} style={{ width: 8, height: 8 }} />
+          {c.label}
+        </span>
+      );
+    },
+    [t]
+  );
+
+  const getDateLabel = useCallback(
+    (dateStr, today) => {
+      if (!dateStr) return "";
+      const d = new Date(dateStr).toLocaleDateString("en-CA", { timeZone: "Asia/Muscat" });
+      if (d === today) return t("dateToday");
+      const tomorrow = new Date(today + "T12:00:00+04:00");
+      tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
+      const tomorrowStr = tomorrow.toISOString().split("T")[0];
+      if (d === tomorrowStr) return t("dateTomorrow");
+      const loc = language === "AR" ? "ar-OM" : "en-GB";
+      return new Date(dateStr).toLocaleDateString(loc, {
+        weekday: "short",
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+        timeZone: "Asia/Muscat",
+      });
+    },
+    [t, language]
+  );
+
+  const formatDate = useCallback(
+    (d) => {
+      if (!d) return "—";
+      const dt = new Date(d);
+      const loc = language === "AR" ? "ar-OM" : "en-GB";
+      return dt.toLocaleString(loc, { timeZone: "Asia/Muscat" });
+    },
+    [language]
+  );
 
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -72,7 +85,7 @@ const MyAppointments = () => {
       const data = await res.json();
       setBookings(data.bookings || []);
     } catch (e) {
-      alert("Failed to load your appointments");
+      alert(t("myApptLoadFailed"));
     } finally {
       setLoading(false);
     }
@@ -142,19 +155,19 @@ const MyAppointments = () => {
   };
 
   const submitReschedule = async (bookingId) => {
-    if (!newDate || !newTime) return alert("Pick a date and time");
+    if (!newDate || !newTime) return alert(t("myApptPickDateTime"));
 
     const [h, m] = newTime.split(":").map(Number);
     if (h < 9 || h > 22 || (h === 22 && m > 0)) {
-      return alert("Time must be between 9:00 AM and 10:00 PM");
+      return alert(t("myApptTimeRange"));
     }
     if (m % 15 !== 0) {
-      return alert("Time must be in 15-minute intervals");
+      return alert(t("apptTime15Min"));
     }
 
     const appointmentDate = new Date(`${newDate}T${newTime}+04:00`);
     if (appointmentDate > maxDateObj) {
-      return alert("Appointment date cannot be more than 2 weeks from today.");
+      return alert(t("apptMax2Weeks"));
     }
 
     try {
@@ -169,18 +182,18 @@ const MyAppointments = () => {
 
       const data = await res.json();
 
-      if (!res.ok) return alert(data.message || "Reschedule failed");
+      if (!res.ok) return alert(data.message || t("myApptRescheduleFail"));
 
-      alert("Rescheduled successfully. The hospital will need to approve the new date.");
+      alert(t("myApptRescheduleOk"));
       setEditingId(null);
       fetchBookings();
     } catch (e) {
-      alert("Network error");
+      alert(t("myApptNetworkError"));
     }
   };
 
   const cancelBooking = async (bookingId) => {
-    if (!confirm("Are you sure you want to cancel this appointment?")) return;
+    if (!confirm(t("myApptCancelConfirm"))) return;
 
     try {
       const res = await fetch(`${API_BASE}/bookings/${bookingId}/cancel`, {
@@ -191,34 +204,40 @@ const MyAppointments = () => {
 
       const data = await res.json();
 
-      if (!res.ok) return alert(data.message || "Cancel failed");
+      if (!res.ok) return alert(data.message || t("myApptCancelFail"));
 
-      alert("Cancelled successfully");
+      alert(t("myApptCancelOk"));
       fetchBookings();
     } catch (e) {
-      alert("Network error");
+      alert(t("myApptNetworkError"));
     }
   };
 
   if (!user) {
     return (
-      <div className="container py-4">
-        <h3>Please login first</h3>
+      <div
+        className="container py-4"
+        dir={language === "AR" ? "rtl" : "ltr"}
+        lang={language === "AR" ? "ar" : "en"}
+      >
+        <h3>{t("myApptLogin")}</h3>
       </div>
     );
   }
 
   return (
-    <div className="container py-4">
-      <h2 className="mb-2">My Appointments</h2>
-      <p className="text-muted mb-4">
-        View your bookings, reschedule, or cancel.
-      </p>
+    <div
+      className="container py-4"
+      dir={language === "AR" ? "rtl" : "ltr"}
+      lang={language === "AR" ? "ar" : "en"}
+    >
+      <h2 className="mb-2">{t("myApptTitle")}</h2>
+      <p className="text-muted mb-4">{t("myApptSubtitle")}</p>
 
       {loading ? (
-        <p>Loading...</p>
+        <p>{t("loading")}</p>
       ) : bookings.length === 0 ? (
-        <div className="alert alert-info">No appointments found.</div>
+        <div className="alert alert-info">{t("myApptNone")}</div>
       ) : (
         <div className="d-flex flex-column gap-3">
           {(() => {
@@ -240,17 +259,17 @@ const MyAppointments = () => {
               <div className="card-body d-flex flex-wrap justify-content-between gap-3">
                 <div>
                   <h5 className="mb-1">
-                    {b.hospital?.hospitalName || "Hospital"}
+                    {b.hospital?.hospitalName || t("hospital")}
                   </h5>
                   <div className="text-muted">
                     <div>
-                      <strong>Date:</strong> {formatDate(b.appointmentDate)}
+                      <strong>{t("myApptDateLabel")}</strong> {formatDate(b.appointmentDate)}
                     </div>
                     <div>
-                      <strong>Blood Type:</strong> {b.bloodType}
+                      <strong>{t("myApptBloodTypeLabel")}</strong> {b.bloodType}
                     </div>
                     <div>
-                      <strong>Status:</strong>{" "}
+                      <strong>{t("myApptStatusLabel")}</strong>{" "}
                       {getStatusDisplay(b.status)}
                     </div>
                   </div>
@@ -263,14 +282,14 @@ const MyAppointments = () => {
                         className="btn btn-outline-primary"
                         onClick={() => startReschedule(b)}
                       >
-                        Reschedule
+                        {t("myApptReschedule")}
                       </button>
                       {b.status === "pending" && (
                         <button
                           className="btn btn-outline-danger"
                           onClick={() => cancelBooking(b._id)}
                         >
-                          Cancel
+                          {t("cancel")}
                         </button>
                       )}
                     </>
@@ -282,7 +301,7 @@ const MyAppointments = () => {
                 <div className="card-footer bg-white">
                   <div className="row g-2 align-items-end">
                     <div className="col-md-4">
-                      <label className="form-label">New Date</label>
+                      <label className="form-label">{t("myApptNewDate")}</label>
                       <input
                         type="date"
                         className="form-control"
@@ -293,7 +312,7 @@ const MyAppointments = () => {
                       />
                     </div>
                     <div className="col-md-4">
-                      <label className="form-label">New Time</label>
+                      <label className="form-label">{t("myApptNewTime")}</label>
                       <select
                         className="form-select"
                         value={newTime}
@@ -301,7 +320,7 @@ const MyAppointments = () => {
                         disabled={slotsLoading}
                       >
                         <option value="">
-                          {slotsLoading ? "Loading slots..." : "Select time"}
+                          {slotsLoading ? t("apptLoadingSlots") : t("apptSelectTime")}
                         </option>
                         {!slotsLoading && getRescheduleTimeSlots().map((slot) => {
                           const [hr, mn] = slot.split(":").map(Number);
@@ -310,7 +329,7 @@ const MyAppointments = () => {
                         })}
                       </select>
                       {!slotsLoading && getRescheduleTimeSlots().length === 0 && (
-                        <small className="text-muted">No slots available. Try another date.</small>
+                        <small className="text-muted">{t("apptNoSlots")}</small>
                       )}
                     </div>
                     <div className="col-md-4 d-flex gap-2">
@@ -318,19 +337,17 @@ const MyAppointments = () => {
                         className="btn btn-primary"
                         onClick={() => submitReschedule(b._id)}
                       >
-                        Save
+                        {t("save")}
                       </button>
                       <button
                         className="btn btn-secondary"
                         onClick={() => setEditingId(null)}
                       >
-                        Close
+                        {t("myApptClose")}
                       </button>
                     </div>
                   </div>
-                  <small className="text-muted d-block mt-2">
-                    * After rescheduling, the hospital must approve the new date.
-                  </small>
+                  <small className="text-muted d-block mt-2">{t("myApptRescheduleNote")}</small>
                 </div>
               )}
             </div>

@@ -11,7 +11,7 @@ import {
 } from "chart.js";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
-import * as XLSX from "xlsx";
+import { downloadBloodStockWorkbook } from "../utils/bloodStockExcelExport";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5050";
 
@@ -41,6 +41,7 @@ const HosReport = () => {
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [exportingExcel, setExportingExcel] = useState(false);
 
   useEffect(() => {
     if (!userId) {
@@ -156,35 +157,37 @@ const HosReport = () => {
     }
   };
 
-  const handleExportExcel = () => {
+  const handleExportExcel = async () => {
+    if (!userId) {
+      alert("Please log in to export.");
+      return;
+    }
     try {
-      const summaryRows = bloodData.map((item) => ({
-        "Blood Type": item.type,
-        "Units Available": item.total,
-      }));
-
-      const detailRows = records.map((r) => ({
-        "Blood Type": r.bloodType || "—",
-        Units: r.units ?? "—",
-        Date: r.date
-          ? new Date(r.date).toLocaleDateString("en-GB", { timeZone: "Asia/Muscat" })
-          : "—",
-        Location: r.location || "—",
-      }));
-
-      const workbook = XLSX.utils.book_new();
-
-      const summarySheet = XLSX.utils.json_to_sheet(summaryRows);
-      const detailsSheet = XLSX.utils.json_to_sheet(detailRows);
-
-      XLSX.utils.book_append_sheet(workbook, summarySheet, "Summary");
-      XLSX.utils.book_append_sheet(workbook, detailsSheet, "Details");
-
+      setExportingExcel(true);
+      const url = `${API_BASE}/api/blood-stock-report?hospitalId=${encodeURIComponent(userId)}`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error("Failed to load report");
+      const { data, records: recs } = await res.json();
+      const metaRows = [
+        { Field: "Report", Value: "BDMS blood stock" },
+        { Field: "Hospital account", Value: user?.fName || "Hospital" },
+        {
+          Field: "Generated (Asia/Muscat)",
+          Value: new Date().toLocaleString("en-GB", { timeZone: "Asia/Muscat" }),
+        },
+      ];
       const filename = `blood-stock-report-${user?.fName || "hospital"}-${new Date().toISOString().slice(0, 10)}.xlsx`;
-      XLSX.writeFile(workbook, filename);
+      downloadBloodStockWorkbook({
+        filename,
+        bloodData: data || [],
+        records: recs || [],
+        metaRows,
+      });
     } catch (err) {
       console.error("Excel export error:", err);
-      alert("Failed to export Excel");
+      alert("Failed to export Excel. Try again after the report finishes loading.");
+    } finally {
+      setExportingExcel(false);
     }
   };
 
@@ -201,9 +204,9 @@ const HosReport = () => {
               type="button"
               className="btn admin-report-btn"
               onClick={handleExportExcel}
-              disabled={loading}
+              disabled={loading || exportingExcel}
             >
-              Export Excel
+              {exportingExcel ? "Exporting…" : "Export Excel"}
             </button>
 
             <button
@@ -276,35 +279,53 @@ const HosReport = () => {
 
                   <h6 className="mb-2">Donation Details by Blood Group</h6>
                   {records.length > 0 ? (
-                    <table className="table table-sm table-bordered">
-                      <thead>
-                        <tr>
-                          <th>Blood Type</th>
-                          <th className="text-end">Units</th>
-                          <th>Date</th>
-                          <th>Location</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {records.map((r, i) => (
-                          <tr key={i}>
-                            <td>{r.bloodType}</td>
-                            <td className="text-end">{r.units}</td>
-                            <td>
-                              {r.date
-                                ? new Date(r.date).toLocaleDateString("en-GB", {
-                                    day: "numeric",
-                                    month: "short",
-                                    year: "numeric",
-                                    timeZone: "Asia/Muscat",
-                                  })
-                                : "—"}
-                            </td>
-                            <td>{r.location}</td>
+                    <div className="table-responsive">
+                      <table className="table table-sm table-bordered">
+                        <thead>
+                          <tr>
+                            <th>Donor</th>
+                            <th>Blood type</th>
+                            <th className="text-end">Units</th>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Expiry</th>
+                            <th>Location</th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                        </thead>
+                        <tbody>
+                          {records.map((r, i) => (
+                            <tr key={i}>
+                              <td>{r.donorName || "—"}</td>
+                              <td>{r.bloodType}</td>
+                              <td className="text-end">{r.units}</td>
+                              <td>
+                                {r.donationDateDisplay ||
+                                  (r.date
+                                    ? new Date(r.date).toLocaleDateString("en-GB", {
+                                        day: "numeric",
+                                        month: "short",
+                                        year: "numeric",
+                                        timeZone: "Asia/Muscat",
+                                      })
+                                    : "—")}
+                              </td>
+                              <td>
+                                {r.donationTimeDisplay ||
+                                  (r.date
+                                    ? new Date(r.date).toLocaleTimeString("en-GB", {
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+                                        timeZone: "Asia/Muscat",
+                                      })
+                                    : "—")}
+                              </td>
+                              <td>{r.expiryDateDisplay || "—"}</td>
+                              <td className="small">{r.location}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
                   ) : (
                     <p className="text-muted small mb-0">No donation records found.</p>
                   )}

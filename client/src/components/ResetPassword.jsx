@@ -1,11 +1,12 @@
-
 import React, { useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import donorIllustration from "../assets/9+.png";
+import { useLanguage } from "../context/LanguageContext";
 
-const API_BASE = "http://localhost:5050";
+const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5050";
 
 const ResetPassword = () => {
+  const { t, language } = useLanguage();
   const { token } = useParams();
   const navigate = useNavigate();
 
@@ -43,13 +44,13 @@ const ResetPassword = () => {
     e.preventDefault();
 
     if (password !== confirm) {
-      setStatus("Passwords do not match.");
+      setStatus(t("rpPwMismatch"));
       return;
     }
 
     const rulesPassed = Object.values(passwordValidations).every((x) => x);
     if (!rulesPassed) {
-      setStatus("Password does not meet the required criteria.");
+      setStatus(t("rpPwCriteria"));
       return;
     }
 
@@ -66,20 +67,24 @@ const ResetPassword = () => {
       const data = await res.json().catch(() => ({}));
 
       if (!res.ok) {
-        setStatus(data.message || "Reset link is invalid or has expired.");
+        setStatus(data.message || t("rpInvalidLink"));
       } else {
-        setStatus(data.message || "Password reset successful. Redirecting...");
+        setStatus(data.message || t("rpSuccessRedirect"));
         setTimeout(() => navigate("/login"), 1500);
       }
     } catch (err) {
-      setStatus("Network error. Please try again.");
+      setStatus(t("rpNetwork"));
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="register-page container-fluid">
+    <div
+      className="register-page container-fluid"
+      dir={language === "AR" ? "rtl" : "ltr"}
+      lang={language === "AR" ? "ar" : "en"}
+    >
       <div className="row min-vh-100 align-items-start">
         <div
           className="col-md-7 auth-left"
@@ -91,13 +96,9 @@ const ResetPassword = () => {
         >
           
 
-          <h3 className="fw-semibold mb-2" className="text-danger">
-            Reset Password
-          </h3>
+          <h3 className="fw-semibold mb-2 text-danger">{t("rpTitle")}</h3>
 
-          <p className="small text-muted mb-4">
-            Choose a new password for your BDMS account.
-          </p>
+          <p className="small text-muted mb-4">{t("rpSubtitle")}</p>
 
           <div
             style={{
@@ -112,7 +113,7 @@ const ResetPassword = () => {
           >
             <form onSubmit={handleSubmit}>
               <div className="mb-3 position-relative">
-                <label className="form-label">New Password</label>
+                <label className="form-label">{t("rpNewPassword")}</label>
                 <input
                   type="password"
                   className="form-control"
@@ -140,9 +141,7 @@ const ResetPassword = () => {
                       minWidth: "250px",
                     }}
                   >
-                    <strong style={{ fontSize: "11px" }}>
-                      PASSWORD MUST CONTAIN:
-                    </strong>
+                    <strong style={{ fontSize: "11px" }}>{t("regPasswordMustContain")}</strong>
                     <ul
                       style={{
                         listStyle: "none",
@@ -156,40 +155,35 @@ const ResetPassword = () => {
                           color: passwordValidations.lower ? "green" : "red",
                         }}
                       >
-                        {passwordValidations.lower ? "✔" : "✘"} At least one
-                        lowercase letter
+                        {passwordValidations.lower ? "✔" : "✘"} {t("regPwLower")}
                       </li>
                       <li
                         style={{
                           color: passwordValidations.upper ? "green" : "red",
                         }}
                       >
-                        {passwordValidations.upper ? "✔" : "✘"} At least one
-                        uppercase letter
+                        {passwordValidations.upper ? "✔" : "✘"} {t("regPwUpper")}
                       </li>
                       <li
                         style={{
                           color: passwordValidations.number ? "green" : "red",
                         }}
                       >
-                        {passwordValidations.number ? "✔" : "✘"} At least one
-                        number
+                        {passwordValidations.number ? "✔" : "✘"} {t("regPwNumber")}
                       </li>
                       <li
                         style={{
                           color: passwordValidations.special ? "green" : "red",
                         }}
                       >
-                        {passwordValidations.special ? "✔" : "✘"} At least one
-                        special character
+                        {passwordValidations.special ? "✔" : "✘"} {t("regPwSpecial")}
                       </li>
                       <li
                         style={{
                           color: passwordValidations.length ? "green" : "red",
                         }}
                       >
-                        {passwordValidations.length ? "✔" : "✘"} Minimum 8
-                        characters
+                        {passwordValidations.length ? "✔" : "✘"} {t("regPwLength")}
                       </li>
                     </ul>
                   </div>
@@ -197,7 +191,7 @@ const ResetPassword = () => {
               </div>
 
               <div className="mb-3">
-                <label className="form-label">Confirm Password</label>
+                <label className="form-label">{t("rpConfirmPassword")}</label>
                 <input
                   type="password"
                   className="form-control"
@@ -212,7 +206,7 @@ const ResetPassword = () => {
                 className="btn btn-danger w-100 mb-3"
                 disabled={loading}
               >
-                {loading ? "Saving..." : "Reset Password"}
+                {loading ? t("rpSaving") : t("rpResetBtn")}
               </button>
             </form>
 
@@ -220,7 +214,7 @@ const ResetPassword = () => {
 
             <p className="small mt-3">
               <Link to="/login" className="text-danger text-decoration-none">
-                Back to login
+                {t("fpBackLogin")}
               </Link>
             </p>
           </div>
@@ -229,7 +223,7 @@ const ResetPassword = () => {
         <div className="col-md-5 text-center d-none d-md-block">
           <img
             src={donorIllustration}
-            alt="Blood donor"
+            alt={t("altBloodDonor")}
             className="auth-illustration img-fluid"
           />
         </div>

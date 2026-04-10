@@ -1,10 +1,19 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import bdmslogo from "../assets/bdmslogo.png";
+import {
+  GCC_COUNTRY_CODES,
+  localLiveError,
+  maxLocalDigitsForCountry,
+  phoneLocalErrorForCountry,
+  splitStoredPhoneToForm,
+} from "../utils/phoneValidation";
+import { useLanguage } from "../context/LanguageContext";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5050";
 
 const HospitalProfile = () => {
+  const { t, language } = useLanguage();
   const storedHospital = JSON.parse(localStorage.getItem("bdmsUser"));
 
   const [hospital, setHospital] = useState(storedHospital);
@@ -13,17 +22,37 @@ const HospitalProfile = () => {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
+  const phoneInit = splitStoredPhoneToForm(storedHospital?.phoneNum);
+  const [countryCode, setCountryCode] = useState(phoneInit.countryCode);
+  const [phoneLocal, setPhoneLocal] = useState(phoneInit.local);
+  const [phoneError, setPhoneError] = useState("");
+
   const [formData, setFormData] = useState({
     fName: storedHospital?.fName || "",
     email: storedHospital?.email || "",
-    phoneNum: storedHospital?.phoneNum || "",
     address: storedHospital?.address || "",
   });
 
-  if (!hospital) return <h3>No hospital logged in</h3>;
+  if (!hospital) {
+    return (
+      <div className="container py-5" dir={language === "AR" ? "rtl" : "ltr"} lang={language === "AR" ? "ar" : "en"}>
+        <h3>{t("hospProfNoLogin")}</h3>
+      </div>
+    );
+  }
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+
+    if (name === "phoneLocal") {
+      const numericValue = value.replace(/[^0-9]/g, "");
+      const maxLen = maxLocalDigitsForCountry(countryCode);
+      if (numericValue.length > maxLen) return;
+      setPhoneLocal(numericValue);
+      setPhoneError(localLiveError(countryCode, numericValue));
+      return;
+    }
+
     setFormData((prev) => ({
       ...prev,
       [name]: value,
@@ -33,14 +62,18 @@ const HospitalProfile = () => {
   const handleEditClick = () => {
     setMessage("");
     setError("");
+    setPhoneError("");
     setIsEditing(true);
   };
 
   const handleCancel = () => {
+    const { countryCode: c, local } = splitStoredPhoneToForm(hospital?.phoneNum);
+    setCountryCode(c);
+    setPhoneLocal(local);
+    setPhoneError("");
     setFormData({
       fName: hospital?.fName || "",
       email: hospital?.email || "",
-      phoneNum: hospital?.phoneNum || "",
       address: hospital?.address || "",
     });
     setIsEditing(false);
@@ -56,10 +89,20 @@ const HospitalProfile = () => {
 
       const userId = hospital?._id || hospital?.id;
       if (!userId) {
-        setError("User ID not found.");
+        setError(t("hospProfUserIdMissing"));
         setSaving(false);
         return;
       }
+
+      const phoneErr = phoneLocalErrorForCountry(countryCode, phoneLocal);
+      if (phoneErr) {
+        setPhoneError(phoneErr);
+        setSaving(false);
+        return;
+      }
+
+      const numericCode = countryCode.replace("+", "");
+      const fullPhone = Number(`${numericCode}${phoneLocal}`);
 
       const res = await fetch(`${API_BASE}/users/${userId}`, {
         method: "PATCH",
@@ -69,7 +112,7 @@ const HospitalProfile = () => {
           updates: {
             fName: formData.fName,
             email: formData.email,
-            phoneNum: formData.phoneNum,
+            phoneNum: fullPhone,
             address: formData.address,
           },
         }),
@@ -78,7 +121,7 @@ const HospitalProfile = () => {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.message || "Failed to update profile.");
+        setError(data.message || t("hospProfUpdateFail"));
         setSaving(false);
         return;
       }
@@ -86,17 +129,25 @@ const HospitalProfile = () => {
       const updatedUser = data.user;
       setHospital(updatedUser);
       localStorage.setItem("bdmsUser", JSON.stringify(updatedUser));
-      setMessage("Profile updated successfully.");
+      const split = splitStoredPhoneToForm(updatedUser.phoneNum);
+      setCountryCode(split.countryCode);
+      setPhoneLocal(split.local);
+      setPhoneError("");
+      setMessage(t("hospProfUpdated"));
       setIsEditing(false);
     } catch (err) {
-      setError("Failed to update profile.");
+      setError(t("hospProfUpdateFail"));
     } finally {
       setSaving(false);
     }
   };
 
   return (
-    <div className="container py-5">
+    <div
+      className="container py-5"
+      dir={language === "AR" ? "rtl" : "ltr"}
+      lang={language === "AR" ? "ar" : "en"}
+    >
       <header className="d-flex justify-content-between align-items-center mb-4">
         <div className="d-flex align-items-center gap-2">
           <img
@@ -109,21 +160,21 @@ const HospitalProfile = () => {
               borderRadius: "12px",
             }}
           />
-          <h4 className="fw-bold mb-0">Hospital Profile</h4>
+          <h4 className="fw-bold mb-0">{t("hospProfTitle")}</h4>
         </div>
 
         <Link to="/hospital-dash" className="btn btn-outline-secondary">
-          Back
+          {t("hospProfBack")}
         </Link>
       </header>
 
       <div className="card shadow p-4">
         <div className="d-flex justify-content-between align-items-center mb-3">
-          <h3 className="mb-0">Hospital Information</h3>
+          <h3 className="mb-0">{t("hospProfInfo")}</h3>
 
           {!isEditing ? (
             <button type="button" className="btn btn-danger" onClick={handleEditClick}>
-              Edit
+              {t("edit")}
             </button>
           ) : (
             <div className="d-flex gap-2">
@@ -133,7 +184,7 @@ const HospitalProfile = () => {
                 onClick={handleCancel}
                 disabled={saving}
               >
-                Cancel
+                {t("cancel")}
               </button>
               <button
                 type="button"
@@ -141,7 +192,7 @@ const HospitalProfile = () => {
                 onClick={handleSave}
                 disabled={saving}
               >
-                {saving ? "Saving..." : "Save"}
+                {saving ? t("profSaving") : t("save")}
               </button>
             </div>
           )}
@@ -153,7 +204,7 @@ const HospitalProfile = () => {
         {error && <div className="alert alert-warning">{error}</div>}
 
         <dl className="row">
-          <dt className="col-sm-3">Hospital Name</dt>
+          <dt className="col-sm-3">{t("hospProfName")}</dt>
           <dd className="col-sm-9">
             {isEditing ? (
               <input
@@ -168,7 +219,7 @@ const HospitalProfile = () => {
             )}
           </dd>
 
-          <dt className="col-sm-3">Email</dt>
+          <dt className="col-sm-3">{t("regEmail")}</dt>
           <dd className="col-sm-9">
             {isEditing ? (
               <input
@@ -183,28 +234,52 @@ const HospitalProfile = () => {
             )}
           </dd>
 
-          <dt className="col-sm-3">Phone</dt>
+          <dt className="col-sm-3">{t("hospProfPhone")}</dt>
           <dd className="col-sm-9">
             {isEditing ? (
-              <input
-                type="text"
-                name="phoneNum"
-                className="form-control"
-                value={formData.phoneNum}
-                onChange={handleChange}
-              />
+              <div className="row g-2">
+                <div className="col-4">
+                  <select
+                    className="form-select"
+                    value={countryCode}
+                    onChange={(e) => {
+                      const next = e.target.value;
+                      const trimmed = phoneLocal.slice(0, maxLocalDigitsForCountry(next));
+                      setCountryCode(next);
+                      setPhoneLocal(trimmed);
+                      setPhoneError(localLiveError(next, trimmed));
+                    }}
+                  >
+                    {GCC_COUNTRY_CODES.map((c) => (
+                      <option key={c} value={c}>
+                        {c}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="col-8">
+                  <input
+                    type="tel"
+                    className="form-control"
+                    name="phoneLocal"
+                    value={phoneLocal}
+                    onChange={handleChange}
+                  />
+                  {phoneError && <small className="text-danger">{phoneError}</small>}
+                </div>
+              </div>
             ) : (
               hospital.phoneNum || "91177010"
             )}
           </dd>
 
-          <dt className="col-sm-3">Role</dt>
-          <dd className="col-sm-9">Hospital</dd>
+          <dt className="col-sm-3">{t("profRole")}</dt>
+          <dd className="col-sm-9">{t("hospital")}</dd>
 
-          <dt className="col-sm-3">Blood Type</dt>
-          <dd className="col-sm-9">N/A</dd>
+          <dt className="col-sm-3">{t("regBloodType")}</dt>
+          <dd className="col-sm-9">{t("hospProfBloodNa")}</dd>
 
-          <dt className="col-sm-3">Address</dt>
+          <dt className="col-sm-3">{t("regAddress")}</dt>
           <dd className="col-sm-9">
             {isEditing ? (
               <input
@@ -219,9 +294,9 @@ const HospitalProfile = () => {
             )}
           </dd>
 
-          <dt className="col-sm-3">Status</dt>
+          <dt className="col-sm-3">{t("hospProfStatus")}</dt>
           <dd className="col-sm-9">
-            {hospital.isAdmin ? "Administrator" : "Standard User"}
+            {hospital.isAdmin ? t("hospProfAdmin") : t("hospProfStandard")}
           </dd>
         </dl>
       </div>

@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import heroImg from "../assets/9+.png";
+import { useLanguage } from "../context/LanguageContext";
 
-const API_BASE = "http://localhost:5050";
+const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5050";
 
 const AdminDash = () => {
+  const { t, language } = useLanguage();
   const [hospitalRequests, setHospitalRequests] = useState([]);
   const [loadingRequests, setLoadingRequests] = useState(false);
 
@@ -42,15 +44,15 @@ const AdminDash = () => {
       const data = await res.json();
 
       if (!res.ok) {
-        alert(data.message || "Action failed.");
+        alert(data.message || t("adminErrAction"));
         return;
       }
 
-      alert(data.message || "Updated.");
+      alert(data.message || t("adminMsgUpdated"));
       fetchHospitalRequests();
     } catch (err) {
       console.error("Decision error:", err);
-      alert("Server error.");
+      alert(t("adminErrServer"));
     }
   };
 
@@ -59,7 +61,11 @@ const AdminDash = () => {
   }, []);
 
   return (
-    <div className="dashboard-page">
+    <div
+      className="dashboard-page"
+      dir={language === "AR" ? "rtl" : "ltr"}
+      lang={language === "AR" ? "ar" : "en"}
+    >
       <main className="dashboard-main">
         <div className="container">
           <div className="d-flex justify-content-between align-items-center mb-3">
@@ -69,7 +75,7 @@ const AdminDash = () => {
           <div className="row g-4">
             <div className="col-lg-8">
               <div className="dashboard-card p-4 mb-4">
-                <h5 className="mb-3">Last Donations</h5>
+                <h5 className="mb-3">{t("adminDashLastDonations")}</h5>
 
                 <div className="d-flex justify-content-between mb-2">
                   <span className="fw-semibold">City Hospital</span>
@@ -84,7 +90,7 @@ const AdminDash = () => {
                   <span>Nov 10, 2025 , 8:00 PM</span>
                 </div>
 
-                <h6 className="mb-3">Urgent Requests</h6>
+                <h6 className="mb-3">{t("adminDashUrgentReq")}</h6>
 
                 <div className="d-flex justify-content-between align-items-center mb-2">
                   <div className="d-flex align-items-center gap-2">
@@ -95,7 +101,7 @@ const AdminDash = () => {
                     to="/urgent-requests"
                     className="btn btn-link p-0 dashboard-view-link"
                   >
-                    View &gt;
+                    {t("adminDashView")}
                   </Link>
                 </div>
 
@@ -110,23 +116,21 @@ const AdminDash = () => {
                     to="/urgent-requests"
                     className="btn btn-link p-0 dashboard-view-link"
                   >
-                    View &gt;
+                    {t("adminDashView")}
                   </Link>
                   <Link to="/admin-blood-bank" className="btn btn-danger">
-                    View All Blood Bank Records
+                    {t("adminDashViewBloodRecords")}
                   </Link>
                 </div>
               </div>
 
               <div className="dashboard-card p-4">
-                <h5 className="mb-3">Hospital Account Requests</h5>
+                <h5 className="mb-3">{t("adminDashHospRequests")}</h5>
 
-                {loadingRequests && <p>Loading requests...</p>}
+                {loadingRequests && <p>{t("adminDashLoadingReq")}</p>}
 
                 {!loadingRequests && hospitalRequests.length === 0 && (
-                  <p className="text-muted mb-0">
-                    No pending hospital registrations.
-                  </p>
+                  <p className="text-muted mb-0">{t("adminDashNoPending")}</p>
                 )}
 
                 {!loadingRequests &&
@@ -142,10 +146,10 @@ const AdminDash = () => {
                           {h.city} • {h.type || "Hospital"}
                         </div>
                         <div className="small text-muted">
-                          Contact: {h.contactPerson} ({h.contactPhone})
+                          {t("adminDashContact")} {h.contactPerson} ({h.contactPhone})
                         </div>
                         <div className="small text-muted">
-                          Login Email: {h.userId?.email}
+                          {t("adminDashLoginEmailLabel")} {h.userId?.email}
                         </div>
                       </div>
 
@@ -154,13 +158,13 @@ const AdminDash = () => {
                           className="btn btn-sm btn-success"
                           onClick={() => handleDecision(h._id, "approve")}
                         >
-                          Approve
+                          {t("approve")}
                         </button>
                         <button
                           className="btn btn-sm btn-outline-danger"
                           onClick={() => handleDecision(h._id, "reject")}
                         >
-                          Reject
+                          {t("reject")}
                         </button>
                       </div>
                     </div>
@@ -173,13 +177,13 @@ const AdminDash = () => {
 
                 <img
                   src={heroImg}
-                  alt="Dashboard illustration"
+                  alt=""
                   className="img-fluid dashboard-illustration"
                 />
               </div>
 
               <div className="dashboard-side-card p-3">
-                <h6 className="mb-3 text-center">Appointments</h6>
+                <h6 className="mb-3 text-center">{t("adminSideAppointments")}</h6>
 
                 <div className="d-flex justify-content-between mb-2">
                   <span>Abbas Allawati</span>

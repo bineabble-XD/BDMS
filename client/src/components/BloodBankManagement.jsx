@@ -26,6 +26,7 @@ const BloodBankManagement = () => {
       availability: "",
       donationDate,
       expiryDate: getExpiryDateFromDonation(donationDate),
+      donorName: "",
     };
   };
 
@@ -102,6 +103,7 @@ const BloodBankManagement = () => {
           donationDate: newRecord.donationDate || null,
           expiryDate: newRecord.expiryDate,
           hospitalId: targetProfileId,
+          donorName: newRecord.donorName?.trim() || undefined,
         }),
       });
 
@@ -194,6 +196,19 @@ const BloodBankManagement = () => {
                   </div>
 
                   <div className="col-md-2">
+                    <label className="form-label small mb-1">Donor name (optional)</label>
+                    <input
+                      type="text"
+                      name="donorName"
+                      className="form-control form-control-sm"
+                      value={newRecord.donorName}
+                      onChange={handleInputChange}
+                      placeholder="Full name"
+                      maxLength={120}
+                    />
+                  </div>
+
+                  <div className="col-md-2">
                     <label className="form-label small mb-1">Expiry Date</label>
                     <input
                       type="date"
@@ -220,7 +235,8 @@ const BloodBankManagement = () => {
                   {bloodRecords.map((record) => (
                     <li key={record._id} className="list-group-item d-flex justify-content-between align-items-center">
                       <span>
-                        <strong>{record.bloodType}</strong> — {record.availability} units — Donation:{" "}
+                        <strong>{record.bloodType}</strong> — {record.availability} units
+                        {record.donorName ? ` — Donor: ${record.donorName}` : ""} — Donation:{" "}
                         {(record.donationDate || record.createdAt)
                           ? new Date(record.donationDate || record.createdAt).toLocaleDateString("en-GB", { timeZone: "Asia/Muscat" })
                           : "—"}

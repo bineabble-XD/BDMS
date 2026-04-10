@@ -4,8 +4,15 @@ import { useDispatch, useSelector } from "react-redux";
 import { registerUser, clearAuthMessage } from "../features/authSlice";
 import donorIllustration from "../assets/9+.png";
 import bdmslogo from "../assets/bdmslogo.png";
+import {
+  localLiveError,
+  maxLocalDigitsForCountry,
+  phoneLocalErrorForCountry,
+} from "../utils/phoneValidation";
+import { useLanguage } from "../context/LanguageContext";
 
 const Register = () => {
+  const { t, language } = useLanguage();
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -49,18 +56,17 @@ const Register = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    // Phone number validation: Check if it's exactly 8 digits
+    // Phone: length and first-digit rules depend on country (see phoneValidation.js)
     if (name === "phoneNum") {
-      const numericValue = value.replace(/[^0-9]/g, ""); // Strip out non-numeric characters
-      if (numericValue.length === 8) {
-        setPhoneError("");  // Clear error when 8 digits are entered
-      } else if (numericValue.length > 8) {
-        return; // Prevent further input if more than 8 digits
-      }
+      const numericValue = value.replace(/[^0-9]/g, "");
+      const maxLen = maxLocalDigitsForCountry(countryCode);
+      if (numericValue.length > maxLen) return;
       setFormData((prev) => ({
         ...prev,
         [name]: numericValue,
       }));
+      setPhoneError(localLiveError(countryCode, numericValue));
+      return;
     }
 
     // Password validation
@@ -85,14 +91,17 @@ const Register = () => {
     requiredFields.forEach((field) => {
       if (!formData[field]) {
         formIsValid = false;
-        alert(`Please fill out the ${field}`);
       }
     });
+    if (!formIsValid) {
+      alert(t("regFillAllFields"));
+      return;
+    }
 
-    // Additional validation for phone number
-    if (formData.phoneNum.length !== 8) {
+    const phoneErr = phoneLocalErrorForCountry(countryCode, formData.phoneNum);
+    if (phoneErr) {
       formIsValid = false;
-      setPhoneError("Phone number must be exactly 8 digits.");
+      setPhoneError(phoneErr);
     }
 
     if (!formIsValid) return;
@@ -124,7 +133,11 @@ const Register = () => {
   }, [message, dispatch, navigate]);
 
   return (
-    <div className="register-page container-fluid">
+    <div
+      className="register-page container-fluid"
+      dir={language === "AR" ? "rtl" : "ltr"}
+      lang={language === "AR" ? "ar" : "en"}
+    >
       <div className="row min-vh-100 align-items-center">
         <div
           className="col-md-7 auth-left" 
@@ -134,9 +147,7 @@ const Register = () => {
             paddingRight: "10px",
           }}
         >
-          <h3 className="mb-3 fw-semibold" className="text-danger">
-            Registration
-          </h3>
+          <h3 className="mb-3 fw-semibold text-danger">{t("regTitle")}</h3>
 
           <div
             style={{
@@ -147,7 +158,7 @@ const Register = () => {
             <form className="register-form" onSubmit={handleSubmit}>
               {/* Full Name */}
               <div className="mb-3">
-                <label className="form-label">Full Name</label>
+                <label className="form-label">{t("regFullName")}</label>
                 <input
                   type="text"
                   className="form-control"
@@ -157,18 +168,27 @@ const Register = () => {
                   required
                   maxLength={20}
                 />
-                <small className="text-muted">Max 20 letters.</small>
+                <small className="text-muted">{t("regMax20")}</small>
               </div>
 
               {/* Phone Number */}
               <div className="mb-3">
-                <label className="form-label">Phone Number</label>
+                <label className="form-label">{t("regPhone")}</label>
                 <div className="row g-2">
                   <div className="col-3">
                     <select
                       className="form-select"
                       value={countryCode}
-                      onChange={(e) => setCountryCode(e.target.value)}
+                      onChange={(e) => {
+                        const next = e.target.value;
+                        const trimmed = formData.phoneNum.slice(
+                          0,
+                          maxLocalDigitsForCountry(next)
+                        );
+                        setCountryCode(next);
+                        setFormData((prev) => ({ ...prev, phoneNum: trimmed }));
+                        setPhoneError(localLiveError(next, trimmed));
+                      }}
                     >
                       <option value="+968">+968</option>
                       <option value="+971">+971</option>
@@ -196,7 +216,7 @@ const Register = () => {
               {/* Other Form Fields (Age, Gender, etc.) */}
               <div className="row">
                 <div className="col-md-6 mb-3">
-                  <label className="form-label">Age</label>
+                  <label className="form-label">{t("regAge")}</label>
                   <input
                     type="number"
                     className="form-control"
@@ -209,7 +229,7 @@ const Register = () => {
                 </div>
 
                 <div className="col-md-6 mb-3">
-                  <label className="form-label">Gender</label>
+                  <label className="form-label">{t("regGender")}</label>
                   <select
                     className="form-select"
                     name="gender"
@@ -217,17 +237,17 @@ const Register = () => {
                     onChange={handleChange}
                     required
                   >
-                    <option value="">Select gender</option>
-                    <option>Male</option>
-                    <option>Female</option>
-                    <option>Other</option>
+                    <option value="">{t("regSelectGender")}</option>
+                    <option value="Male">{t("regMale")}</option>
+                    <option value="Female">{t("regFemale")}</option>
+                    <option value="Other">{t("regOther")}</option>
                   </select>
                 </div>
               </div>
 
               {/* Blood Type */}
               <div className="mb-3">
-                <label className="form-label">Blood Type</label>
+                <label className="form-label">{t("regBloodType")}</label>
                 <select
                   className="form-select"
                   name="bloodType"
@@ -235,7 +255,7 @@ const Register = () => {
                   onChange={handleChange}
                   required
                 >
-                  <option value="">Select blood type</option>
+                  <option value="">{t("regSelectBloodType")}</option>
                   <option>A+</option>
                   <option>A-</option>
                   <option>B+</option>
@@ -248,7 +268,7 @@ const Register = () => {
               </div>
 
               <div className="mb-3">
-                <label className="form-label">Email</label>
+                <label className="form-label">{t("regEmail")}</label>
                 <input
                   type="email"
                   className="form-control"
@@ -261,7 +281,7 @@ const Register = () => {
 
               {/* Password Field */}
               <div className="mb-3 position-relative">
-                <label className="form-label">Password</label>
+                <label className="form-label">{t("regPassword")}</label>
                 <input
                   type="password"
                   className="form-control"
@@ -290,9 +310,7 @@ const Register = () => {
                       minWidth: "250px",
                     }}
                   >
-                    <strong style={{ fontSize: "11px" }}>
-                      PASSWORD MUST CONTAIN:
-                    </strong>
+                    <strong style={{ fontSize: "11px" }}>{t("regPasswordMustContain")}</strong>
                     <ul
                       style={{
                         listStyle: "none",
@@ -306,40 +324,35 @@ const Register = () => {
                           color: passwordValidations.lower ? "green" : "red",
                         }}
                       >
-                        {passwordValidations.lower ? "✔" : "✘"} At least one
-                        lowercase letter
+                        {passwordValidations.lower ? "✔" : "✘"} {t("regPwLower")}
                       </li>
                       <li
                         style={{
                           color: passwordValidations.upper ? "green" : "red",
                         }}
                       >
-                        {passwordValidations.upper ? "✔" : "✘"} At least one
-                        uppercase letter
+                        {passwordValidations.upper ? "✔" : "✘"} {t("regPwUpper")}
                       </li>
                       <li
                         style={{
                           color: passwordValidations.number ? "green" : "red",
                         }}
                       >
-                        {passwordValidations.number ? "✔" : "✘"} At least one
-                        number
+                        {passwordValidations.number ? "✔" : "✘"} {t("regPwNumber")}
                       </li>
                       <li
                         style={{
                           color: passwordValidations.special ? "green" : "red",
                         }}
                       >
-                        {passwordValidations.special ? "✔" : "✘"} At least one
-                        special character
+                        {passwordValidations.special ? "✔" : "✘"} {t("regPwSpecial")}
                       </li>
                       <li
                         style={{
                           color: passwordValidations.length ? "green" : "red",
                         }}
                       >
-                        {passwordValidations.length ? "✔" : "✘"} Minimum 8
-                        characters
+                        {passwordValidations.length ? "✔" : "✘"} {t("regPwLength")}
                       </li>
                     </ul>
                   </div>
@@ -348,7 +361,7 @@ const Register = () => {
 
               {/* Address Field */}
               <div className="mb-3">
-                <label className="form-label">Address</label>
+                <label className="form-label">{t("regAddress")}</label>
                 <input
                   type="text"
                   className="form-control"
@@ -368,13 +381,13 @@ const Register = () => {
                   required
                 />
                 <label className="form-check-label" htmlFor="terms">
-                  I accept the terms & condition
+                  {t("regTerms")}
                 </label>
               </div>
 
               <p className="small text-muted mb-3">
                 <a href="#tc" className="text-decoration-underline">
-                  Read our T&Cs
+                  {t("regReadTC")}
                 </a>
               </p>
 
@@ -384,25 +397,25 @@ const Register = () => {
                 className="btn btn-danger w-100"
                 disabled={loading}
               >
-                {loading ? "Registering..." : "Register"}
+                {loading ? t("regRegistering") : t("regRegister")}
               </button>
             </form>
           </div>
 
           <p className="mt-3">
-            Already have an account?{" "}
+            {t("regAlreadyHave")}{" "}
             <Link to="/login" className="text-decoration-underline">
-              Login
+              {t("regLoginLink")}
             </Link>
           </p>
 
           <p className="mt-3">
-            Are you a hospital?{" "}
+            {t("regHospitalPrompt")}{" "}
             <Link
               to="/register-hospital"
               className="text-decoration-underline"
             >
-              Register your hospital here
+              {t("regHospitalLink")}
             </Link>
           </p>
         </div>
@@ -410,7 +423,7 @@ const Register = () => {
         <div className="col-md-5 text-center d-none d-md-block">
           <img
             src={donorIllustration}
-            alt="Blood donor"
+            alt={t("altBloodDonor")}
             className="auth-illustration img-fluid"
           />
         </div>

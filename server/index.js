@@ -16,7 +16,8 @@ import UrgentRequest from "./models/UrgentRequest.js";
 import Feedback from "./models/Feedback.js";
 import CommunityPost from "./models/CommunityPost.js";
 import CommunityReply from "./models/CommunityReply.js";
-import { extractFromText, analyzeSentiment } from "./utils/nlp.js";
+import { analyzeSentiment, analyzeFull } from "./utils/nlp.js";
+import { validateStoredPhoneNumber } from "./utils/phoneValidation.js";
 
 const app = express();
 app.use(cors());
@@ -76,6 +77,11 @@ app.post("/register", async (req, res) => {
       !address
     ) {
       return res.status(400).json({ message: "All fields are required" });
+    }
+
+    const phoneCheck = validateStoredPhoneNumber(phoneNum);
+    if (!phoneCheck.ok) {
+      return res.status(400).json({ message: phoneCheck.message });
     }
 
     const existing = await donorModel.findOne({ email });
@@ -300,9 +306,18 @@ app.post("/register-hospital", async (req, res) => {
       password,
     } = req.body;
 
+    if (!String(contactPhone ?? "").replace(/\D/g, "")) {
+      return res.status(400).json({ message: "Contact phone is required." });
+    }
+
     const exists = await donorModel.findOne({ email });
     if (exists) {
       return res.status(400).json({ message: "Email already in use." });
+    }
+
+    const phoneCheck = validateStoredPhoneNumber(contactPhone);
+    if (!phoneCheck.ok) {
+      return res.status(400).json({ message: phoneCheck.message });
     }
 
     const hashed = await bcrypt.hash(password, 10);
@@ -421,8 +436,15 @@ app.get("/hospitals/profile/:userId", async (req, res) => {
 
 app.post("/blood-bank", async (req, res) => {
   try {
-    const { bloodType, availability, expiryDate, donationDate, hospitalId } =
-      req.body;
+    const {
+      bloodType,
+      availability,
+      expiryDate,
+      donationDate,
+      hospitalId,
+      donorName,
+      donorId,
+    } = req.body;
 
     if (!bloodType || !availability || !expiryDate || !hospitalId) {
       return res.status(400).json({ message: "All fields are required" });
@@ -447,6 +469,12 @@ app.post("/blood-bank", async (req, res) => {
 
     const recordData = { bloodType, availability, expiryDate, hospitalId };
     if (donationDate) recordData.donationDate = new Date(donationDate);
+    if (donorName && String(donorName).trim()) {
+      recordData.donorName = String(donorName).trim().slice(0, 120);
+    }
+    if (donorId && mongoose.isValidObjectId(donorId)) {
+      recordData.donorId = donorId;
+    }
 
     const newBloodBankRecord = new BloodBank(recordData);
     await newBloodBankRecord.save();
@@ -461,7 +489,8 @@ app.post("/blood-bank", async (req, res) => {
 
 app.put("/blood-bank/:id", async (req, res) => {
   try {
-    const { bloodType, availability, expiryDate, donationDate } = req.body;
+    const { bloodType, availability, expiryDate, donationDate, donorName, donorId } =
+      req.body;
     const bloodBankRecord = await BloodBank.findById(req.params.id);
 
     if (!bloodBankRecord) {
@@ -476,6 +505,12 @@ app.put("/blood-bank/:id", async (req, res) => {
     bloodBankRecord.expiryDate = expiryDate || bloodBankRecord.expiryDate;
     if (donationDate !== undefined)
       bloodBankRecord.donationDate = donationDate ? new Date(donationDate) : null;
+    if (donorName !== undefined)
+      bloodBankRecord.donorName = String(donorName || "").trim().slice(0, 120);
+    if (donorId !== undefined) {
+      bloodBankRecord.donorId =
+        donorId && mongoose.isValidObjectId(donorId) ? donorId : null;
+    }
 
     await bloodBankRecord.save();
     return res
@@ -524,6 +559,7 @@ app.get("/api/blood-stock-report", async (req, res) => {
       ]),
       BloodBank.find(match)
         .populate("hospitalId", "hospitalName city")
+        .populate("donorId", "fName email phoneNum bloodType Age gender")
         .sort({ bloodType: 1, createdAt: -1 })
         .lean(),
     ]);
@@ -534,16 +570,66 @@ app.get("/api/blood-stock-report", async (req, res) => {
       return { type, total: found ? found.total : 0 };
     });
 
-    const recordsWithDetails = records.map((r) => ({
-      bloodType: r.bloodType,
-      units: r.availability,
-      date: r.donationDate || r.createdAt,
-      location: r.hospitalId
-        ? `${r.hospitalId.hospitalName || ""}${
-            r.hospitalId.city ? `, ${r.hospitalId.city}` : ""
+    const recordsWithDetails = records.map((r) => {
+      const donationMoment = r.donationDate || r.createdAt;
+      const dm = donationMoment ? new Date(donationMoment) : null;
+      const exp = r.expiryDate ? new Date(r.expiryDate) : null;
+      const created = r.createdAt ? new Date(r.createdAt) : null;
+      const fromDonor = r.donorId || {};
+      const name =
+        (r.donorName && String(r.donorName).trim()) || fromDonor.fName || "";
+      const hospital = r.hospitalId;
+      const loc = hospital
+        ? `${hospital.hospitalName || ""}${
+            hospital.city ? `, ${hospital.city}` : ""
           }`.trim()
-        : "—",
-    }));
+        : "—";
+
+      return {
+        recordId: String(r._id),
+        bloodType: r.bloodType,
+        units: r.availability,
+        date: dm ? dm.toISOString() : null,
+        donationDateDisplay: dm
+          ? dm.toLocaleDateString("en-GB", {
+              timeZone: "Asia/Muscat",
+              day: "numeric",
+              month: "short",
+              year: "numeric",
+            })
+          : "—",
+        donationTimeDisplay: dm
+          ? dm.toLocaleTimeString("en-GB", {
+              timeZone: "Asia/Muscat",
+              hour: "2-digit",
+              minute: "2-digit",
+            })
+          : "—",
+        expiryDate: exp ? exp.toISOString() : null,
+        expiryDateDisplay: exp
+          ? exp.toLocaleDateString("en-GB", {
+              timeZone: "Asia/Muscat",
+              day: "numeric",
+              month: "short",
+              year: "numeric",
+            })
+          : "—",
+        hospitalName: hospital?.hospitalName || "—",
+        hospitalCity: hospital?.city || "—",
+        location: loc || "—",
+        donorName: name || "—",
+        donorEmail: fromDonor.email || "—",
+        donorPhone:
+          fromDonor.phoneNum != null ? String(fromDonor.phoneNum) : "—",
+        donorAge: fromDonor.Age != null ? String(fromDonor.Age) : "—",
+        donorGender: fromDonor.gender || "—",
+        donorRegisteredBloodType: fromDonor.bloodType || "—",
+        recordCreatedAt: created ? created.toISOString() : null,
+        recordCreatedDisplay: created
+          ? created.toLocaleString("en-GB", { timeZone: "Asia/Muscat" })
+          : "—",
+      };
+    });
 
     res.json({ data, records: recordsWithDetails, generatedAt: new Date().toISOString() });
   } catch (err) {
@@ -872,7 +958,9 @@ app.patch("/bookings/:id/complete", async (req, res) => {
     if (!userId)
       return res.status(401).json({ message: "Authentication required (userId)" });
 
-    const booking = await Booking.findById(req.params.id).populate("hospital", "_id");
+    const booking = await Booking.findById(req.params.id)
+      .populate("hospital", "_id")
+      .populate("donor", "fName email phoneNum bloodType Age gender");
     if (!booking) return res.status(404).json({ message: "Booking not found" });
 
     const bhId = booking.hospital?._id ?? booking.hospital;
@@ -923,6 +1011,8 @@ app.patch("/bookings/:id/complete", async (req, res) => {
       expiryDate,
       donationDate: new Date(),
       hospitalId: bhId,
+      donorId: booking.donor?._id || booking.donor,
+      donorName: booking.donor?.fName || "",
     });
 
     res.json({ message: "Donation confirmed and blood added to stock", booking });
@@ -1260,6 +1350,13 @@ app.patch("/users/:id", async (req, res) => {
       }
     }
 
+    if (Object.prototype.hasOwnProperty.call(safeUpdates, "phoneNum")) {
+      const phoneCheck = validateStoredPhoneNumber(safeUpdates.phoneNum);
+      if (!phoneCheck.ok) {
+        return res.status(400).json({ message: phoneCheck.message });
+      }
+    }
+
     const updated = await donorModel.findByIdAndUpdate(id, safeUpdates, {
       new: true,
       runValidators: true,
@@ -1281,7 +1378,10 @@ app.patch("/users/:id", async (req, res) => {
 app.post("/api/nlp/analyze", (req, res) => {
   try {
     const { text } = req.body || {};
-    const result = extractFromText(text);
+    if (!text || typeof text !== "string" || !String(text).trim()) {
+      return res.status(400).json({ message: "text is required" });
+    }
+    const result = analyzeFull(String(text).trim());
     res.json(result);
   } catch (err) {
     console.error("NLP analyze error:", err);
@@ -1479,7 +1579,7 @@ const autoCompleteAppointments = async () => {
 
     const bookings = await Booking.find({
       status: "approved",
-    });
+    }).populate("donor", "fName email phoneNum bloodType Age gender");
 
     for (const booking of bookings) {
       const appointmentDate = new Date(booking.appointmentDate);
@@ -1497,6 +1597,8 @@ const autoCompleteAppointments = async () => {
           expiryDate,
           donationDate: new Date(),
           hospitalId: booking.hospital,
+          donorId: booking.donor?._id || booking.donor,
+          donorName: booking.donor?.fName || "",
         });
 
         console.log("Auto completed booking:", booking._id);

@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import donorIllustration from "../assets/9+.png";
+import { useLanguage } from "../context/LanguageContext";
 
-const API_BASE = "http://localhost:5050";
+const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5050";
 
 const ForgetPassword = () => {
+  const { t, language } = useLanguage();
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -39,7 +41,11 @@ const ForgetPassword = () => {
   };
 
   return (
-    <div className="register-page container-fluid">
+    <div
+      className="register-page container-fluid"
+      dir={language === "AR" ? "rtl" : "ltr"}
+      lang={language === "AR" ? "ar" : "en"}
+    >
       <div className="row min-vh-100 align-items-start">
         <div
           className="col-md-7 auth-left"
@@ -50,13 +56,9 @@ const ForgetPassword = () => {
           }}
         >
 
-          <h3 className="fw-semibold mb-2 text-danger">
-            Update Password
-          </h3>
+          <h3 className="fw-semibold mb-2 text-danger">{t("fpTitle")}</h3>
 
-          <p className="small text-muted mb-4">
-            Enter your registered email and we will send you a reset link.
-          </p>
+          <p className="small text-muted mb-4">{t("fpSubtitle")}</p>
 
           <div
             style={{
@@ -66,7 +68,7 @@ const ForgetPassword = () => {
           >
             <form onSubmit={handleSubmit}>
               <div className="mb-3">
-                <label className="form-label">Email Address</label>
+                <label className="form-label">{t("fpEmail")}</label>
                 <input
                   type="email"
                   className="form-control"
@@ -81,7 +83,7 @@ const ForgetPassword = () => {
                 className="btn btn-danger w-100 mb-3"
                 disabled={loading}
               >
-                {loading ? "Sending..." : "Send Reset Link"}
+                {loading ? t("fpSending") : t("fpSendLink")}
               </button>
             </form>
 
@@ -92,9 +94,9 @@ const ForgetPassword = () => {
             )}
 
             <p className="small mt-3">
-              Remember your password?{" "}
+              {t("fpRemember")}{" "}
               <Link to="/login" className="text-danger text-decoration-none">
-                Back to login
+                {t("fpBackLogin")}
               </Link>
             </p>
           </div>
@@ -103,7 +105,7 @@ const ForgetPassword = () => {
         <div className="col-md-5 text-center d-none d-md-block">
           <img
             src={donorIllustration}
-            alt="Blood donor"
+            alt={t("altBloodDonor")}
             className="auth-illustration img-fluid"
           />
         </div>

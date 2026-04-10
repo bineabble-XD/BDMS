@@ -149,173 +149,205 @@ const Community = () => {
   const isAcknowledged = (post) =>
     user?._id && post.acknowledgedBy?.some((id) => String(id) === String(user._id));
 
+  const totalReplies = posts.reduce((acc, p) => acc + (p.replies?.length || 0), 0);
+
   return (
-    <div className="community-page">
-      <main className="community-main py-5">
-        <div className="container">
-          <div className="d-flex justify-content-between align-items-center mb-4">
-            <h2 className="fw-bold mb-0">Blood Bank Community</h2>
-            {canPost && (
-              <button
-                className="btn btn-danger px-4"
-                onClick={() => setShowPostModal(true)}
-              >
-                + New Post
-              </button>
-            )}
-          </div>
-
-          <p className="mb-4">
-            A shared space for hospitals and blood banks to coordinate urgent
-            requests, stock updates and donation drives.
-          </p>
-
-          {loading ? (
-            <div className="text-center py-5">
-              <div className="spinner-border text-danger" role="status" />
-              <p className="mt-2 text-muted">Loading posts…</p>
+    <div className="community-page community-page--modern">
+      <header className="community-hero">
+        <div className="community-hero__bg" aria-hidden="true" />
+        <div className="container position-relative community-hero__inner">
+          <div className="row align-items-center g-4">
+            <div className="col-lg-8">
+              <p className="community-hero__eyebrow text-uppercase fw-semibold mb-2">Network</p>
+              <h1 className="community-hero__title fw-bold mb-3">Blood Bank Community</h1>
+              <p className="community-hero__lead mb-0">
+                A shared space for hospitals and blood banks to coordinate urgent requests, stock updates, and
+                donation drives — in one place.
+              </p>
             </div>
-          ) : posts.length === 0 ? (
-            <div className="text-center py-5 border rounded bg-light">
-              <p className="text-muted mb-3">No posts yet.</p>
+            <div className="col-lg-4 text-lg-end">
               {canPost && (
                 <button
-                  className="btn btn-danger"
+                  type="button"
+                  className="btn community-hero__cta btn-lg px-4 shadow"
                   onClick={() => setShowPostModal(true)}
                 >
+                  <span className="me-2" aria-hidden="true">
+                    ✦
+                  </span>
+                  New post
+                </button>
+              )}
+            </div>
+          </div>
+          {!loading && (
+            <div className="community-stats row g-3 mt-4 mt-md-5">
+              <div className="col-6 col-md-auto">
+                <div className="community-stat-pill">
+                  <span className="community-stat-pill__value">{posts.length}</span>
+                  <span className="community-stat-pill__label">Posts</span>
+                </div>
+              </div>
+              <div className="col-6 col-md-auto">
+                <div className="community-stat-pill">
+                  <span className="community-stat-pill__value">{totalReplies}</span>
+                  <span className="community-stat-pill__label">Replies</span>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </header>
+
+      <main className="community-main pb-5">
+        <div className="container">
+          {loading ? (
+            <div className="community-loading text-center py-5 rounded-4">
+              <div className="spinner-border community-loading__spinner" role="status" aria-label="Loading" />
+              <p className="mt-3 mb-0 community-loading__text">Loading the latest updates…</p>
+            </div>
+          ) : posts.length === 0 ? (
+            <div className="community-empty text-center py-5 px-3 rounded-4">
+              <div className="community-empty__icon mb-3" aria-hidden="true">
+                💬
+              </div>
+              <h3 className="h5 fw-semibold mb-2">No posts yet</h3>
+              <p className="text-muted mb-4 mx-auto community-empty__hint">
+                When hospitals and blood banks share updates, they will appear here as beautiful cards.
+              </p>
+              {canPost && (
+                <button type="button" className="btn community-hero__cta px-4" onClick={() => setShowPostModal(true)}>
                   Create the first post
                 </button>
               )}
             </div>
           ) : (
             <div className="row g-4">
-              {posts.map((t) => (
-                <div key={t._id} className="col-md-4">
-                  <article className="community-card h-100 d-flex flex-column">
-                    <div className="d-flex align-items-center justify-content-between mb-3">
-                      <div className="d-flex align-items-center">
-                        <div className="community-avatar me-3">
-                          {getHandle(t.authorId).charAt(1).toUpperCase()}
+              {posts.map((post) => (
+                <div key={post._id} className="col-md-6 col-xl-4">
+                  <article className="community-card community-card--elevated h-100 d-flex flex-column">
+                    <div className="community-card__head d-flex align-items-start justify-content-between gap-2 mb-3">
+                      <div className="d-flex align-items-center min-w-0">
+                        <div className="community-avatar community-avatar--lg me-3 flex-shrink-0">
+                          {getHandle(post.authorId).charAt(1).toUpperCase()}
                         </div>
-                        <div>
-                          <div className="fw-semibold small text-dark">
-                            {getHandle(t.authorId)}
-                          </div>
-                          <div className="community-role-badge">{t.role}</div>
+                        <div className="min-w-0">
+                          <div className="community-author text-truncate">{getHandle(post.authorId)}</div>
+                          <span className="community-role-badge">{post.role}</span>
                         </div>
                       </div>
-                      {canDeletePost(t) && (
+                      {canDeletePost(post) && (
                         <button
                           type="button"
-                          className="btn btn-sm btn-outline-danger border-0 p-1"
-                          onClick={() => handleDeleteClick(t)}
-                          disabled={deleting === t._id}
+                          className="btn community-card__delete"
+                          onClick={() => handleDeleteClick(post)}
+                          disabled={deleting === post._id}
                           title="Delete post"
                         >
-                          {deleting === t._id ? (
+                          {deleting === post._id ? (
                             <span className="spinner-border spinner-border-sm" />
                           ) : (
-                            "🗑️"
+                            <span aria-hidden="true">🗑️</span>
                           )}
                         </button>
                       )}
                     </div>
 
-                    <h6 className="fw-semibold mb-2">{t.title}</h6>
-                    <p className="text-muted small flex-grow-1">{t.body}</p>
+                    <h2 className="community-card__title h6 fw-bold mb-2">{post.title}</h2>
+                    <p className="community-card__body text-muted small flex-grow-1 mb-0">{post.body}</p>
 
-                    <div className="d-flex justify-content-between align-items-center mt-3 pt-2 border-top border-secondary">
-                      <span className="text-muted small">
-                        {formatTime(t.createdAt)}
-                      </span>
-                      <div className="d-flex gap-3">
-                        <button
-                          className={`community-icon-btn ${isAcknowledged(t) ? "text-danger fw-bold" : ""}`}
-                          type="button"
-                          onClick={() => handleAcknowledge(t._id)}
-                          disabled={!user?._id || acknowledging === t._id}
-                        >
-                          👍{" "}
-                          <span className="small">
-                            Acknowledge
-                            {t.acknowledgedBy?.length > 0 &&
-                              ` (${t.acknowledgedBy.length})`}
-                          </span>
-                        </button>
-                        <button
-                          className="community-icon-btn"
-                          type="button"
-                          onClick={() =>
-                            setReplyingTo(replyingTo === t._id ? null : t._id)
-                          }
-                          disabled={!user?._id}
-                        >
-                          💬{" "}
-                          <span className="small">
-                            Reply
-                            {t.replies?.length > 0 && ` (${t.replies.length})`}
-                          </span>
-                        </button>
-                      </div>
-                    </div>
-
-                    {t.replies?.length > 0 && (
-                      <div className="mt-3 pt-2 border-top border-secondary">
-                        <div className="small fw-semibold text-muted mb-2">
-                          Replies
-                        </div>
-                        {t.replies.map((r) => (
-                          <div
-                            key={r._id}
-                            className="d-flex align-items-start mb-2"
+                    <div className="community-card__footer mt-auto pt-3 mt-3">
+                      <div className="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+                        <time className="community-time" dateTime={post.createdAt}>
+                          {formatTime(post.createdAt)}
+                        </time>
+                        <div className="d-flex flex-wrap gap-2 justify-content-end">
+                          <button
+                            type="button"
+                            className={`community-pill-btn ${isAcknowledged(post) ? "is-active" : ""}`}
+                            onClick={() => handleAcknowledge(post._id)}
+                            disabled={!user?._id || acknowledging === post._id}
                           >
-                            <div className="community-avatar me-2" style={{ width: 28, height: 28, fontSize: "0.7rem" }}>
-                              {getHandle(r.authorId).charAt(1).toUpperCase()}
+                            <span aria-hidden="true">👍</span>
+                            <span>
+                              Acknowledge
+                              {post.acknowledgedBy?.length > 0 && (
+                                <span className="community-pill-btn__count">{post.acknowledgedBy.length}</span>
+                              )}
+                            </span>
+                          </button>
+                          <button
+                            type="button"
+                            className="community-pill-btn"
+                            onClick={() => setReplyingTo(replyingTo === post._id ? null : post._id)}
+                            disabled={!user?._id}
+                          >
+                            <span aria-hidden="true">💬</span>
+                            <span>
+                              Reply
+                              {post.replies?.length > 0 && (
+                                <span className="community-pill-btn__count">{post.replies.length}</span>
+                              )}
+                            </span>
+                          </button>
+                        </div>
+                      </div>
+
+                      {post.replies?.length > 0 && (
+                        <div className="community-reply-stack">
+                          <div className="community-reply-stack__label">Replies</div>
+                          {post.replies.map((r) => (
+                            <div key={r._id} className="community-reply">
+                              <div className="community-avatar community-avatar--sm me-2 flex-shrink-0">
+                                {getHandle(r.authorId).charAt(1).toUpperCase()}
+                              </div>
+                              <div className="min-w-0 flex-grow-1">
+                                <div className="d-flex flex-wrap align-items-baseline gap-2">
+                                  <span className="community-reply__author">{getHandle(r.authorId)}</span>
+                                  <time className="community-reply__time">{formatTime(r.createdAt)}</time>
+                                </div>
+                                <p className="community-reply__text mb-0">{r.body}</p>
+                              </div>
                             </div>
-                            <div className="flex-grow-1">
-                              <span className="fw-semibold small text-dark">
-                                {getHandle(r.authorId)}
-                              </span>
-                              <span className="text-muted small ms-1">
-                                {formatTime(r.createdAt)}
-                              </span>
-                              <p className="small text-muted mb-0 mt-1">
-                                {r.body}
-                              </p>
-                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {replyingTo === post._id && (
+                        <div className="community-compose mt-3">
+                          <label className="visually-hidden" htmlFor={`reply-${post._id}`}>
+                            Reply to post
+                          </label>
+                          <textarea
+                            id={`reply-${post._id}`}
+                            className="form-control form-control-sm mb-2 community-compose__input"
+                            rows={2}
+                            placeholder="Write a reply…"
+                            value={replyText}
+                            onChange={(e) => setReplyText(e.target.value)}
+                          />
+                          <div className="d-flex flex-wrap gap-2">
+                            <button
+                              type="button"
+                              className="btn btn-sm community-compose__submit"
+                              onClick={() => handleReply(post._id)}
+                            >
+                              Post reply
+                            </button>
+                            <button
+                              type="button"
+                              className="btn btn-sm btn-outline-secondary"
+                              onClick={() => {
+                                setReplyingTo(null);
+                                setReplyText("");
+                              }}
+                            >
+                              Cancel
+                            </button>
                           </div>
-                        ))}
-                      </div>
-                    )}
-
-                    {replyingTo === t._id && (
-                      <div className="mt-3 pt-2 border-top border-secondary">
-                        <textarea
-                          className="form-control form-control-sm mb-2"
-                          rows={2}
-                          placeholder="Write a reply…"
-                          value={replyText}
-                          onChange={(e) => setReplyText(e.target.value)}
-                        />
-                        <div className="d-flex gap-2">
-                          <button
-                            className="btn btn-sm btn-danger"
-                            onClick={() => handleReply(t._id)}
-                          >
-                            Post Reply
-                          </button>
-                          <button
-                            className="btn btn-sm btn-outline-secondary"
-                            onClick={() => {
-                              setReplyingTo(null);
-                              setReplyText("");
-                            }}
-                          >
-                            Cancel
-                          </button>
                         </div>
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </article>
                 </div>
               ))}
@@ -326,30 +358,31 @@ const Community = () => {
 
       {showPostModal && (
         <div
-          className="modal show d-block"
-          style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
+          className="modal show d-block community-modal-backdrop"
           onClick={() => !posting && setShowPostModal(false)}
         >
           <div
-            className="modal-dialog modal-dialog-centered"
+            className="modal-dialog modal-dialog-centered modal-lg"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">New Post</h5>
+            <div className="modal-content community-modal-panel border-0 shadow-lg">
+              <div className="modal-header community-modal-panel__head border-0 pb-0">
+                <h5 className="modal-title fw-bold" id="community-new-post-title">
+                  New post
+                </h5>
                 <button
                   type="button"
                   className="btn-close"
                   onClick={() => !posting && setShowPostModal(false)}
                 />
               </div>
-              <form onSubmit={handleCreatePost}>
-                <div className="modal-body">
+              <form onSubmit={handleCreatePost} aria-labelledby="community-new-post-title">
+                <div className="modal-body pt-2">
                   <div className="mb-3">
-                    <label className="form-label">Title</label>
+                    <label className="form-label fw-semibold">Title</label>
                     <input
                       type="text"
-                      className="form-control"
+                      className="form-control form-control-lg rounded-3"
                       placeholder="e.g. Urgent A- units needed tonight"
                       value={postForm.title}
                       onChange={(e) =>
@@ -359,9 +392,9 @@ const Community = () => {
                     />
                   </div>
                   <div className="mb-3">
-                    <label className="form-label">Message</label>
+                    <label className="form-label fw-semibold">Message</label>
                     <textarea
-                      className="form-control"
+                      className="form-control rounded-3"
                       rows={4}
                       placeholder="Share your update or request…"
                       value={postForm.body}
@@ -372,20 +405,20 @@ const Community = () => {
                     />
                   </div>
                 </div>
-                <div className="modal-footer">
+                <div className="modal-footer border-0 pt-0">
                   <button
                     type="button"
-                    className="btn btn-secondary"
+                    className="btn btn-outline-secondary rounded-pill px-4"
                     onClick={() => !posting && setShowPostModal(false)}
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="btn btn-danger"
+                    className="btn community-hero__cta rounded-pill px-4"
                     disabled={posting || !postForm.title.trim() || !postForm.body.trim()}
                   >
-                    {posting ? "Posting…" : "Post"}
+                    {posting ? "Posting…" : "Publish"}
                   </button>
                 </div>
               </form>
@@ -395,18 +428,14 @@ const Community = () => {
       )}
 
       {deleteConfirmPost && (
-        <div
-          className="modal show d-block"
-          style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
-          onClick={() => setDeleteConfirmPost(null)}
-        >
+        <div className="modal show d-block community-modal-backdrop" onClick={() => setDeleteConfirmPost(null)}>
           <div
             className="modal-dialog modal-dialog-centered"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">Delete post?</h5>
+            <div className="modal-content community-modal-panel border-0 shadow-lg">
+              <div className="modal-header border-0 pb-0">
+                <h5 className="modal-title fw-bold">Delete post?</h5>
                 <button
                   type="button"
                   className="btn-close"

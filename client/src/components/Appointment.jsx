@@ -4,10 +4,41 @@ import { useDispatch, useSelector } from "react-redux";
 import donorIllustration from "../assets/11+.png";
 import { createBooking, resetBooking } from "../features/bookingSlice";
 import { getTodayInOman, getMaxDateInOman, getCurrentMinutesInOman } from "../utils/omanTime";
+import { useLanguage } from "../context/LanguageContext";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5050";
 
+const MONTH_KEYS = [
+  "monthJan",
+  "monthFeb",
+  "monthMar",
+  "monthApr",
+  "monthMay",
+  "monthJun",
+  "monthJul",
+  "monthAug",
+  "monthSep",
+  "monthOct",
+  "monthNov",
+  "monthDec",
+];
+const MONTH_VALUES_EN = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
+
 const Appointment = () => {
+  const { t, language } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
@@ -101,43 +132,43 @@ const Appointment = () => {
     e.preventDefault();
 
     if (!user) {
-      alert("Please login first");
+      alert(t("apptLoginFirst"));
       return;
     }
 
     if (!form.confirmHealth) {
-      alert("Please confirm your health information");
+      alert(t("apptConfirmHealthAlert"));
       return;
     }
 
     if (!form.hospital) {
-      alert("Please select a hospital");
+      alert(t("apptSelectHospitalAlert"));
       return;
     }
 
     if (!form.appointmentDate || !form.appointmentTime) {
-      alert("Please select appointment date and time");
+      alert(t("apptSelectDateTime"));
       return;
     }
 
     const [h, m] = form.appointmentTime.split(":").map(Number);
     if (h < 9 || h > 22 || (h === 22 && m > 0)) {
-      alert("Appointment time must be between 9:00 AM and 10:00 PM");
+      alert(t("apptTimeRange"));
       return;
     }
     if (m % 15 !== 0) {
-      alert("Time must be in 15-minute intervals");
+      alert(t("apptTime15Min"));
       return;
     }
 
     const appointmentDate = new Date(`${form.appointmentDate}T${form.appointmentTime}+04:00`);
 
     if (appointmentDate <= new Date()) {
-      alert("Please select a future date and time. You cannot book appointments in the past.");
+      alert(t("apptFutureOnly"));
       return;
     }
     if (appointmentDate > maxDateObj) {
-      alert("Appointment date cannot be more than 2 weeks from today.");
+      alert(t("apptMax2Weeks"));
       return;
     }
 
@@ -194,41 +225,46 @@ const Appointment = () => {
 
   useEffect(() => {
     if (success) {
-      alert("Appointment request submitted!");
+      alert(t("apptSuccess"));
       dispatch(resetBooking());
       navigate("/home");
     }
-  }, [success, dispatch, navigate]);
+  }, [success, dispatch, navigate, t]);
 
   if (!user) {
     return (
-      <div className="appointment-page container-fluid py-5 text-center">
-        <p className="text-muted">Redirecting to login...</p>
+      <div
+        className="appointment-page container-fluid py-5 text-center"
+        dir={language === "AR" ? "rtl" : "ltr"}
+        lang={language === "AR" ? "ar" : "en"}
+      >
+        <p className="text-muted">{t("apptRedirectLogin")}</p>
       </div>
     );
   }
 
   return (
-    <div className="appointment-page container-fluid" style={{ paddingBottom: "80px" }}>
+    <div
+      className="appointment-page container-fluid"
+      style={{ paddingBottom: "80px" }}
+      dir={language === "AR" ? "rtl" : "ltr"}
+      lang={language === "AR" ? "ar" : "en"}
+    >
       <div className="row min-vh-100 align-items-center">
         <div className="col-md-7 auth-left">
-          <h3 className="fw-semibold mb-4 mt-3 text-danger">
-            Book an Appointment
-          </h3>
+          <h3 className="fw-semibold mb-4 mt-3 text-danger">{t("apptTitle")}</h3>
 
           {urgentHospitalId && (
-            <div className="alert alert-info mb-3 py-2">
-              Booking for an urgent blood request. Select an available slot below.
-            </div>
+            <div className="alert alert-info mb-3 py-2">{t("apptUrgentBanner")}</div>
           )}
 
           <div className="appointment-form-card">
             <form onSubmit={handleSubmit}>
-              <h5 className="mb-3">Appointment Details</h5>
+              <h5 className="mb-3">{t("apptDetails")}</h5>
 
               <div className="mb-4">
                 <label className="form-label fw-semibold">
-                  {urgentHospitalId ? "Hospital" : "Preferred Hospital"}
+                  {urgentHospitalId ? t("hospital") : t("apptPreferredHospital")}
                 </label>
                 <select
                   className="form-select"
@@ -238,7 +274,7 @@ const Appointment = () => {
                   required
                   disabled={!!urgentHospitalId}
                 >
-                  <option value="">Select hospital</option>
+                  <option value="">{t("apptSelectHospital")}</option>
                   {hospitals.map((h) => (
                     <option key={h._id} value={h._id}>
                       {h.hospitalName} {h.city ? `(${h.city})` : ""}
@@ -246,18 +282,16 @@ const Appointment = () => {
                   ))}
                 </select>
                 {urgentHospitalId && (
-                  <small className="text-muted d-block mt-1">Hospital fixed for this urgent request.</small>
+                  <small className="text-muted d-block mt-1">{t("apptHospitalFixed")}</small>
                 )}
                 {hospitals.length === 0 && (
-                  <small className="text-muted">No approved hospitals available. Please try again later.</small>
+                  <small className="text-muted">{t("apptNoHospitals")}</small>
                 )}
               </div>
 
               <div className="row mb-4">
                 <div className="col-md-6">
-                  <label className="form-label fw-semibold">
-                    Appointment Date
-                  </label>
+                  <label className="form-label fw-semibold">{t("apptDate")}</label>
                   <input
                     type="date"
                     className="form-control"
@@ -271,7 +305,7 @@ const Appointment = () => {
                 </div>
 
                 <div className="col-md-6">
-                  <label className="form-label fw-semibold">Time</label>
+                  <label className="form-label fw-semibold">{t("apptTime")}</label>
                   <select
                     className="form-select"
                     name="appointmentTime"
@@ -282,10 +316,10 @@ const Appointment = () => {
                   >
                     <option value="">
                       {!form.hospital || !form.appointmentDate
-                        ? "Select hospital and date first"
+                        ? t("apptSelectHospitalDateFirst")
                         : slotsLoading
-                          ? "Loading slots..."
-                          : "Select time"}
+                          ? t("apptLoadingSlots")
+                          : t("apptSelectTime")}
                     </option>
                     {!slotsLoading && getAvailableTimeSlots().map((slot) => {
                       const [h, m] = slot.split(":").map(Number);
@@ -294,34 +328,31 @@ const Appointment = () => {
                     })}
                   </select>
                   {!slotsLoading && form.hospital && form.appointmentDate && getAvailableTimeSlots().length === 0 && (
-                    <small className="text-muted">No slots available. Try another date.</small>
+                    <small className="text-muted">{t("apptNoSlots")}</small>
                   )}
                 </div>
               </div>
 
               <div className="mb-4">
-                <label className="form-label fw-semibold">
-                  Last Donation Month
-                </label>
+                <label className="form-label fw-semibold">{t("apptLastDonationMonth")}</label>
                 <select
                   className="form-select"
                   name="lastDonationMonth"
                   value={form.lastDonationMonth}
                   onChange={handleChange}
                 >
-                  <option value="">Select month</option>
-                  {[
-                    "January","February","March","April","May","June",
-                    "July","August","September","October","November","December",
-                  ].map((m) => (
-                    <option key={m}>{m}</option>
+                  <option value="">{t("apptSelectMonth")}</option>
+                  {MONTH_KEYS.map((key, i) => (
+                    <option key={key} value={MONTH_VALUES_EN[i]}>
+                      {t(key)}
+                    </option>
                   ))}
                 </select>
               </div>
 
               {/* 🔽 ALL YOUR CHECKBOXES & RADIOS BELOW ARE UNTOUCHED */}
 
-              <h5 className="mb-3 mt-4">Eligibility Screening</h5>
+              <h5 className="mb-3 mt-4">{t("apptEligibilityTitle")}</h5>
 
               <div className="form-check mb-2">
                 <input
@@ -331,9 +362,7 @@ const Appointment = () => {
                   checked={form.donatedBefore}
                   onChange={handleChange}
                 />
-                <label className="form-check-label ms-1">
-                  I have donated blood before
-                </label>
+                <label className="form-check-label ms-1">{t("apptDonatedBefore")}</label>
               </div>
 
               <div className="form-check mb-4">
@@ -344,9 +373,7 @@ const Appointment = () => {
                   checked={form.sickPast3Months}
                   onChange={handleChange}
                 />
-                <label className="form-check-label ms-1">
-                  I was sick in the past 3 months
-                </label>
+                <label className="form-check-label ms-1">{t("apptSick3mo")}</label>
               </div>
 
               <div className="form-check mb-5">
@@ -358,23 +385,21 @@ const Appointment = () => {
                   onChange={handleChange}
                   required
                 />
-                <label className="form-check-label ms-1">
-                  I confirm that the above health information is accurate.
-                </label>
+                <label className="form-check-label ms-1">{t("apptConfirmHealth")}</label>
               </div>
 
               {error && <p className="text-danger">{error}</p>}
 
               <div className="d-flex gap-3">
                 <button type="submit" className="btn btn-danger flex-grow-1" disabled={loading}>
-                  {loading ? "Submitting..." : "Book Appointment"}
+                  {loading ? t("apptSubmitting") : t("apptBook")}
                 </button>
                 <button
                   type="button"
                   className="btn btn-outline-secondary flex-grow-1"
                   onClick={() => navigate("/home")}
                 >
-                  Cancel
+                  {t("cancel")}
                 </button>
               </div>
             </form>
@@ -384,7 +409,7 @@ const Appointment = () => {
         <div className="col-md-5 text-center d-none d-md-block">
           <img
             src={donorIllustration}
-            alt="Donor illustration"
+            alt={t("apptAltIllustration")}
             className="img-fluid"
             style={{ maxWidth: "70%" }}
           />

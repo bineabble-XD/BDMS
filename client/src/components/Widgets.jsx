@@ -6,7 +6,8 @@ import { useLanguage } from "../context/LanguageContext";
 
 const Widgets = () => {
   const navigate = useNavigate();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const isRtl = language === "AR";
 
   const [colorBlind, setColorBlind] = useState(
     localStorage.getItem(SETTINGS_KEYS.COLOR_BLIND) === "true"
@@ -18,7 +19,7 @@ const Widgets = () => {
   }, [colorBlind]);
 
   return (
-    <div className="widgets-page">
+    <div className="widgets-page" dir={isRtl ? "rtl" : "ltr"} lang={isRtl ? "ar" : "en"}>
       <div className="container py-4">
         <div className="d-flex align-items-center mb-4">
           <button className="settings-back-btn me-3" onClick={() => navigate(-1)}>
