@@ -10,7 +10,9 @@ export const chatbotStrings = {
       `Hi ${name} 👋 I’m BDMS Assistant. How can I help you today?\n\nYou can ask:\n- Hospital dashboard help?\n- Appointments?\n- Inventory?\n- Blood bank?\n- Urgent requests?\n- Reports?\n- Contact info?`,
     welcomeAdmin: (name) =>
       `Hi ${name} 👋 I’m BDMS Assistant. How can I help you today?\n\nYou can ask:\n- Dashboard?\n- Reports?\n- Hospital requests?\n- Contact info?`,
-    welcomeGuest: `Hi 👋 I’m BDMS Assistant. How can I help you today?\n\nYou can ask:\n- How to donate blood?\n- Where to register?\n- Urgent requests?\n- Login help?\n- Contact info?\n- Hospital help?`,
+    welcomeGuest: `Hi 👋 I’m BDMS Assistant.\n\nFor full features, sign in or create an account. I can give brief general info here, or take you to Log in / Register.`,
+    welcomeBloodBank: (name) =>
+      `Hi ${name} 👋 I’m BDMS Assistant. How can I help you today?\n\nYou can ask:\n- Inventory?\n- Community?\n- Urgent requests?\n- NLP Assistant?\n- Contact info?`,
 
     qaDonate: `To donate blood:\n1) Register/Login\n2) Complete your profile\n3) Check eligibility\n4) Find nearby hospitals / requests\n5) Confirm appointment (if available)\n\nIf you want, tell me your blood type and city.`,
     qaRegister: `To register:\n- Click Register from the top menu\n- Fill your details\n- Verify your email (if enabled)\n- Login and complete your profile.`,
@@ -29,6 +31,12 @@ export const chatbotStrings = {
     qaReports:
       "You can use the Reports page to view stock summaries and export data as PDF or Excel.",
     qaFallback: `Thanks! I can help with:\n- Donation steps\n- Register/Login\n- Urgent requests\n- Hospital dashboard\n- Inventory and reports\n- Contact/support\n\nType what you need, and I’ll guide you.`,
+    qaGuestFallback: `I can share short general tips here. To book donations, respond to urgent requests, or use hospital tools, please log in or register.`,
+    qaGuestUrgent: `Urgent requests and responses are available after you sign in. Use Log In or Register to continue.`,
+    qaGuestHospital: `Hospital dashboards and inventory tools require a hospital account. Log in or register to get started.`,
+    qaGuestInventory: `Inventory and blood bank management require a staff account. Log in or register first.`,
+    qaGuestAppt: `Appointments are available after you register as a donor and log in.`,
+    qaInventoryDonor: `Stock and bank inventory are managed by hospitals and staff. As a donor, use Urgent Requests or Book an Appointment from the menu after you log in.`,
 
     actionHowToDonate: `To donate blood:\n1) Register/Login\n2) Complete your profile\n3) Check eligibility\n4) Find nearby hospitals / requests\n5) Confirm appointment (if available)\n\nIf you want, tell me your blood type and city.`,
     actionLoginHelp: `To login:\n- Click Log In from the menu\n- Enter your email and password\n- If you forgot password, use “Forgot Password”.`,
@@ -41,6 +49,8 @@ export const chatbotStrings = {
 
     labels: {
       how_to_donate: "How to Donate",
+      open_login: "Log In",
+      open_register: "Register",
       register: "Register",
       login_help: "Login Help",
       urgent_requests: "Urgent Requests",
@@ -56,6 +66,8 @@ export const chatbotStrings = {
       admin_dashboard: "Dashboard",
       admin_reports: "Reports",
       admin_hospitals: "Hospital Requests",
+      nav_community: "Community",
+      nav_nlp: "NLP Assistant",
     },
 
     uiChatbotTitle: "BDMS Chatbot",
@@ -66,6 +78,7 @@ export const chatbotStrings = {
     uiFabTitle: "Chat with BDMS",
     uiAriaClose: "Close chat",
     uiCloseTitle: "Close",
+    navDenied: "That page isn’t available for your current account. Use the menu or sign in with the right role.",
   },
 
   AR: {
@@ -76,7 +89,9 @@ export const chatbotStrings = {
       `مرحباً ${name} 👋 أنا مساعد BDMS. كيف يمكنني مساعدتك اليوم؟\n\nيمكنك السؤال عن:\n- لوحة المستشفى؟\n- المواعيد؟\n- المخزون؟\n- بنك الدم؟\n- الطلبات العاجلة؟\n- التقارير؟\n- الاتصال؟`,
     welcomeAdmin: (name) =>
       `مرحباً ${name} 👋 أنا مساعد BDMS. كيف يمكنني مساعدتك اليوم؟\n\nيمكنك السؤال عن:\n- لوحة التحكم؟\n- التقارير؟\n- طلبات المستشفيات؟\n- الاتصال؟`,
-    welcomeGuest: `مرحباً 👋 أنا مساعد BDMS. كيف يمكنني مساعدتك اليوم؟\n\nيمكنك السؤال عن:\n- كيفية التبرع بالدم؟\n- أين أتسجّل؟\n- الطلبات العاجلة؟\n- تسجيل الدخول؟\n- الاتصال؟\n- مساعدة المستشفى؟`,
+    welcomeGuest: `مرحباً 👋 أنا مساعد BDMS.\n\nللوصول إلى كل الميزات، سجّل الدخول أو أنشئ حساباً. يمكنني إعطاء معلومات عامة مختصرة هنا، أو توجيهك لتسجيل الدخول / التسجيل.`,
+    welcomeBloodBank: (name) =>
+      `مرحباً ${name} 👋 أنا مساعد BDMS. كيف يمكنني مساعدتك اليوم؟\n\nيمكنك السؤال عن:\n- المخزون؟\n- المجتمع؟\n- الطلبات العاجلة؟\n- مساعد NLP؟\n- الاتصال؟`,
 
     qaDonate: `للتبرع بالدم:\n1) سجّل / ادخل إلى حسابك\n2) أكمل ملفك\n3) تحقّق من الأهلية\n4) ابحث عن مستشفيات أو طلبات قريبة\n5) أكّد الموعد (إن وُجد)\n\nإن أردت، أخبرني بفصيلة دمك ومدينتك.`,
     qaRegister: `للتسجيل:\n- اختر «التسجيل» من القائمة\n- املأ بياناتك\n- فعّل بريدك (إن طُلب)\n- سجّل الدخول وأكمل ملفك.`,
@@ -92,6 +107,12 @@ export const chatbotStrings = {
     qaInventory: "يمكنك إدارة مخزون الدم وسجلات التبرع وتواريخ الانتهاء من «بنك الدم» و«المخزون».",
     qaReports: "يمكنك استخدام «التقارير» لعرض ملخص المخزون وتصدير PDF أو Excel.",
     qaFallback: `يمكنني المساعدة في:\n- خطوات التبرع\n- التسجيل / الدخول\n- الطلبات العاجلة\n- لوحة المستشفى\n- المخزون والتقارير\n- الدعم\n\nاكتب ما تحتاجه وسأرشدك.`,
+    qaGuestFallback: `يمكنني إعطاء نصائح عامة مختصرة هنا. لحجز التبرع أو الرد على الطلبات العاجلة أو أدوات المستشفى، سجّل الدخول أو أنشئ حساباً.`,
+    qaGuestUrgent: `الطلبات العاجلة والرد عليها متاحة بعد تسجيل الدخول. استخدم تسجيل الدخول أو إنشاء حساب للمتابعة.`,
+    qaGuestHospital: `لوحات المستشفى وأدوات المخزون تتطلب حساب مستشفى. سجّل الدخول أو سجّل للبدء.`,
+    qaGuestInventory: `إدارة المخزون وبنك الدم تتطلب حساباً للموظفين. سجّل الدخول أولاً.`,
+    qaGuestAppt: `المواعيد متاحة بعد التسجيل كمتبرع وتسجيل الدخول.`,
+    qaInventoryDonor: `مخزون الدم يدار من قبل المستشفى والموظفين. كمتبرع، استخدم الطلبات العاجلة أو حجز الموعد من القائمة بعد تسجيل الدخول.`,
 
     actionHowToDonate: `للتبرع بالدم:\n1) سجّل / ادخل\n2) أكمل ملفك\n3) تحقّق من الأهلية\n4) ابحث عن مستشفيات أو طلبات\n5) أكّد الموعد\n\nإن أردت، أخبرني بفصيلة دمك ومدينتك.`,
     actionLoginHelp: `لتسجيل الدخول:\n- اختر «تسجيل الدخول» من القائمة\n- أدخل البريد وكلمة المرور\n- إن نسيت كلمة المرور استخدم «نسيت كلمة المرور».`,
@@ -104,6 +125,8 @@ export const chatbotStrings = {
 
     labels: {
       how_to_donate: "كيفية التبرع",
+      open_login: "تسجيل الدخول",
+      open_register: "التسجيل",
       register: "التسجيل",
       login_help: "مساعدة الدخول",
       urgent_requests: "الطلبات العاجلة",
@@ -119,6 +142,8 @@ export const chatbotStrings = {
       admin_dashboard: "لوحة التحكم",
       admin_reports: "التقارير",
       admin_hospitals: "طلبات المستشفيات",
+      nav_community: "المجتمع",
+      nav_nlp: "مساعد NLP",
     },
 
     uiChatbotTitle: "محادثة BDMS",
@@ -129,6 +154,7 @@ export const chatbotStrings = {
     uiFabTitle: "محادثة مع BDMS",
     uiAriaClose: "إغلاق المحادثة",
     uiCloseTitle: "إغلاق",
+    navDenied: "هذه الصفحة غير متاحة لحسابك الحالي. استخدم القائمة أو سجّل الدخول بالدور المناسب.",
   },
 };
 

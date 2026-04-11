@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { FaRobot } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useFloatingPanel } from "../context/FloatingPanelContext";
 import { useLanguage } from "../context/LanguageContext";
 import { getChatbotStrings } from "../locales/chatbotStrings";
@@ -17,10 +17,83 @@ const formatTime = (lang, date = new Date()) =>
 
 const getUserRole = (user) => {
   if (!user) return "guest";
-  if (user.isAdmin) return "admin";
-  if (user.isHospital || user.role === "Hospital") return "hospital";
+  if (user.isAdmin === true || user.role === "Admin" || user.role === "admin") return "admin";
+  if (user.isHospital === true || user.role === "Hospital" || user.role === "hospital") return "hospital";
+  if (
+    user.isInventory === true ||
+    user.role === "Blood Bank" ||
+    user.role === "blood bank"
+  ) {
+    return "blood_bank";
+  }
   return "donor";
 };
+
+/** Quick-action keys permitted per role (navigation + text-only handlers). */
+const ALLOWED_ACTIONS = {
+  guest: new Set(["how_to_donate", "open_login", "open_register"]),
+  donor: new Set([
+    "how_to_donate",
+    "login_help",
+    "urgent_requests",
+    "my_appointments",
+    "check_eligibility",
+    "contact_info",
+  ]),
+  hospital: new Set([
+    "hospital_help",
+    "hospital_appointments",
+    "hospital_blood_bank",
+    "hospital_inventory",
+    "hospital_urgent_requests",
+    "hospital_reports",
+    "contact_info",
+  ]),
+  admin: new Set(["admin_dashboard", "admin_reports", "admin_hospitals", "contact_info"]),
+  blood_bank: new Set([
+    "hospital_inventory",
+    "community",
+    "nlp_assistant",
+    "urgent_requests",
+    "contact_info",
+  ]),
+};
+
+function filterQuickActions(role, actions) {
+  const allowed = ALLOWED_ACTIONS[role];
+  if (!allowed || !actions?.length) return [];
+  return actions.filter((a) => allowed.has(a.action));
+}
+
+const STATIC_NAV_ROUTES = {
+  open_login: "/login",
+  open_register: "/register",
+  register: "/register",
+  my_appointments: "/my-appointments",
+  urgent_requests: "/urgent-requests",
+  hospital_appointments: "/hospital-appointments",
+  hospital_inventory: "/inventory",
+  hospital_urgent_requests: "/urgent-requests",
+  hospital_reports: "/hospital-reports",
+  admin_dashboard: "/dashboard",
+  admin_reports: "/reports",
+  admin_hospitals: "/AdminManRequest",
+  community: "/community",
+  nlp_assistant: "/NLPAssistant",
+};
+
+function resolveNavPath(action, user) {
+  if (action === "hospital_blood_bank") {
+    const id = user?._id || user?.id;
+    return id ? `/blood-bank/${id}` : null;
+  }
+  return STATIC_NAV_ROUTES[action] ?? null;
+}
+
+function canNavigate(role, action, user) {
+  if (!ALLOWED_ACTIONS[role]?.has(action)) return false;
+  return resolveNavPath(action, user) != null;
+}
 
 const normalize = (text) => (text || "").trim().toLowerCase();
 
@@ -97,7 +170,6 @@ function quickActionsForRole(role, S) {
   const L = S.labels;
   const donor = [
     { label: L.how_to_donate, action: "how_to_donate" },
-    { label: L.register, action: "register" },
     { label: L.login_help, action: "login_help" },
     { label: L.urgent_requests, action: "urgent_requests" },
     { label: L.my_appointments, action: "my_appointments" },
@@ -119,29 +191,36 @@ function quickActionsForRole(role, S) {
     { label: L.admin_hospitals, action: "admin_hospitals" },
     { label: L.contact_info, action: "contact_info" },
   ];
-  const guest = [
-    { label: L.how_to_donate, action: "how_to_donate" },
-    { label: L.register, action: "register" },
-    { label: L.login_help, action: "login_help" },
+  const blood_bank = [
+    { label: L.hospital_inventory, action: "hospital_inventory" },
+    { label: L.nav_community, action: "community" },
+    { label: L.nav_nlp, action: "nlp_assistant" },
     { label: L.urgent_requests, action: "urgent_requests" },
-    { label: L.hospital_help, action: "hospital_help" },
     { label: L.contact_info, action: "contact_info" },
   ];
-  if (role === "donor") return donor;
-  if (role === "hospital") return hospital;
-  if (role === "admin") return admin;
-  return guest;
+  const guest = [
+    { label: L.how_to_donate, action: "how_to_donate" },
+    { label: L.open_login, action: "open_login" },
+    { label: L.open_register, action: "open_register" },
+  ];
+  if (role === "donor") return filterQuickActions(role, donor);
+  if (role === "hospital") return filterQuickActions(role, hospital);
+  if (role === "admin") return filterQuickActions(role, admin);
+  if (role === "blood_bank") return filterQuickActions(role, blood_bank);
+  return filterQuickActions(role, guest);
 }
 
 function buildWelcome(role, displayName, S) {
   if (role === "donor") return S.welcomeDonor(displayName);
   if (role === "hospital") return S.welcomeHospital(displayName);
   if (role === "admin") return S.welcomeAdmin(displayName);
+  if (role === "blood_bank") return S.welcomeBloodBank(displayName);
   return S.welcomeGuest;
 }
 
 export default function ChatbotWidget() {
   const navigate = useNavigate();
+  const location = useLocation();
   const endRef = useRef(null);
   const { language } = useLanguage();
   const S = useMemo(() => getChatbotStrings(language), [language]);
@@ -153,7 +232,7 @@ export default function ChatbotWidget() {
     } catch {
       return null;
     }
-  }, []);
+  }, [location.pathname]);
 
   const role = getUserRole(user);
   const displayName = user?.fName || S.userGreeting;
@@ -195,7 +274,7 @@ export default function ChatbotWidget() {
         quickActions: quickActionsForRole(role, S),
       },
     ]);
-  }, [language]);
+  }, [language, role, user?._id, user?.id, user?.isAdmin, user?.isHospital, user?.isInventory, user?.role]);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -223,22 +302,11 @@ export default function ChatbotWidget() {
   };
 
   const navigateByAction = (action) => {
-    const routes = {
-      register: "/register",
-      my_appointments: "/my-appointments",
-      urgent_requests: "/urgent",
-      hospital_appointments: "/hospital-appointments",
-      hospital_blood_bank: `/blood-bank/${user?._id || user?.id || ""}`,
-      hospital_inventory: "/inventory",
-      hospital_urgent_requests: "/urgent",
-      hospital_reports: "/hospital-reports",
-      admin_dashboard: "/dashboard",
-      admin_reports: "/reports",
-      admin_hospitals: "/AdminManRequest",
-    };
-
-    const route = routes[action];
-    if (route) navigate(route);
+    if (!canNavigate(role, action, user)) return false;
+    const path = resolveNavPath(action, user);
+    if (!path) return false;
+    navigate(path);
+    return true;
   };
 
   const fetchMatchingUrgentRequests = async () => {
@@ -257,26 +325,46 @@ export default function ChatbotWidget() {
     const t = normalize(text);
     const ar = (text || "").trim();
     const m = matchTopic(t, ar);
+    const authPair = [
+      { label: S.labels.open_login, action: "open_login" },
+      { label: S.labels.open_register, action: "open_register" },
+    ];
 
     if (m.donate) {
+      if (role === "guest") {
+        return {
+          text: S.qaDonate,
+          quickActions: filterQuickActions(role, [
+            { label: S.labels.how_to_donate, action: "how_to_donate" },
+            ...authPair,
+          ]),
+        };
+      }
       return {
         text: S.qaDonate,
-        quickActions: [
-          { label: S.labels.register, action: "register" },
+        quickActions: filterQuickActions(role, [
           { label: S.labels.urgent_requests, action: "urgent_requests" },
           { label: S.labels.check_eligibility, action: "check_eligibility" },
-        ],
+          { label: S.labels.my_appointments, action: "my_appointments" },
+        ]),
       };
     }
 
     if (m.register) {
       return {
         text: S.qaRegister,
-        quickActions: [{ label: S.labels.register, action: "register" }],
+        quickActions: filterQuickActions(role, [{ label: S.labels.open_register, action: "open_register" }]),
       };
     }
 
     if (m.urgent) {
+      if (role === "guest") {
+        return {
+          text: S.qaGuestUrgent,
+          quickActions: filterQuickActions(role, authPair),
+        };
+      }
+
       const requests = await fetchMatchingUrgentRequests();
 
       if (requests && requests.length > 0) {
@@ -284,81 +372,162 @@ export default function ChatbotWidget() {
         const hospitalName = first?.hospital?.hospitalName || S.hospitalFallback;
         return {
           text: S.qaUrgentMatches(requests.length, hospitalName),
-          quickActions: [{ label: S.labels.urgent_requests, action: "urgent_requests" }],
+          quickActions: filterQuickActions(role, [{ label: S.labels.urgent_requests, action: "urgent_requests" }]),
         };
       }
 
       return {
         text: S.qaUrgentNone,
-        quickActions: [{ label: S.labels.urgent_requests, action: "urgent_requests" }],
+        quickActions: filterQuickActions(role, [{ label: S.labels.urgent_requests, action: "urgent_requests" }]),
       };
     }
 
     if (m.login) {
+      if (role === "guest") {
+        return {
+          text: S.qaLogin,
+          quickActions: filterQuickActions(role, authPair),
+        };
+      }
       return { text: S.qaLogin };
     }
 
     if (m.hospital) {
+      if (role === "guest") {
+        return {
+          text: S.qaGuestHospital,
+          quickActions: filterQuickActions(role, authPair),
+        };
+      }
       return {
         text: S.qaHospital,
-        quickActions: [
+        quickActions: filterQuickActions(role, [
           { label: S.labels.hospital_appointments, action: "hospital_appointments" },
           { label: S.labels.hospital_blood_bank, action: "hospital_blood_bank" },
           { label: S.labels.hospital_inventory, action: "hospital_inventory" },
           { label: S.labels.hospital_reports, action: "hospital_reports" },
-        ],
+        ]),
       };
     }
 
     if (m.contact) {
-      return { text: S.qaContact };
+      return {
+        text: S.qaContact,
+        quickActions: filterQuickActions(role, [{ label: S.labels.contact_info, action: "contact_info" }]),
+      };
     }
 
     if (m.eligibility) {
+      if (role === "guest") {
+        return {
+          text: S.qaEligibility,
+          quickActions: filterQuickActions(role, authPair),
+        };
+      }
       return {
         text: S.qaEligibility,
-        quickActions: [{ label: S.labels.check_eligibility, action: "check_eligibility" }],
+        quickActions: filterQuickActions(role, [{ label: S.labels.check_eligibility, action: "check_eligibility" }]),
       };
     }
 
-    if (m.appointment && role === "donor") {
+    if (m.appointment) {
+      if (role === "guest") {
+        return {
+          text: S.qaGuestAppt,
+          quickActions: filterQuickActions(role, authPair),
+        };
+      }
+      if (role === "donor") {
+        return {
+          text: S.qaApptDonor,
+          quickActions: filterQuickActions(role, [{ label: S.labels.my_appointments, action: "my_appointments" }]),
+        };
+      }
+      if (role === "hospital") {
+        return {
+          text: S.qaApptHospital,
+          quickActions: filterQuickActions(role, [{ label: S.labels.hospital_appointments, action: "hospital_appointments" }]),
+        };
+      }
       return {
-        text: S.qaApptDonor,
-        quickActions: [{ label: S.labels.my_appointments, action: "my_appointments" }],
-      };
-    }
-
-    if (m.appointment && role === "hospital") {
-      return {
-        text: S.qaApptHospital,
-        quickActions: [{ label: S.labels.hospital_appointments, action: "hospital_appointments" }],
+        text: S.qaFallback,
+        quickActions: quickActionsForRole(role, S),
       };
     }
 
     if (m.inventory) {
+      if (role === "guest") {
+        return {
+          text: S.qaGuestInventory,
+          quickActions: filterQuickActions(role, authPair),
+        };
+      }
+      if (role === "donor") {
+        return {
+          text: S.qaInventoryDonor,
+          quickActions: [],
+        };
+      }
+      if (role === "blood_bank") {
+        return {
+          text: S.qaInventory,
+          quickActions: filterQuickActions(role, [
+            { label: S.labels.hospital_inventory, action: "hospital_inventory" },
+            { label: S.labels.nav_community, action: "community" },
+          ]),
+        };
+      }
+      if (role === "hospital") {
+        return {
+          text: S.qaInventory,
+          quickActions: filterQuickActions(role, [
+            { label: S.labels.hospital_blood_bank, action: "hospital_blood_bank" },
+            { label: S.labels.hospital_inventory, action: "hospital_inventory" },
+          ]),
+        };
+      }
+      if (role === "admin") {
+        return {
+          text: S.qaInventory,
+          quickActions: filterQuickActions(role, [
+            { label: S.labels.hospital_inventory, action: "hospital_inventory" },
+            { label: S.labels.admin_reports, action: "admin_reports" },
+          ]),
+        };
+      }
       return {
         text: S.qaInventory,
-        quickActions: [
-          { label: S.labels.hospital_blood_bank, action: "hospital_blood_bank" },
-          { label: S.labels.hospital_inventory, action: "hospital_inventory" },
-        ],
+        quickActions: quickActionsForRole(role, S),
       };
     }
 
     if (m.report) {
+      if (role === "guest") {
+        return {
+          text: S.qaReports,
+          quickActions: filterQuickActions(role, authPair),
+        };
+      }
+      if (role === "blood_bank") {
+        return {
+          text: S.qaReports,
+          quickActions: filterQuickActions(role, [{ label: S.labels.hospital_inventory, action: "hospital_inventory" }]),
+        };
+      }
       return {
         text: S.qaReports,
-        quickActions:
-          role === "hospital"
+        quickActions: filterQuickActions(role, [
+          ...(role === "hospital"
             ? [{ label: S.labels.hospital_reports, action: "hospital_reports" }]
             : role === "admin"
               ? [{ label: S.labels.admin_reports, action: "admin_reports" }]
-              : [],
+              : []),
+        ]),
       };
     }
 
     return {
-      text: S.qaFallback,
+      text: role === "guest" ? S.qaGuestFallback : S.qaFallback,
       quickActions: quickActionsForRole(role, S),
     };
   };
@@ -389,18 +558,18 @@ export default function ChatbotWidget() {
 
     if (action === "hospital_help") {
       replyWithTyping(S.actionHospitalHelp, {
-        quickActions: [
+        quickActions: filterQuickActions(role, [
           { label: S.labels.hospital_appointments, action: "hospital_appointments" },
           { label: S.labels.hospital_blood_bank, action: "hospital_blood_bank" },
           { label: S.labels.hospital_inventory, action: "hospital_inventory" },
           { label: S.labels.hospital_reports, action: "hospital_reports" },
-        ],
+        ]),
       });
       return;
     }
 
-    navigateByAction(action);
-    replyWithTyping(S.opening(label));
+    const navigated = navigateByAction(action);
+    replyWithTyping(navigated ? S.opening(label) : S.navDenied);
   };
 
   const send = async () => {
