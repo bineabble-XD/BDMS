@@ -1,6 +1,6 @@
-process.env.TZ = "Asia/Muscat";
-import "dotenv/config";
-
+import dotenv from "dotenv";
+import path from "path";
+import { fileURLToPath } from "url";
 import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
@@ -19,12 +19,25 @@ import CommunityReply from "./models/CommunityReply.js";
 import { analyzeSentiment, analyzeFull } from "./utils/nlp.js";
 import { validateStoredPhoneNumber } from "./utils/phoneValidation.js";
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+dotenv.config({ path: path.join(__dirname, ".env"), override: true });
+
+process.env.TZ = process.env.TZ || "Asia/Muscat";
+
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-const connectionString =
-  "mongodb+srv://bdms12221_db_user:admin@cluster0.cpa4u7p.mongodb.net/BDMS?retryWrites=true&w=majority";
+const connectionString = process.env.MONGO_URI?.trim();
+if (!connectionString) {
+  console.error(
+    "Missing MONGO_URI. Set it in server/.env (e.g. MongoDB Atlas connection string)."
+  );
+  process.exit(1);
+}
+const port = Number(process.env.PORT) || 5050;
+const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+const backendUrl = process.env.BACKEND_URL || `http://localhost:${port}`;
 
 // ✅ UPDATED: use .env if available, fallback to your current values
 const transporter = nodemailer.createTransport({
@@ -111,7 +124,7 @@ app.post("/register", async (req, res) => {
 
     await new_donor.save();
 
-    const verifyUrl = `http://localhost:5050/verify-email?token=${verificationToken}`;
+    const verifyUrl = `${backendUrl}/verify-email?token=${verificationToken}`;
 
     await transporter.sendMail({
       from: '"BDMS" <bdmsbtech@gmail.com>',
@@ -162,7 +175,7 @@ app.get("/verify-email", async (req, res) => {
     user.verificationTokenExpires = undefined;
     await user.save();
 
-    res.redirect("http://localhost:5173/verified");
+    res.redirect(`${frontendUrl}/verified`);
   } catch (error) {
     console.error("Verify email error:", error);
     return res.status(500).send("Server error.");
@@ -238,7 +251,7 @@ app.post("/forgot-password", async (req, res) => {
     user.resetPasswordExpires = expiry;
     await user.save();
 
-    const resetUrl = `http://localhost:5173/reset-password/${token}`;
+    const resetUrl = `${frontendUrl}/reset-password/${token}`;
 
     await transporter.sendMail({
       from: '"BDMS" <bdmsbtech@gmail.com>',
@@ -1615,8 +1628,8 @@ mongoose
   .connect(connectionString)
   .then(() => {
     console.log("Database Connected..");
-    app.listen(5050, () => {
-      console.log("Server connected at port number 5050..");
+    app.listen(port, () => {
+      console.log(`Server connected at port number ${port}..`);
     });
   })
   .catch((error) => {

@@ -1,0 +1,27 @@
+services:
+  server:
+    build:
+      context: ./server
+    container_name: bdms-server
+    restart: unless-stopped
+    volumes:
+      # Ensures MONGO_URI and secrets load reliably (env_file alone can fail on Windows / CRLF).
+      - ./server/.env:/app/.env:ro
+    environment:
+      PORT: 5050
+      FRONTEND_URL: http://localhost:5173
+      BACKEND_URL: http://localhost:5050
+    ports:
+      - "5050:5050"
+
+  client:
+    build:
+      context: ./client
+    container_name: bdms-client
+    restart: unless-stopped
+    depends_on:
+      - server
+    environment:
+      CHOKIDAR_USEPOLLING: "true"
+    ports:
+      - "5173:5173"

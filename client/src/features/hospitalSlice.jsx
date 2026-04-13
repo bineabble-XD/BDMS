@@ -4,7 +4,7 @@ export const registerHospital = createAsyncThunk(
   "hospital/registerHospital",
   async (formData, { rejectWithValue }) => {
     try {
-      const res = await fetch("http://localhost:5050/register-hospital", {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE || "http://localhost:5050"}/register-hospital`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),

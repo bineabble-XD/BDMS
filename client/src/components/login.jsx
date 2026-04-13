@@ -8,6 +8,7 @@ import { useLanguage } from "../context/LanguageContext";
 const INVENTORY_EMAIL = "inventory@bdms.com";
 const INVENTORY_PASSWORD = "Blood@123";
 
+const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5050";
 
 const Login = () => {
   const dispatch = useDispatch();
@@ -77,7 +78,7 @@ const Login = () => {
     }
 
     if (user.isHospital === true) {
-      fetch(`http://localhost:5050/hospitals/profile/${user._id}`)
+      fetch(`${API_BASE}/hospitals/profile/${user._id}`)
         .then((res) => res.json())
         .then((profile) => {
           if (profile?.type === "Blood Inventory") {
