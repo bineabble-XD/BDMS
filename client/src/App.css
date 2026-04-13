@@ -97,6 +97,11 @@ nav .active-link {
   border-bottom: 1px solid #e5e5e5;
 }
 
+/* /profile: only AppNavbar should show. Hide any legacy in-page strip (logo + "My Profile") from old bundles or cached JS. */
+.profile-page > header.bdms-navbar {
+  display: none !important;
+}
+
 .bdms-navbar .container {
   display: flex;
   align-items: center;

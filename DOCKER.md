@@ -34,6 +34,7 @@ docker compose down
 
 ## Notes
 
+- The **client** container mounts `./client` into `/app` so code edits on your machine match what Vite serves (the image alone would stay on whatever was copied at **build** time). `node_modules` stays inside the container via an anonymous volume.
 - `MONGO_URI` must be set in `server/.env` (loaded via `env_file`).
 - Email settings are loaded from `server/.env` as well.
 - Backend links in emails/redirects use:

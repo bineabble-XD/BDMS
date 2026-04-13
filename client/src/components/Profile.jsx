@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, Link } from "react-router-dom";
-import bdmslogo from "../assets/bdmslogo.png";
 import { updateProfile } from "../features/authSlice.jsx";
 import {
   GCC_COUNTRY_CODES,
@@ -175,35 +174,12 @@ const Profile = () => {
       dir={language === "AR" ? "rtl" : "ltr"}
       lang={language === "AR" ? "ar" : "en"}
     >
-      <header className="bdms-navbar shadow-sm">
-        <div className="container d-flex align-items-center justify-content-between py-3">
-          <div className="d-flex align-items-center gap-2">
-            <img
-              src={bdmslogo}
-              alt="BDMS Logo"
-              style={{ width: "60px", height: "60px", borderRadius: "12px", objectFit: "cover" }}
-            />
-            <div className="lh-1">
-              <h5 className="mb-0 fw-bold">
-                <span className="text-danger">BLOOD</span> <span>DONATION</span>
-              </h5>
-              <small className="text-muted">{t("profNavBrandSub")}</small>
-            </div>
-          </div>
-
-          <nav className="d-none d-md-flex align-items-center gap-4">
-            <span className="nav-link active-link">{t("profTitle")}</span>
-          </nav>
-        </div>
-      </header>
-
       <main className="container py-5">
         <div className="row justify-content-center">
           <div className="col-md-8">
             <div className="card shadow-sm">
-              <div className="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
-                <h5 className="mb-0">{t("profTitle")}</h5>
-                <div className="d-flex gap-2">
+              <div className="card-body pt-4">
+                <div className="d-flex flex-wrap justify-content-end gap-2 mb-3">
                   <Link to="/home" className="btn btn-sm btn-outline-secondary">
                     {t("profBackHome")}
                   </Link>
@@ -211,9 +187,6 @@ const Profile = () => {
                     {t("profResetPw")}
                   </Link>
                 </div>
-              </div>
-
-              <div className="card-body">
                 <div className="d-flex align-items-center mb-4">
                   <div className="profile-icon rounded-circle me-3 d-flex align-items-center justify-content-center">
                     {initialLetter}

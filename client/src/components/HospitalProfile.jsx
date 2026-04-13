@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import bdmslogo from "../assets/bdmslogo.png";
 import {
   GCC_COUNTRY_CODES,
   localLiveError,
@@ -148,54 +147,38 @@ const HospitalProfile = () => {
       dir={language === "AR" ? "rtl" : "ltr"}
       lang={language === "AR" ? "ar" : "en"}
     >
-      <header className="d-flex justify-content-between align-items-center mb-4">
-        <div className="d-flex align-items-center gap-2">
-          <img
-            src={bdmslogo}
-            alt="BDMS Logo"
-            style={{
-              width: "60px",
-              height: "60px",
-              objectFit: "cover",
-              borderRadius: "12px",
-            }}
-          />
-          <h4 className="fw-bold mb-0">{t("hospProfTitle")}</h4>
-        </div>
-
-        <Link to="/hospital-dash" className="btn btn-outline-secondary">
-          {t("hospProfBack")}
-        </Link>
-      </header>
-
       <div className="card shadow p-4">
-        <div className="d-flex justify-content-between align-items-center mb-3">
+        <div className="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
           <h3 className="mb-0">{t("hospProfInfo")}</h3>
-
-          {!isEditing ? (
-            <button type="button" className="btn btn-danger" onClick={handleEditClick}>
-              {t("edit")}
-            </button>
-          ) : (
-            <div className="d-flex gap-2">
-              <button
-                type="button"
-                className="btn btn-secondary"
-                onClick={handleCancel}
-                disabled={saving}
-              >
-                {t("cancel")}
+          <div className="d-flex flex-wrap gap-2 align-items-center">
+            <Link to="/hospital-dash" className="btn btn-outline-secondary btn-sm">
+              {t("hospProfBack")}
+            </Link>
+            {!isEditing ? (
+              <button type="button" className="btn btn-danger btn-sm" onClick={handleEditClick}>
+                {t("edit")}
               </button>
-              <button
-                type="button"
-                className="btn btn-danger"
-                onClick={handleSave}
-                disabled={saving}
-              >
-                {saving ? t("profSaving") : t("save")}
-              </button>
-            </div>
-          )}
+            ) : (
+              <>
+                <button
+                  type="button"
+                  className="btn btn-secondary btn-sm"
+                  onClick={handleCancel}
+                  disabled={saving}
+                >
+                  {t("cancel")}
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-danger btn-sm"
+                  onClick={handleSave}
+                  disabled={saving}
+                >
+                  {saving ? t("profSaving") : t("save")}
+                </button>
+              </>
+            )}
+          </div>
         </div>
 
         <hr />
