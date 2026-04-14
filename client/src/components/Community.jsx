@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useLanguage } from "../context/LanguageContext";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5050";
 
@@ -18,6 +19,7 @@ const formatTime = (dateStr) => {
 };
 
 const Community = () => {
+  const { t } = useLanguage();
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showPostModal, setShowPostModal] = useState(false);
@@ -159,7 +161,7 @@ const Community = () => {
           <div className="row align-items-center g-4">
             <div className="col-lg-8">
               <p className="community-hero__eyebrow text-uppercase fw-semibold mb-2">Network</p>
-              <h1 className="community-hero__title fw-bold mb-3">Blood Bank Community</h1>
+              <h1 className="community-hero__title fw-bold mb-3">{t("commTitle")}</h1>
               <p className="community-hero__lead mb-0">
                 A shared space for hospitals and blood banks to coordinate urgent requests, stock updates, and
                 donation drives — in one place.

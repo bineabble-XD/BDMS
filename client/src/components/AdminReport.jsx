@@ -12,6 +12,7 @@ import {
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
 import { downloadBloodStockWorkbook } from "../utils/bloodStockExcelExport";
+import { useLanguage } from "../context/LanguageContext";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5050";
 
@@ -25,6 +26,7 @@ ChartJS.register(
 );
 
 const AdminReport = () => {
+  const { t } = useLanguage();
   const reportRef = useRef(null);
   const [, forceUpdate] = useState(0);
   const [bloodData, setBloodData] = useState([]);
@@ -244,7 +246,7 @@ const AdminReport = () => {
               <div className="admin-report-card" ref={reportRef}>
                 <div className="admin-report-card-inner">
                   <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-                    <h4 className="mb-0">Blood Stock Report</h4>
+                    <h4 className="mb-0">{t("bloodStockReportTitle")}</h4>
                   </div>
 
                   <div className="d-flex justify-content-between mb-2 small text-muted">

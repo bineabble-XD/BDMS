@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import heroImg from "../assets/11+.png";
+import { useLanguage } from "../context/LanguageContext";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5050";
 
@@ -24,6 +25,7 @@ const formatDate = (d) => {
 };
 
 const HosAppoint = () => {
+  const { t } = useLanguage();
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState(null);
@@ -111,7 +113,7 @@ const HosAppoint = () => {
         <div className="container">
           <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
             <div>
-              <h3 className="fw-semibold mb-1">Appointments overview</h3>
+              <h3 className="fw-semibold mb-1">{t("adminAppointmentsOverview")}</h3>
               <p className="text-muted small mb-0">
                 Review upcoming donations and confirm completed donations.
               </p>

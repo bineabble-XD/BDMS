@@ -470,6 +470,10 @@ export const translations = {
     adminErrAction: "Action failed.",
     adminMsgUpdated: "Updated.",
     adminErrServer: "Server error.",
+    adminAppointmentsOverview: "Appointments overview",
+    bloodBankManageTitle: "Manage Blood Bank Records",
+    inventoryTitle: "Blood Inventory",
+    bloodStockReportTitle: "Blood Stock Report",
 
     save: "Save",
     delete: "Delete",
@@ -932,6 +936,10 @@ export const translations = {
     adminErrAction: "فشل الإجراء.",
     adminMsgUpdated: "تم التحديث.",
     adminErrServer: "خطأ في الخادم.",
+    adminAppointmentsOverview: "نظرة عامة على المواعيد",
+    bloodBankManageTitle: "إدارة سجلات بنك الدم",
+    inventoryTitle: "مخزون الدم",
+    bloodStockReportTitle: "تقرير مخزون الدم",
 
     save: "حفظ",
     delete: "حذف",

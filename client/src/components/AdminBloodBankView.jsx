@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
+import { useLanguage } from "../context/LanguageContext";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5050";
 
 const AdminBloodBankView = () => {
+  const { t } = useLanguage();
   const [bloodRecords, setBloodRecords] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -23,7 +25,7 @@ const AdminBloodBankView = () => {
   return (
     <div>
       <div className="container py-4">
-        <h2>View All Blood Bank Records</h2>
+        <h2>{t("adminDashViewBloodRecords")}</h2>
         {loading && <p className="text-muted">Loading...</p>}
         {error && <p className="text-danger">Error: {error}</p>}
         {!loading && !error && (

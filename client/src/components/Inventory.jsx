@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useLanguage } from "../context/LanguageContext";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5050";
 
@@ -16,6 +17,7 @@ const formatDate = (dateStr) => {
 };
 
 const Inventory = () => {
+  const { t } = useLanguage();
   const [inventory, setInventory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -69,7 +71,7 @@ const Inventory = () => {
       <div className="container py-5">
         <div className="mb-3">
           <h3 className="fw-semibold mb-1 text-danger">
-            Blood Inventory
+            {t("inventoryTitle")}
           </h3>
         </div>
 

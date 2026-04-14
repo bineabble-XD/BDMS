@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { getMinDateInOman, getTodayInOman } from "../utils/omanTime";
+import { useLanguage } from "../context/LanguageContext";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5050";
 const BLOOD_TYPES = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
 
 const BloodBankManagement = () => {
+  const { t } = useLanguage();
   const { hospitalId } = useParams();
   const [bloodRecords, setBloodRecords] = useState([]);
   const [profileId, setProfileId] = useState(null);
@@ -141,7 +143,7 @@ const BloodBankManagement = () => {
   return (
     <div className="bdms-page">
       <div className="container py-5">
-        <h2 className="bdms-page-title mb-3">Manage Blood Bank Records</h2>
+        <h2 className="bdms-page-title mb-3">{t("bloodBankManageTitle")}</h2>
         {error && <div className="alert alert-warning">{error}</div>}
         {loading ? (
           <p className="text-muted">Loading...</p>
