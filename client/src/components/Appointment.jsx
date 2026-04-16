@@ -5,6 +5,12 @@ import donorIllustration from "../assets/11+.png";
 import { createBooking, resetBooking } from "../features/bookingSlice";
 import { getTodayInOman, getMaxDateInOman, getCurrentMinutesInOman } from "../utils/omanTime";
 import { useLanguage } from "../context/LanguageContext";
+import DonationEligibilityCheck from "./DonationEligibilityCheck";
+import AuthLanguageToggle from "./AuthLanguageToggle";
+import {
+  createEmptyEligibilityAnswers,
+  getEligibilityStatus,
+} from "../config/donationEligibilityQuestions";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5050";
 
@@ -94,13 +100,19 @@ const Appointment = () => {
   const [bookedSlots, setBookedSlots] = useState([]);
   const [slotsLoading, setSlotsLoading] = useState(false);
 
+  const [eligibilityAnswers, setEligibilityAnswers] = useState(createEmptyEligibilityAnswers);
+
+  const { allAnswered: eligibilityAllAnswered, ineligible: eligibilityIneligible } =
+    getEligibilityStatus(eligibilityAnswers);
+  const eligibilityBlocksBooking =
+    !eligibilityAllAnswered || eligibilityIneligible;
+
   const [form, setForm] = useState({
     hospital: "",
     appointmentDate: "",
     appointmentTime: "",
     lastDonationMonth: "",
     donatedBefore: false,
-    sickPast3Months: false,
     medsRecently: "",
     hasColdFluFever: "",
     medicalRestriction: "",
@@ -113,6 +125,10 @@ const Appointment = () => {
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
+  };
+
+  const handleEligibilityChange = (id, value) => {
+    setEligibilityAnswers((prev) => ({ ...prev, [id]: value }));
   };
 
   useEffect(() => {
@@ -133,6 +149,16 @@ const Appointment = () => {
 
     if (!user) {
       alert(t("apptLoginFirst"));
+      return;
+    }
+
+    if (!eligibilityAllAnswered) {
+      alert(t("apptEligibilityAnswerAll"));
+      return;
+    }
+
+    if (eligibilityIneligible) {
+      alert(t("apptEligibilityNotEligible"));
       return;
     }
 
@@ -181,9 +207,9 @@ const Appointment = () => {
 
         // 🔒 ALL your health & eligibility fields are preserved
         eligibility: {
+          screening: { ...eligibilityAnswers },
           lastDonationMonth: form.lastDonationMonth,
           donatedBefore: form.donatedBefore,
-          sickPast3Months: form.sickPast3Months,
           medsRecently: form.medsRecently,
           hasColdFluFever: form.hasColdFluFever,
           medicalRestriction: form.medicalRestriction,
@@ -234,11 +260,14 @@ const Appointment = () => {
   if (!user) {
     return (
       <div
-        className="appointment-page container-fluid py-5 text-center"
+        className="appointment-page container-fluid py-5"
         dir={language === "AR" ? "rtl" : "ltr"}
         lang={language === "AR" ? "ar" : "en"}
       >
-        <p className="text-muted">{t("apptRedirectLogin")}</p>
+        <div className="d-flex justify-content-end mb-3">
+          <AuthLanguageToggle />
+        </div>
+        <p className="text-muted text-center">{t("apptRedirectLogin")}</p>
       </div>
     );
   }
@@ -252,14 +281,17 @@ const Appointment = () => {
     >
       <div className="row min-vh-100 align-items-center">
         <div className="col-md-7 auth-left">
-          <h3 className="fw-semibold mb-4 mt-3 text-danger">{t("apptTitle")}</h3>
+          <div className="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-4 mt-3">
+            <h3 className="mb-0 fw-semibold text-danger">{t("apptTitle")}</h3>
+            <AuthLanguageToggle />
+          </div>
 
           {urgentHospitalId && (
             <div className="alert alert-info mb-3 py-2">{t("apptUrgentBanner")}</div>
           )}
 
           <div className="appointment-form-card">
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} noValidate>
               <h5 className="mb-3">{t("apptDetails")}</h5>
 
               <div className="mb-4">
@@ -350,48 +382,61 @@ const Appointment = () => {
                 </select>
               </div>
 
-              {/* 🔽 ALL YOUR CHECKBOXES & RADIOS BELOW ARE UNTOUCHED */}
+              <section
+                className="eligibility-screening-section"
+                aria-labelledby="eligibility-screening-heading"
+              >
+                <h5
+                  id="eligibility-screening-heading"
+                  className="mb-3 mt-4 fw-semibold text-danger"
+                >
+                  {t("apptEligibilityTitle")}
+                </h5>
 
-              <h5 className="mb-3 mt-4">{t("apptEligibilityTitle")}</h5>
-
-              <div className="form-check mb-2">
-                <input
-                  className="form-check-input"
-                  type="checkbox"
-                  name="donatedBefore"
-                  checked={form.donatedBefore}
-                  onChange={handleChange}
+                <DonationEligibilityCheck
+                  answers={eligibilityAnswers}
+                  onChange={handleEligibilityChange}
+                  t={t}
                 />
-                <label className="form-check-label ms-1">{t("apptDonatedBefore")}</label>
-              </div>
 
-              <div className="form-check mb-4">
-                <input
-                  className="form-check-input"
-                  type="checkbox"
-                  name="sickPast3Months"
-                  checked={form.sickPast3Months}
-                  onChange={handleChange}
-                />
-                <label className="form-check-label ms-1">{t("apptSick3mo")}</label>
-              </div>
+                <div className="form-check mb-3">
+                  <input
+                    className="form-check-input"
+                    type="checkbox"
+                    id="donatedBefore"
+                    name="donatedBefore"
+                    checked={form.donatedBefore}
+                    onChange={handleChange}
+                  />
+                  <label className="form-check-label" htmlFor="donatedBefore">
+                    {t("apptDonatedBefore")}
+                  </label>
+                </div>
 
-              <div className="form-check mb-5">
-                <input
-                  className="form-check-input"
-                  type="checkbox"
-                  name="confirmHealth"
-                  checked={form.confirmHealth}
-                  onChange={handleChange}
-                  required
-                />
-                <label className="form-check-label ms-1">{t("apptConfirmHealth")}</label>
-              </div>
+                <div className="form-check mb-5">
+                  <input
+                    className="form-check-input"
+                    type="checkbox"
+                    id="confirmHealth"
+                    name="confirmHealth"
+                    checked={form.confirmHealth}
+                    onChange={handleChange}
+                    required
+                  />
+                  <label className="form-check-label" htmlFor="confirmHealth">
+                    {t("apptConfirmHealth")}
+                  </label>
+                </div>
+              </section>
 
               {error && <p className="text-danger">{error}</p>}
 
               <div className="d-flex gap-3">
-                <button type="submit" className="btn btn-danger flex-grow-1" disabled={loading}>
+                <button
+                  type="submit"
+                  className="btn btn-danger flex-grow-1"
+                  disabled={loading || eligibilityBlocksBooking}
+                >
                   {loading ? t("apptSubmitting") : t("apptBook")}
                 </button>
                 <button

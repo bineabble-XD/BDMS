@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { loginUser, clearAuthMessage } from "../features/authSlice";
 import donorIllustration from "../assets/1+.png";
 import { useLanguage } from "../context/LanguageContext";
+import AuthLanguageToggle from "./AuthLanguageToggle";
 
 const INVENTORY_EMAIL = "inventory@bdms.com";
 const INVENTORY_PASSWORD = "Blood@123";
@@ -14,7 +15,7 @@ const Login = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   const auth = useSelector((state) => state.auth || {});
   const { loading, error, user } = auth;
@@ -24,12 +25,20 @@ const Login = () => {
     password: "",
   });
 
+  const [fieldErrors, setFieldErrors] = useState({
+    email: false,
+    password: false,
+  });
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
+    if (name === "email" || name === "password") {
+      setFieldErrors((prev) => ({ ...prev, [name]: false }));
+    }
   };
 
   const handleSubmit = (e) => {
@@ -40,13 +49,22 @@ const Login = () => {
     const password = formData.password;
 
     if (email === INVENTORY_EMAIL && password === INVENTORY_PASSWORD) {
+      setFieldErrors({ email: false, password: false });
       navigate("/inventory");
       return;
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    if (!email) {
+    const missingEmail = !email;
+    const missingPassword = !password;
+
+    setFieldErrors({
+      email: missingEmail,
+      password: missingPassword,
+    });
+
+    if (missingEmail) {
       alert("Please enter your email address.");
       return;
     }
@@ -56,7 +74,7 @@ const Login = () => {
       return;
     }
 
-    if (!password) {
+    if (missingPassword) {
       alert("Please enter your password.");
       return;
     }
@@ -66,6 +84,7 @@ const Login = () => {
       return;
     }
 
+    setFieldErrors({ email: false, password: false });
     dispatch(loginUser({ email, password }));
   };
 
@@ -113,11 +132,19 @@ const Login = () => {
   }, [error, dispatch]);
 
   return (
-    <div className="login-page container-fluid">
+    <div
+      className="login-page container-fluid"
+      dir={language === "AR" ? "rtl" : "ltr"}
+      lang={language === "AR" ? "ar" : "en"}
+    >
       <div className="row min-vh-100 align-items-center">
 
         <div className="col-md-7 d-flex justify-content-end">
           <div style={{ width: "100%", maxWidth: "480px" }}>
+
+            <div className="d-flex justify-content-end mb-2">
+              <AuthLanguageToggle />
+            </div>
 
             <h4 className="text-center mb-4 text-danger fw-semibold">
               {t("loginTitle")}
@@ -125,13 +152,13 @@ const Login = () => {
 
             <div className="form-wrapper">
 
-              <form onSubmit={handleSubmit}>
+              <form onSubmit={handleSubmit} noValidate>
 
                 <div className="mb-3">
                   <label className="form-label small text-muted">{t("loginEmailPlaceholder")}</label>
                   <input
                     type="email"
-                    className="form-control"
+                    className={`form-control${fieldErrors.email ? " is-invalid" : ""}`}
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
@@ -144,7 +171,7 @@ const Login = () => {
                   <label className="form-label small text-muted">{t("loginPasswordPlaceholder")}</label>
                   <input
                     type="password"
-                    className="form-control"
+                    className={`form-control${fieldErrors.password ? " is-invalid" : ""}`}
                     name="password"
                     value={formData.password}
                     onChange={handleChange}

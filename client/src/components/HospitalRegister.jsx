@@ -10,6 +10,7 @@ import {
   phoneLocalErrorForCountry,
 } from "../utils/phoneValidation";
 import { useLanguage } from "../context/LanguageContext";
+import AuthLanguageToggle from "./AuthLanguageToggle";
 
 const HospitalRegister = () => {
   const { t, language } = useLanguage();
@@ -156,7 +157,10 @@ const HospitalRegister = () => {
         >
 
 
-          <h3 className="mb-3 fw-semibold text-danger">{t("hospRegTitle")}</h3>
+          <div className="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+            <h3 className="mb-0 fw-semibold text-danger">{t("hospRegTitle")}</h3>
+            <AuthLanguageToggle />
+          </div>
 
           <div
             style={{

@@ -10,6 +10,7 @@ import {
   phoneLocalErrorForCountry,
 } from "../utils/phoneValidation";
 import { useLanguage } from "../context/LanguageContext";
+import AuthLanguageToggle from "./AuthLanguageToggle";
 
 const Register = () => {
   const { t, language } = useLanguage();
@@ -43,6 +44,10 @@ const Register = () => {
 
   const [showPasswordHints, setShowPasswordHints] = useState(false);
 
+  const [fieldErrors, setFieldErrors] = useState({});
+
+  const [termsAccepted, setTermsAccepted] = useState(false);
+
   const validatePassword = (password) => {
     setPasswordValidations({
       lower: /[a-z]/.test(password),
@@ -66,6 +71,9 @@ const Register = () => {
         [name]: numericValue,
       }));
       setPhoneError(localLiveError(countryCode, numericValue));
+      setFieldErrors((prev) =>
+        prev.phoneNum ? { ...prev, phoneNum: false } : prev
+      );
       return;
     }
 
@@ -79,6 +87,7 @@ const Register = () => {
       ...prev,
       [name]: value,
     }));
+    setFieldErrors((prev) => (prev[name] ? { ...prev, [name]: false } : prev));
   };
 
   const handleSubmit = (e) => {
@@ -88,11 +97,22 @@ const Register = () => {
     const requiredFields = ["fName", "phoneNum", "Age", "gender", "bloodType", "email", "password", "address"];
     let formIsValid = true;
 
+    const nextFieldErrors = {};
+
     requiredFields.forEach((field) => {
       if (!formData[field]) {
+        nextFieldErrors[field] = true;
         formIsValid = false;
       }
     });
+
+    if (!termsAccepted) {
+      nextFieldErrors.terms = true;
+      formIsValid = false;
+    }
+
+    setFieldErrors(nextFieldErrors);
+
     if (!formIsValid) {
       alert(t("regFillAllFields"));
       return;
@@ -102,6 +122,7 @@ const Register = () => {
     if (phoneErr) {
       formIsValid = false;
       setPhoneError(phoneErr);
+      setFieldErrors((prev) => ({ ...prev, phoneNum: true }));
     }
 
     if (!formIsValid) return;
@@ -147,7 +168,10 @@ const Register = () => {
             paddingRight: "10px",
           }}
         >
-          <h3 className="mb-3 fw-semibold text-danger">{t("regTitle")}</h3>
+          <div className="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+            <h3 className="mb-0 fw-semibold text-danger">{t("regTitle")}</h3>
+            <AuthLanguageToggle />
+          </div>
 
           <div
             style={{
@@ -155,13 +179,13 @@ const Register = () => {
               margin: "0 auto",
             }}
           >
-            <form className="register-form" onSubmit={handleSubmit}>
+            <form className="register-form" onSubmit={handleSubmit} noValidate>
               {/* Full Name */}
               <div className="mb-3">
                 <label className="form-label">{t("regFullName")}</label>
                 <input
                   type="text"
-                  className="form-control"
+                  className={`form-control${fieldErrors.fName ? " is-invalid" : ""}`}
                   name="fName"
                   value={formData.fName}
                   onChange={handleChange}
@@ -188,6 +212,9 @@ const Register = () => {
                         setCountryCode(next);
                         setFormData((prev) => ({ ...prev, phoneNum: trimmed }));
                         setPhoneError(localLiveError(next, trimmed));
+                        setFieldErrors((prev) =>
+                          prev.phoneNum ? { ...prev, phoneNum: false } : prev
+                        );
                       }}
                     >
                       <option value="+968">+968</option>
@@ -201,7 +228,7 @@ const Register = () => {
                   <div className="col-9">
                     <input
                       type="tel"
-                      className="form-control"
+                      className={`form-control${fieldErrors.phoneNum ? " is-invalid" : ""}`}
                       name="phoneNum"
                       value={formData.phoneNum}
                       onChange={handleChange}
@@ -219,7 +246,7 @@ const Register = () => {
                   <label className="form-label">{t("regAge")}</label>
                   <input
                     type="number"
-                    className="form-control"
+                    className={`form-control${fieldErrors.Age ? " is-invalid" : ""}`}
                     name="Age"
                     value={formData.Age}
                     onChange={handleChange}
@@ -231,7 +258,7 @@ const Register = () => {
                 <div className="col-md-6 mb-3">
                   <label className="form-label">{t("regGender")}</label>
                   <select
-                    className="form-select"
+                    className={`form-select${fieldErrors.gender ? " is-invalid" : ""}`}
                     name="gender"
                     value={formData.gender}
                     onChange={handleChange}
@@ -249,7 +276,7 @@ const Register = () => {
               <div className="mb-3">
                 <label className="form-label">{t("regBloodType")}</label>
                 <select
-                  className="form-select"
+                  className={`form-select${fieldErrors.bloodType ? " is-invalid" : ""}`}
                   name="bloodType"
                   value={formData.bloodType}
                   onChange={handleChange}
@@ -271,7 +298,7 @@ const Register = () => {
                 <label className="form-label">{t("regEmail")}</label>
                 <input
                   type="email"
-                  className="form-control"
+                  className={`form-control${fieldErrors.email ? " is-invalid" : ""}`}
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
@@ -284,7 +311,7 @@ const Register = () => {
                 <label className="form-label">{t("regPassword")}</label>
                 <input
                   type="password"
-                  className="form-control"
+                  className={`form-control${fieldErrors.password ? " is-invalid" : ""}`}
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
@@ -364,7 +391,7 @@ const Register = () => {
                 <label className="form-label">{t("regAddress")}</label>
                 <input
                   type="text"
-                  className="form-control"
+                  className={`form-control${fieldErrors.address ? " is-invalid" : ""}`}
                   name="address"
                   value={formData.address}
                   onChange={handleChange}
@@ -375,21 +402,25 @@ const Register = () => {
               {/* Terms and Conditions */}
               <div className="form-check mb-1">
                 <input
-                  className="form-check-input"
+                  className={`form-check-input${fieldErrors.terms ? " is-invalid" : ""}`}
                   type="checkbox"
                   id="terms"
+                  checked={termsAccepted}
+                  onChange={(e) => {
+                    const checked = e.target.checked;
+                    setTermsAccepted(checked);
+                    if (checked) {
+                      setFieldErrors((prev) =>
+                        prev.terms ? { ...prev, terms: false } : prev
+                      );
+                    }
+                  }}
                   required
                 />
                 <label className="form-check-label" htmlFor="terms">
                   {t("regTerms")}
                 </label>
               </div>
-
-              <p className="small text-muted mb-3">
-                <a href="#tc" className="text-decoration-underline">
-                  {t("regReadTC")}
-                </a>
-              </p>
 
               {/* Submit Button */}
               <button

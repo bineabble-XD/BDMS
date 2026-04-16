@@ -99,6 +99,10 @@ describe("Appointment booking", () => {
       expect(hospitalSelect?.value).toBe("h1");
     });
 
+    ["sick10", "donated8w", "antibiotics", "surgery"].forEach((id) => {
+      fireEvent.click(container.querySelector(`input[name="${id}"][value="no"]`));
+    });
+
     fireEvent.change(container.querySelector('input[name="appointmentDate"]'), {
       target: { value: "2099-01-02" },
     });
@@ -121,6 +125,12 @@ describe("Appointment booking", () => {
     expect(payload.donorId).toBe("u1");
     expect(payload.hospitalId).toBe("h1");
     expect(payload.bloodType).toBe("A+");
+    expect(payload.eligibility.screening).toMatchObject({
+      sick10: "no",
+      donated8w: "no",
+      antibiotics: "no",
+      surgery: "no",
+    });
     expect(payload.appointmentDate).toBeInstanceOf(Date);
     expect(payload.appointmentDate.toISOString()).toBe("2099-01-02T05:15:00.000Z");
 

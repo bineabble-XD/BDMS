@@ -23,6 +23,7 @@ const bookingSchema = new mongoose.Schema(
 
     // 🔒 ALL eligibility fields from Appointment.jsx
     eligibility: {
+      screening: { type: mongoose.Schema.Types.Mixed },
       lastDonationMonth: String,
       donatedBefore: Boolean,
       sickPast3Months: Boolean,

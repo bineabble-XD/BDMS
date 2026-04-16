@@ -453,6 +453,30 @@ body.bdms-dark .nav-notif-modal .btn-close {
   background-color: #fff;
 }
 
+/* Eligibility Screening: one font size/weight for question text; Yes/No stay regular */
+.appointment-page .donation-eligibility-radios p.text-muted {
+  font-size: 1rem;
+}
+
+.appointment-page .donation-eligibility-radios legend.form-label {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.appointment-page .donation-eligibility-radios .form-check-label {
+  font-size: 1rem;
+  font-weight: 400;
+}
+
+.appointment-page .eligibility-screening-section > .form-check .form-check-label {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.appointment-page .donation-eligibility-radios .alert {
+  font-size: 1rem;
+}
+
 .appt-submit-btn {
   font-weight: 500;
 }
