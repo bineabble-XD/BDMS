@@ -8,6 +8,7 @@ import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import nodemailer from "nodemailer";
 
+import nlpAnalyticsRoutes from "./routes/nlpAnalytics.js";
 import donorModel from "./models/Donor.js";
 import HospitalProfileModel from "./models/Hospital.js";
 import Booking from "./models/Booking.js";
@@ -1581,6 +1582,8 @@ app.delete("/api/community/posts/:id", async (req, res) => {
     res.status(500).json({ message: "Failed to delete post" });
   }
 });
+
+app.use("/api/nlp", nlpAnalyticsRoutes);
 
 // -------------------------
 // AUTO COMPLETE APPOINTMENTS

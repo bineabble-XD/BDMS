@@ -7,18 +7,54 @@ const urgentRequestSchema = new mongoose.Schema(
       ref: "HospitalProfile",
       required: true,
     },
+
     bloodType: {
       type: String,
       required: true,
     },
+
     quantity: {
       type: Number,
       default: 1,
     },
+
     message: {
       type: String,
       default: "",
     },
+
+    // ADD THIS
+    location: {
+      type: String,
+      default: "",
+    },
+
+    // ADD THIS
+    urgency: {
+      type: String,
+      enum: ["High", "Medium", "Low"],
+      default: "Medium",
+    },
+
+    // ADD THIS
+    sentiment: {
+      sentiment: {
+        type: String,
+        enum: ["positive", "neutral", "negative"],
+        default: "neutral",
+      },
+
+      score: {
+        type: Number,
+        default: 0,
+      },
+
+      label: {
+        type: String,
+        default: "",
+      },
+    },
+
     status: {
       type: String,
       enum: ["open", "fulfilled"],

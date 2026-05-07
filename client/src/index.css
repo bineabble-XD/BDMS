@@ -225,3 +225,20 @@ body.bdms-colorblind .rounded-circle.bg-danger {
 [dir="rtl"] .settings-back-btn svg {
   transform: scaleX(-1);
 }
+
+
+.nlp-page .shadow-sm {
+  border-radius: 16px;
+}
+
+.recharts-wrapper {
+  font-size: 12px;
+}
+.analytics-card {
+  transition: all 0.3s ease;
+}
+
+.analytics-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 24px rgba(0,0,0,0.08);
+}
