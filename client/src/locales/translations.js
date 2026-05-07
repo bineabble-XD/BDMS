@@ -424,6 +424,35 @@ export const translations = {
     nlpErrOffline: "Network error — showing offline estimate.",
     nlpAltImg: "Blood donation illustration",
 
+    nlpAnalyzerPageTitle: "NLP Request Analyzer",
+    nlpPageIntroShort:
+      "Paste an urgent request or note. BDMS detects blood type, quantity, location, and urgency.",
+    nlpNotDetected: "Not detected",
+
+    nlpAnalyzingDots: "Analyzing...",
+
+    nlpAnalyticsOverview: "NLP Analytics Overview",
+    nlpAnalyticsByBloodType: "Requests by Blood Type",
+    nlpAnalyticsByHospital: "Requests by Hospital",
+    nlpAnalyticsMostRequestedBlood: "Most Requested Blood Type",
+    nlpAnalyticsSmartSummary: "Smart Analytics",
+    nlpAnalyticsRequestCountSuffix: "Requests",
+
+    nlpTooltipTotalSeries: "Total",
+    nlpHospitalWithName: "Hospital: {{name}}",
+
+    nlpStatTotalRequests: "Total Requests",
+    nlpStatMostRequestedBlood: "Most Requested Blood Type",
+    nlpStatActiveHospitals: "Active Hospitals",
+    nlpStatTopHospital: "Top Requesting Hospital",
+    nlpStatRarestType: "Rarest Requested Type",
+    nlpLastUpdatedPrefix: "Last updated:",
+
+    nlpUrgencyComposedPrefix: "Urgency:",
+    nlpUrgencyHighLabel: "High",
+    nlpUrgencyMediumLabel: "Medium",
+    nlpUrgencyLowLabel: "Low",
+
     // Hospital registration
     hospRegTitle: "Hospital Registration",
     hospRegName: "Hospital Name",
@@ -901,6 +930,35 @@ export const translations = {
     nlpErrAnalyze: "تعذر تحليل النص على الخادم.",
     nlpErrOffline: "خطأ في الشبكة — عرض تقدير دون اتصال.",
     nlpAltImg: "رسم توضيحي للتبرع بالدم",
+
+    nlpAnalyzerPageTitle: "محلّل الطلبات (NLP)",
+    nlpPageIntroShort:
+      "الصق طلباً عاجلاً أو ملاحظة. يكتشف BDMS فصيلة الدم والكمية والموقع والإلحاح.",
+    nlpNotDetected: "غير مكتشَف",
+
+    nlpAnalyzingDots: "جاري التحليل...",
+
+    nlpAnalyticsOverview: "نظرة عامة على تحليلات NLP",
+    nlpAnalyticsByBloodType: "الطلبات حسب فصيلة الدم",
+    nlpAnalyticsByHospital: "الطلبات حسب المستشفى",
+    nlpAnalyticsMostRequestedBlood: "أكثر فصيلة دم مطلوبة",
+    nlpAnalyticsSmartSummary: "تحليلات ذكية",
+    nlpAnalyticsRequestCountSuffix: "طلباً",
+
+    nlpTooltipTotalSeries: "الإجمالي",
+    nlpHospitalWithName: "المستشفى: {{name}}",
+
+    nlpStatTotalRequests: "إجمالي الطلبات",
+    nlpStatMostRequestedBlood: "أكثر فصيلة دم مطلوبة",
+    nlpStatActiveHospitals: "مستشفيات نشطة",
+    nlpStatTopHospital: "أكثر مستشفى طلباً",
+    nlpStatRarestType: "أندر فصيلة مطلوبة",
+    nlpLastUpdatedPrefix: "آخر تحديث:",
+
+    nlpUrgencyComposedPrefix: "الإلحاح:",
+    nlpUrgencyHighLabel: "عالية",
+    nlpUrgencyMediumLabel: "متوسطة",
+    nlpUrgencyLowLabel: "منخفضة",
 
     hospRegTitle: "تسجيل المستشفى",
     hospRegName: "اسم المستشفى",
