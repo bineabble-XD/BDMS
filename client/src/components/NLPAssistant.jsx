@@ -93,6 +93,26 @@ function translateUrgencyForDisplay(urgency, t) {
   return urgency;
 }
 
+function formatConfidencePercent(raw) {
+  if (raw === "" || raw == null) return "";
+  const n = typeof raw === "number" ? raw : parseFloat(String(raw), 10);
+  if (Number.isNaN(n)) return "";
+  return `${Math.round(n * 100)}%`;
+}
+
+function NlpDetailRow({ label, value, t, valueClass = "" }) {
+  const display =
+    value !== "" && value != null && String(value).trim() !== ""
+      ? value
+      : t("nlpNotDetected");
+  return (
+    <div className="d-flex justify-content-between py-2 border-bottom align-items-start">
+      <span className="text-muted small me-2">{label}</span>
+      <strong className={`text-end ${valueClass}`}>{display}</strong>
+    </div>
+  );
+}
+
 function StatRow({ dotClass, label, value, large, last }) {
   const ValueTag = large ? "h5" : "h6";
   return (
@@ -127,6 +147,16 @@ const NLPAssistant = () => {
   const [pdfSuccessVisible, setPdfSuccessVisible] = useState(false);
   const [error, setError] = useState("");
   const [sentiment, setSentiment] = useState(null);
+  const [hospitalName, setHospitalName] = useState("");
+  const [city, setCity] = useState("");
+  const [contactNumber, setContactNumber] = useState("");
+  const [donorType, setDonorType] = useState("");
+  const [patientCondition, setPatientCondition] = useState("");
+  const [timeNeeded, setTimeNeeded] = useState("");
+  const [requestType, setRequestType] = useState("");
+  const [confidence, setConfidence] = useState("");
+  const [source, setSource] = useState("");
+  const [extractedKeywords, setExtractedKeywords] = useState([]);
   const pdfInputRef = useRef(null);
 
   const [analytics, setAnalytics] = useState({
@@ -178,6 +208,18 @@ const NLPAssistant = () => {
     setQuantity(data.quantity != null ? String(data.quantity) : "");
     setMessage(data.message || "");
     setSentiment(data.sentiment || null);
+    setHospitalName(data.hospitalName || "");
+    setCity(data.city || "");
+    setContactNumber(data.contactNumber || "");
+    setDonorType(data.donorType || "");
+    setPatientCondition(data.patientCondition || "");
+    setTimeNeeded(data.timeNeeded || "");
+    setRequestType(data.requestType || "");
+    setConfidence(
+      data.confidence != null && data.confidence !== "" ? String(data.confidence) : ""
+    );
+    setSource(data.source || "");
+    setExtractedKeywords(Array.isArray(data.extractedKeywords) ? data.extractedKeywords : []);
   };
 
   const analyzeText = async () => {
@@ -299,6 +341,16 @@ const NLPAssistant = () => {
     setMessage("");
     setError("");
     setSentiment(null);
+    setHospitalName("");
+    setCity("");
+    setContactNumber("");
+    setDonorType("");
+    setPatientCondition("");
+    setTimeNeeded("");
+    setRequestType("");
+    setConfidence("");
+    setSource("");
+    setExtractedKeywords([]);
     setSelectedPdfName("");
     setPdfScanStatus("");
     setPdfError("");
@@ -341,6 +393,10 @@ const NLPAssistant = () => {
 
   const hospitalTooltipLabel = (label) =>
     String(t("nlpHospitalWithName")).replace("{{name}}", label);
+
+  const sourceLabel =
+    source === "pdf" ? t("nlpSourcePdf") : source === "text" ? t("nlpSourceText") : "";
+  const confidenceLabel = formatConfidencePercent(confidence);
 
   return (
     <div
@@ -450,6 +506,38 @@ const NLPAssistant = () => {
                     ? translateUrgencyForDisplay(urgency, t)
                     : t("nlpNotDetected")}
                 </span>
+              </div>
+
+              <hr className="my-3" />
+              <h6 className="fw-semibold mb-2 text-secondary small">
+                {t("nlpExtendedEntities")}
+              </h6>
+              <NlpDetailRow label={t("nlpHospitalName")} value={hospitalName} t={t} />
+              <NlpDetailRow label={t("nlpCity")} value={city} t={t} />
+              <NlpDetailRow label={t("nlpContactNumber")} value={contactNumber} t={t} />
+              <NlpDetailRow label={t("nlpDonorType")} value={donorType} t={t} />
+              <NlpDetailRow label={t("nlpPatientCondition")} value={patientCondition} t={t} />
+              <NlpDetailRow label={t("nlpTimeNeeded")} value={timeNeeded} t={t} />
+              <NlpDetailRow label={t("nlpRequestType")} value={requestType} t={t} />
+              <NlpDetailRow
+                label={t("nlpConfidence")}
+                value={confidenceLabel || ""}
+                t={t}
+              />
+              <NlpDetailRow label={t("nlpSource")} value={sourceLabel} t={t} />
+              <div className="pt-2 pb-1 border-bottom">
+                <small className="text-muted d-block mb-2">{t("nlpExtractedKeywords")}</small>
+                {extractedKeywords.length ? (
+                  <div className="d-flex flex-wrap gap-1">
+                    {extractedKeywords.map((k) => (
+                      <span key={k} className="badge rounded-pill bg-light text-dark border">
+                        {k}
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <span className="small text-muted">{t("nlpNotDetected")}</span>
+                )}
               </div>
             </div>
 

@@ -1399,7 +1399,7 @@ app.post("/api/nlp/analyze", (req, res) => {
     if (!text || typeof text !== "string" || !String(text).trim()) {
       return res.status(400).json({ message: "text is required" });
     }
-    const result = analyzeBloodRequest(String(text).trim());
+    const result = analyzeBloodRequest(String(text).trim(), "text");
     recordNlpAnalyze({
       bloodType: result.bloodType,
       location: result.location,
@@ -1467,7 +1467,7 @@ app.post(
         });
       }
 
-      const result = analyzeBloodRequest(rawText);
+      const result = analyzeBloodRequest(rawText, "pdf");
       recordNlpAnalyze({
         bloodType: result.bloodType,
         location: result.location,

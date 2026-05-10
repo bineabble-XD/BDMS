@@ -1,8 +1,13 @@
 /**
- * Offline / error fallback — keep logic aligned with server/utils/nlp.js (subset).
+ * Offline / error fallback — subset aligned with server analyzeBloodRequest (rule-based).
  */
-/** Longer / more specific codes first (same as server) */
 const CODES = ["AB+", "AB-", "A+", "A-", "B+", "B-", "O+", "O-"];
+
+function urgencyToSentiment(urgency) {
+  if (urgency === "High") return { label: "urgent", score: 0.85 };
+  if (urgency === "Medium") return { label: "attentive", score: 0.52 };
+  return { label: "calm", score: 0.22 };
+}
 
 export function extractNlpLocal(text) {
   if (!text || typeof text !== "string") {
@@ -10,9 +15,21 @@ export function extractNlpLocal(text) {
       bloodType: "",
       quantity: 1,
       location: "",
+      hospitalName: "",
+      city: "",
+      contactNumber: "",
+      donorType: "",
+      patientCondition: "",
+      timeNeeded: "",
+      requestType: "",
+      extractedKeywords: [],
+      confidence: 0,
+      source: "text",
       urgency: "Low",
-      sentiment: { sentiment: "neutral", score: 0, label: "Neutral" },
+      message: "",
+      sentiment: urgencyToSentiment("Low"),
       intent: "empty",
+      hints: [],
     };
   }
   const lower = text.toLowerCase();
@@ -30,15 +47,33 @@ export function extractNlpLocal(text) {
     lower.match(/(\d+)\s*(?:units?|bags?)/i) || lower.match(/(?:need|want)\s+(\d+)/i);
   const quantity = qtyMatch ? Math.max(1, parseInt(qtyMatch[1], 10)) : 1;
   const hosp = text.match(/([a-zA-Z\s]+)\s*(?:hospital|medical)/i);
-  const location = hosp ? hosp[0].replace(/\b\w/g, (x) => x.toUpperCase()) : "";
+  const locationRaw = hosp ? hosp[0].replace(/\b\w/g, (x) => x.toUpperCase()) : "";
+  const location =
+    locationRaw && !/\bfor\s+/i.test(locationRaw)
+      ? locationRaw
+      : locationRaw.split(/\bfor\s+/i)[0]?.trim() || locationRaw;
+
+  const kw = [];
+  if (bloodType) kw.push(bloodType);
+  if (urgency === "High") kw.push("urgent");
 
   return {
     bloodType,
     quantity,
     location,
+    hospitalName: "",
+    city: "",
+    contactNumber: "",
+    donorType: "",
+    patientCondition: "",
+    timeNeeded: "",
+    requestType: bloodType ? "Blood Request" : "",
+    extractedKeywords: kw,
+    confidence: bloodType ? 0.35 : 0.15,
+    source: "text",
     urgency,
     message: text.trim().slice(0, 500),
-    sentiment: { sentiment: "neutral", score: 0, label: "Neutral" },
+    sentiment: urgencyToSentiment(urgency),
     intent: bloodType ? "urgent_blood_request" : "general",
     hints: [],
   };
