@@ -1,12 +1,16 @@
 /**
- * NLP utilities for BDMS — extraction + sentiment (no external ML dependency)
+ * NLP utilities for BDMS — rule-based extraction + request sentiment (no external ML)
  */
 
 /** Match longer codes first so "AB+" is not mistaken for "A+" */
 const BLOOD_TYPE_CODES = ["AB+", "AB-", "A+", "A-", "B+", "B-", "O+", "O-"];
 
+const MAX_LOCATION_LENGTH = 80;
+const MAX_LOCATION_WORDS = 12;
+
 const HIGH_URGENCY = [
   "urgent",
+  "urgently",
   "immediately",
   "emergency",
   "emergencies",
@@ -23,7 +27,19 @@ const HIGH_URGENCY = [
   "طارئ",
   "طوارئ",
 ];
-const MEDIUM_URGENCY = ["soon", "needed soon", "preferably", "would like", "when possible", "قريباً"];
+const MEDIUM_URGENCY = [
+  "soon",
+  "needed soon",
+  "preferably",
+  "would like",
+  "when possible",
+  "قريباً",
+  "looking for",
+  "searching for",
+  "seeking",
+  "in need of",
+  "trying to find",
+];
 
 /** Oman places often mentioned without the word "hospital" */
 const OMAN_PLACES = [
@@ -60,6 +76,14 @@ const BLOOD_ALIASES = [
   { pattern: /\b(?:type\s+)?ab\s*[-–]?\s*positive\b|\bab\s*pos\b/i, code: "AB+" },
 ];
 
+function titleCaseSegment(s) {
+  return s
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+    .join(" ");
+}
+
 function detectBloodType(lower, original) {
   for (const { pattern, code } of BLOOD_ALIASES) {
     if (pattern.test(original) || pattern.test(lower)) return code;
@@ -68,35 +92,91 @@ function detectBloodType(lower, original) {
     (a, b) => b.replace(/\W/g, "").length - a.replace(/\W/g, "").length
   );
   for (const code of sortedCodes) {
-    const sub = code.toLowerCase();
-    if (lower.includes(sub)) return code;
+    const esc = code.replace(/[\\^$*+?.()|[\]{}]/g, "\\$&");
+    const re = new RegExp(`(?:^|[^a-z0-9+])${esc}(?![a-z0-9-])`, "i");
+    if (re.test(original)) return code;
   }
   return "";
 }
 
-function detectLocation(lower, original) {
-  const hospitalMatch = original.match(
-    /([a-zA-Z\u0600-\u06FF]+(?:\s+[a-zA-Z\u0600-\u06FF]+)*)\s*(?:hospital|مستشفى|medical\s*cent(?:er|re))/i
+/** "at Royal Hospital Muscat" → Royal Hospital Muscat */
+function detectHospitalPhrase(original, lower) {
+  const withPrep = original.match(
+    /\b(?:at|in|near|inside|from|to)\s+((?:[a-zA-Z\u0600-\u06FF]+\s+)*hospital(?:\s+[a-zA-Z\u0600-\u06FF]+)*)\b/i
   );
-  if (hospitalMatch) {
-    return hospitalMatch[0].replace(/\b\w/g, (c) => c.toUpperCase());
+  if (withPrep?.[1]) return titleCaseSegment(withPrep[1].trim());
+
+  const bare = original.match(
+    /\b((?:[a-zA-Z\u0600-\u06FF]+\s+)+hospital(?:\s+[a-zA-Z\u0600-\u06FF]+)*)\b/i
+  );
+  if (bare?.[1]) {
+    const phrase = bare[1].trim();
+    if (/^blood\s+/i.test(phrase)) return "";
+    return titleCaseSegment(phrase);
   }
 
-  for (const place of OMAN_PLACES) {
-    const re = new RegExp(`(?:^|[\\s,])(?:in|at|near|inside)\\s+(${place.replace(/\s+/g, "\\s+")})\\b`, "i");
-    const m = lower.match(re);
-    if (m) {
-      return m[1].replace(/\b\w/g, (c) => c.toUpperCase());
-    }
-    if (lower.includes(place)) {
-      return place
-        .split(" ")
-        .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-        .join(" ");
-    }
-  }
+  const med = original.match(
+    /\b(?:at|in|near|inside)\s+((?:[a-zA-Z\u0600-\u06FF]+\s+)*medical\s+cent(?:er|re)(?:\s+[a-zA-Z\u0600-\u06FF]+)*)\b/i
+  );
+  if (med?.[1]) return titleCaseSegment(med[1].trim());
 
   return "";
+}
+
+function detectPlaceName(lower, original) {
+  for (const place of OMAN_PLACES) {
+    const placeRe = place.replace(/\s+/g, "\\s+");
+    const withPrep = new RegExp(
+      `(?:^|[\\s,])(?:in|at|near|inside)\\s+(${placeRe})\\b`,
+      "i"
+    );
+    const m1 = lower.match(withPrep);
+    if (m1) return titleCaseSegment(m1[1]);
+
+    const boundary = new RegExp(`(?:^|[\\s,])(${placeRe})(?:$|[\\s,.])`, "i");
+    const m2 = lower.match(boundary);
+    if (m2) return titleCaseSegment(m2[1]);
+  }
+  return "";
+}
+
+/**
+ * Drop locations that look like pasted paragraphs or noise.
+ * @param {string} loc
+ * @returns {string}
+ */
+export function validateExtractedLocation(loc) {
+  if (!loc || typeof loc !== "string") return "";
+  const t = loc.trim().replace(/\s+/g, " ");
+  if (!t) return "";
+  if (t.length > MAX_LOCATION_LENGTH) return "";
+  const words = t.split(/\s+/).filter(Boolean);
+  if (words.length > MAX_LOCATION_WORDS) return "";
+  if (/\n/.test(loc)) return "";
+  const sentenceChunks = t.split(/[.!?]+/).filter((s) => s.trim().length > 3);
+  if (sentenceChunks.length > 1) return "";
+  if (words.some((w) => w.length > 22)) return "";
+  if ((t.match(/,/g) || []).length > 2) return "";
+  if (/^(the|a|an)\s+(blood|donation|system|web|application|management)\b/i.test(t)) return "";
+  return t;
+}
+
+function detectLocation(lower, original, bloodType) {
+  const gated = (candidate) => {
+    const v = validateExtractedLocation(candidate);
+    if (!v) return "";
+    const idx = original.toLowerCase().indexOf(v.toLowerCase());
+    if (idx <= 0) return v;
+    const preamble = original.slice(0, idx).trim();
+    if (preamble.length > 100 && !bloodType) return "";
+    return v;
+  };
+
+  const hospital = detectHospitalPhrase(original, lower);
+  if (hospital) return gated(hospital);
+
+  const place = detectPlaceName(lower, original);
+  return gated(place);
 }
 
 function detectUrgency(lower) {
@@ -114,6 +194,51 @@ function detectQuantity(lower) {
   return qtyMatch ? Math.max(1, parseInt(qtyMatch[1], 10)) : 1;
 }
 
+/** Urgency-aligned sentiment for blood-request assistant */
+function buildRequestSentiment(urgency) {
+  if (urgency === "High") return { label: "urgent", score: 0.9 };
+  if (urgency === "Medium") return { label: "attentive", score: 0.55 };
+  return { label: "calm", score: 0.25 };
+}
+
+const MAX_MESSAGE_LEN = 4000;
+
+/**
+ * Normalize raw text (e.g. from PDF) before extraction.
+ * @param {string} raw
+ * @returns {string}
+ */
+export function cleanTextForNlp(raw) {
+  if (raw == null) return "";
+  const s = String(raw);
+  return s
+    .replace(/\u0000/g, "")
+    .replace(/[\u00AD]/g, "")
+    .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, " ")
+    .replace(/\r\n/g, "\n")
+    .replace(/[ \t\f\v]+/g, " ")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
+/**
+ * Full NLP result for blood-request assistant (text or PDF-derived text).
+ * @param {string} text
+ */
+export function analyzeBloodRequest(text) {
+  const cleaned = cleanTextForNlp(text);
+  const extraction = extractFromText(cleaned);
+  const sentiment = buildRequestSentiment(extraction.urgency);
+  return {
+    bloodType: extraction.bloodType,
+    location: extraction.location,
+    urgency: extraction.urgency,
+    quantity: extraction.quantity,
+    message: extraction.message,
+    sentiment,
+  };
+}
+
 export function extractFromText(text) {
   if (!text || typeof text !== "string") {
     return {
@@ -122,30 +247,22 @@ export function extractFromText(text) {
       location: "",
       urgency: "Low",
       message: "",
-      hints: [],
     };
   }
 
-  const trimmed = text.trim();
+  const trimmed = text.trim().slice(0, MAX_MESSAGE_LEN);
   const lower = trimmed.toLowerCase();
   const bloodType = detectBloodType(lower, trimmed);
-  const location = detectLocation(lower, trimmed);
+  const location = detectLocation(lower, trimmed, bloodType);
   const urgency = detectUrgency(lower);
   const quantity = detectQuantity(lower);
-
-  const hints = [];
-  if (bloodType) hints.push("blood_type");
-  if (location) hints.push("location");
-  if (urgency !== "Low") hints.push("urgency");
-  if (quantity > 1) hints.push("quantity");
 
   return {
     bloodType,
     quantity,
     location,
     urgency,
-    message: trimmed.slice(0, 500),
-    hints,
+    message: trimmed,
   };
 }
 
@@ -194,6 +311,7 @@ const NEGATIVE_WORDS = [
   "waste",
 ];
 
+/** Feedback-style polarity (legacy / other routes) */
 export function analyzeSentiment(text) {
   if (!text || typeof text !== "string") {
     return { sentiment: "neutral", score: 0, label: "Neutral" };
@@ -225,20 +343,7 @@ export function analyzeSentiment(text) {
   return { sentiment, score: normalized, label, rawScore: raw, wordCount: words.length };
 }
 
-/** Single call for API: extraction + sentiment + lightweight intent */
+/** @deprecated Use analyzeBloodRequest */
 export function analyzeFull(text) {
-  const extraction = extractFromText(text);
-  const sentiment = analyzeSentiment(text);
-  const intent =
-    extraction.bloodType || extraction.urgency === "High"
-      ? "urgent_blood_request"
-      : extraction.message.length > 10
-        ? "general"
-        : "empty";
-
-  return {
-    ...extraction,
-    sentiment,
-    intent,
-  };
+  return analyzeBloodRequest(text);
 }

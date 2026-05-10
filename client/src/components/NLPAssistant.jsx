@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import heroImg from "../assets/8+.png";
 import { extractNlpLocal } from "../utils/nlpLocalFallback";
@@ -34,6 +34,42 @@ const PIE_COLORS = [
 ];
 
 const PROGRESS_BAR_CLASSES = ["bg-danger", "bg-primary", "bg-success", "bg-warning"];
+
+/** Map server PDF errors to translated strings (keys: nlpErrPdf*). */
+function pdfApiErrorMessage(status, serverMessage, t) {
+  const m = String(serverMessage || "").toLowerCase();
+  if (status === 404 || status === 502 || status === 503) {
+    return t("nlpErrPdfNetwork");
+  }
+  if (status === 400 && (m.includes("5mb") || m.includes("5 mb") || m.includes("smaller"))) {
+    return t("nlpErrPdfSize");
+  }
+  if (
+    status === 400 &&
+    (m.includes("only pdf") ||
+      m.includes("invalid upload") ||
+      m.includes("not allowed"))
+  ) {
+    return t("nlpErrPdfType");
+  }
+  if (status === 422 || m.includes("no readable text")) {
+    return t("nlpErrPdfNoText");
+  }
+  if (
+    m.includes("could not read this pdf") ||
+    m.includes("password-protected") ||
+    m.includes("corrupt")
+  ) {
+    return t("nlpErrPdfUnreadable");
+  }
+  if (m.includes("no pdf file") || m.includes('form field "file"')) {
+    return t("nlpErrPdfScan");
+  }
+  if (m.includes("pdf analysis failed")) {
+    return t("nlpErrPdfScan");
+  }
+  return t("nlpErrPdfScan");
+}
 
 function sanitizeLocation(raw) {
   return (raw || "")
@@ -84,8 +120,14 @@ const NLPAssistant = () => {
   const [quantity, setQuantity] = useState("");
   const [message, setMessage] = useState("");
   const [analyzing, setAnalyzing] = useState(false);
+  const [pdfScanning, setPdfScanning] = useState(false);
+  const [selectedPdfName, setSelectedPdfName] = useState("");
+  const [pdfScanStatus, setPdfScanStatus] = useState("");
+  const [pdfError, setPdfError] = useState("");
+  const [pdfSuccessVisible, setPdfSuccessVisible] = useState(false);
   const [error, setError] = useState("");
   const [sentiment, setSentiment] = useState(null);
+  const pdfInputRef = useRef(null);
 
   const [analytics, setAnalytics] = useState({
     bloodTypeData: [],
@@ -168,6 +210,86 @@ const NLPAssistant = () => {
     }
   };
 
+  const validatePdfFile = (file) => {
+    if (!file) return { ok: false, errorKey: null };
+    const nameOk = file.name.toLowerCase().endsWith(".pdf");
+    const mime = file.type || "";
+    const mimeOk =
+      !mime ||
+      mime === "application/pdf" ||
+      (mime === "application/octet-stream" && nameOk);
+    if (!nameOk || !mimeOk) return { ok: false, errorKey: "nlpErrPdfType" };
+    if (file.size > 5 * 1024 * 1024) return { ok: false, errorKey: "nlpErrPdfSize" };
+    return { ok: true, errorKey: null };
+  };
+
+  const handlePdfFileChange = (e) => {
+    const file = e.target.files?.[0];
+    setPdfError("");
+    setPdfSuccessVisible(false);
+
+    if (!file) {
+      setSelectedPdfName("");
+      setPdfScanStatus("");
+      return;
+    }
+
+    const { ok, errorKey } = validatePdfFile(file);
+    if (!ok) {
+      setSelectedPdfName(file.name);
+      setPdfScanStatus(t("nlpPdfStatusFailed"));
+      setPdfError(t(errorKey));
+      return;
+    }
+
+    setSelectedPdfName(file.name);
+    setPdfScanStatus(t("nlpPdfStatusReady"));
+  };
+
+  const handlePdfScan = async () => {
+    const file = pdfInputRef.current?.files?.[0];
+    if (!file || !selectedPdfName) {
+      setPdfScanStatus(t("nlpPdfStatusFailed"));
+      setPdfError(t("nlpErrPdfScan"));
+      return;
+    }
+
+    const { ok, errorKey } = validatePdfFile(file);
+    if (!ok) {
+      setPdfScanStatus(t("nlpPdfStatusFailed"));
+      setPdfError(t(errorKey));
+      return;
+    }
+
+    setPdfScanning(true);
+    setPdfScanStatus(t("nlpPdfScanning"));
+    setPdfError("");
+    setPdfSuccessVisible(false);
+
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const res = await fetch(`${API_BASE}/api/nlp/analyze-pdf`, {
+        method: "POST",
+        body: fd,
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok) {
+        setPdfScanStatus(t("nlpPdfStatusSuccess"));
+        setPdfSuccessVisible(true);
+        applyResult(data);
+      } else {
+        setPdfScanStatus(t("nlpPdfStatusFailed"));
+        setPdfError(pdfApiErrorMessage(res.status, data.message, t));
+      }
+    } catch {
+      setPdfScanStatus(t("nlpPdfStatusFailed"));
+      setPdfError(t("nlpErrPdfNetwork"));
+    } finally {
+      setPdfScanning(false);
+    }
+  };
+
   const clearAll = () => {
     setInput("");
     setBloodType("");
@@ -177,6 +299,11 @@ const NLPAssistant = () => {
     setMessage("");
     setError("");
     setSentiment(null);
+    setSelectedPdfName("");
+    setPdfScanStatus("");
+    setPdfError("");
+    setPdfSuccessVisible(false);
+    if (pdfInputRef.current) pdfInputRef.current.value = "";
   };
 
   const handleCreateUrgentRequest = () => {
@@ -243,9 +370,44 @@ const NLPAssistant = () => {
                 type="button"
                 className="btn btn-danger w-100 mb-2"
                 onClick={analyzeText}
-                disabled={analyzing || !input.trim()}
+                disabled={analyzing || pdfScanning || !input.trim()}
               >
                 {analyzing ? t("nlpAnalyzingDots") : t("nlpAnalyze")}
+              </button>
+              <hr className="my-3" />
+              <h6 className="fw-semibold mb-2">{t("nlpPdfSectionTitle")}</h6>
+              <p className="small text-muted mb-2">{t("nlpPdfHint")}</p>
+              <input
+                ref={pdfInputRef}
+                type="file"
+                accept="application/pdf,.pdf"
+                className="form-control mb-2"
+                onChange={handlePdfFileChange}
+                disabled={analyzing || pdfScanning}
+              />
+              <p className="small mb-1">
+                <span className="text-muted">{t("nlpPdfSelectedFileLabel")}</span>{" "}
+                <span className="fw-medium">
+                  {selectedPdfName || "—"}
+                </span>
+              </p>
+              <p className="small mb-2">
+                <span className="text-muted">{t("nlpPdfStatusLabel")}</span>{" "}
+                <span className="fw-medium">{pdfScanStatus || "—"}</span>
+              </p>
+              {pdfSuccessVisible && (
+                <p className="small text-success mb-2">{t("nlpPdfScanSuccessNote")}</p>
+              )}
+              {pdfError && (
+                <p className="small text-danger mb-2">{pdfError}</p>
+              )}
+              <button
+                type="button"
+                className="btn btn-outline-danger w-100 mb-2"
+                onClick={handlePdfScan}
+                disabled={pdfScanning || analyzing || !selectedPdfName}
+              >
+                {pdfScanning ? t("nlpPdfScanning") : t("nlpPdfScanButton")}
               </button>
               <button
                 type="button"

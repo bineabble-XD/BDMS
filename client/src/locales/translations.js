@@ -422,6 +422,25 @@ export const translations = {
     nlpEnableHint: "Detect a blood type in the text to enable posting.",
     nlpErrAnalyze: "Could not analyze text on the server.",
     nlpErrOffline: "Network error — showing offline estimate.",
+    nlpPdfSectionTitle: "Or upload a PDF",
+    nlpPdfHint: "PDF only, max 5 MB. Choose a file, then tap Scan PDF.",
+    nlpPdfScanning: "Scanning PDF...",
+    nlpPdfScanButton: "Scan PDF",
+    nlpPdfSelectedFileLabel: "Selected file:",
+    nlpPdfStatusLabel: "Status:",
+    nlpPdfStatusReady: "Ready to scan",
+    nlpPdfStatusSuccess: "PDF scanned successfully",
+    nlpPdfStatusFailed: "PDF scan failed",
+    nlpPdfScanSuccessNote:
+      "Extracted details were updated in the results card (blood type, quantity, location, urgency).",
+    nlpErrPdfNoText:
+      "This PDF was uploaded, but no readable text was found. Try a text-based PDF.",
+    nlpErrPdfType: "Please choose a PDF file only.",
+    nlpErrPdfSize: "PDF must be 5 MB or smaller.",
+    nlpErrPdfScan: "Could not scan this PDF on the server.",
+    nlpErrPdfUnreadable:
+      "This PDF could not be read. It may be damaged, encrypted, or image-only (no text layer).",
+    nlpErrPdfNetwork: "Network error — could not upload the PDF.",
     nlpAltImg: "Blood donation illustration",
 
     nlpAnalyzerPageTitle: "NLP Request Analyzer",
@@ -929,6 +948,25 @@ export const translations = {
     nlpEnableHint: "اكتشف فصيلة دم في النص لتفعيل النشر.",
     nlpErrAnalyze: "تعذر تحليل النص على الخادم.",
     nlpErrOffline: "خطأ في الشبكة — عرض تقدير دون اتصال.",
+    nlpPdfSectionTitle: "أو ارفع ملف PDF",
+    nlpPdfHint: "PDF فقط، بحد أقصى 5 ميجابايت. اختر ملفاً ثم اضغط «مسح PDF».",
+    nlpPdfScanning: "جاري مسح PDF...",
+    nlpPdfScanButton: "مسح PDF",
+    nlpPdfSelectedFileLabel: "الملف المحدد:",
+    nlpPdfStatusLabel: "الحالة:",
+    nlpPdfStatusReady: "جاهز للمسح",
+    nlpPdfStatusSuccess: "تم مسح PDF بنجاح",
+    nlpPdfStatusFailed: "فشل مسح PDF",
+    nlpPdfScanSuccessNote:
+      "تم تحديث التفاصيل المستخرجة في بطاقة النتائج (فصيلة الدم، الكمية، الموقع، الإلحاح).",
+    nlpErrPdfNoText:
+      "تم رفع PDF لكن لم يُعثر على نص قابل للقراءة. جرّب ملف PDF قائم على النص.",
+    nlpErrPdfType: "يرجى اختيار ملف PDF فقط.",
+    nlpErrPdfSize: "يجب ألا يتجاوز حجم PDF 5 ميجابايت.",
+    nlpErrPdfScan: "تعذر مسح هذا PDF على الخادم.",
+    nlpErrPdfUnreadable:
+      "تعذر قراءة هذا PDF. قد يكون تالفاً أو مشفراً أو صورة فقط (بدون طبقة نص).",
+    nlpErrPdfNetwork: "خطأ في الشبكة — تعذر رفع ملف PDF.",
     nlpAltImg: "رسم توضيحي للتبرع بالدم",
 
     nlpAnalyzerPageTitle: "محلّل الطلبات (NLP)",

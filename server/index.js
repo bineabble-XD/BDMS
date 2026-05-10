@@ -17,7 +17,11 @@ import UrgentRequest from "./models/UrgentRequest.js";
 import Feedback from "./models/Feedback.js";
 import CommunityPost from "./models/CommunityPost.js";
 import CommunityReply from "./models/CommunityReply.js";
-import { analyzeSentiment, analyzeFull } from "./utils/nlp.js";
+import { analyzeSentiment, analyzeBloodRequest, cleanTextForNlp } from "./utils/nlp.js";
+import { recordNlpAnalyze } from "./utils/nlpAnalyticsStore.js";
+import { uploadNlpPdf } from "./middleware/nlpPdfUpload.js";
+import { extractPdfTextFromBuffer } from "./utils/extractPdfText.js";
+import multer from "multer";
 import { validateStoredPhoneNumber } from "./utils/phoneValidation.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -1395,13 +1399,86 @@ app.post("/api/nlp/analyze", (req, res) => {
     if (!text || typeof text !== "string" || !String(text).trim()) {
       return res.status(400).json({ message: "text is required" });
     }
-    const result = analyzeFull(String(text).trim());
+    const result = analyzeBloodRequest(String(text).trim());
+    recordNlpAnalyze({
+      bloodType: result.bloodType,
+      location: result.location,
+    });
     res.json(result);
   } catch (err) {
     console.error("NLP analyze error:", err);
     res.status(500).json({ message: "NLP analysis failed" });
   }
 });
+
+app.post(
+  "/api/nlp/analyze-pdf",
+  (req, res, next) => {
+    uploadNlpPdf.single("file")(req, res, (err) => {
+      if (!err) return next();
+      if (err instanceof multer.MulterError) {
+        if (err.code === "LIMIT_FILE_SIZE") {
+          return res
+            .status(400)
+            .json({ message: "PDF must be 5MB or smaller." });
+        }
+        return res.status(400).json({ message: err.message || "Upload failed." });
+      }
+      return res.status(400).json({ message: err.message || "Invalid upload." });
+    });
+  },
+  async (req, res) => {
+    try {
+      if (!req.file?.buffer) {
+        return res.status(400).json({
+          message: 'No PDF file uploaded. Use form field "file".',
+        });
+      }
+
+      const mime = req.file.mimetype || "";
+      const name = (req.file.originalname || "").toLowerCase();
+      const looksPdf =
+        mime === "application/pdf" ||
+        mime === "application/x-pdf" ||
+        name.endsWith(".pdf");
+      if (!looksPdf) {
+        return res.status(400).json({ message: "Only PDF files are allowed." });
+      }
+
+      let rawText = "";
+      try {
+        const buf = Buffer.isBuffer(req.file.buffer)
+          ? req.file.buffer
+          : Buffer.from(req.file.buffer);
+        rawText = await extractPdfTextFromBuffer(buf);
+      } catch (parseErr) {
+        console.error("PDF parse error:", parseErr);
+        return res.status(400).json({
+          message:
+            "Could not read this PDF. It may be corrupt, empty, or password-protected.",
+        });
+      }
+
+      const cleaned = cleanTextForNlp(rawText);
+      if (!cleaned) {
+        return res.status(422).json({
+          message:
+            "No readable text found in this PDF. Try a text-based PDF or paste the text instead.",
+        });
+      }
+
+      const result = analyzeBloodRequest(rawText);
+      recordNlpAnalyze({
+        bloodType: result.bloodType,
+        location: result.location,
+      });
+      res.json(result);
+    } catch (e) {
+      console.error("analyze-pdf error:", e);
+      res.status(500).json({ message: "PDF analysis failed." });
+    }
+  }
+);
 
 app.post("/api/nlp/sentiment", (req, res) => {
   try {
