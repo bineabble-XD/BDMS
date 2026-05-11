@@ -1,4 +1,10 @@
-import React, { useEffect, useMemo, useState, useRef } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useNavigate } from "react-router-dom";
 import heroImg from "../assets/8+.png";
 import { extractNlpLocal } from "../utils/nlpLocalFallback";
@@ -145,6 +151,7 @@ const NLPAssistant = () => {
   const [pdfScanStatus, setPdfScanStatus] = useState("");
   const [pdfError, setPdfError] = useState("");
   const [pdfSuccessVisible, setPdfSuccessVisible] = useState(false);
+  const [templateDownloadError, setTemplateDownloadError] = useState("");
   const [error, setError] = useState("");
   const [sentiment, setSentiment] = useState(null);
   const [hospitalName, setHospitalName] = useState("");
@@ -185,21 +192,19 @@ const NLPAssistant = () => {
     };
   }, [analytics.bloodTypeData, analytics.locationData]);
 
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const res = await fetch(`${API_BASE}/api/nlp/analytics`);
-        const data = await res.json();
-        if (!cancelled && res.ok) setAnalytics(data);
-      } catch (e) {
-        if (!cancelled) console.error(e);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
+  const refreshAnalytics = useCallback(async () => {
+    try {
+      const res = await fetch(`${API_BASE}/api/nlp/analytics`);
+      const data = await res.json();
+      if (res.ok) setAnalytics(data);
+    } catch (e) {
+      console.error(e);
+    }
   }, []);
+
+  useEffect(() => {
+    refreshAnalytics();
+  }, [refreshAnalytics]);
 
   const applyResult = (data) => {
     setBloodType(data.bloodType || "");
@@ -240,6 +245,7 @@ const NLPAssistant = () => {
 
       if (res.ok) {
         applyResult(data);
+        void refreshAnalytics();
       } else {
         setError(data.message || t("nlpErrAnalyze"));
         applyResult(extractNlpLocal(trimmed));
@@ -320,6 +326,7 @@ const NLPAssistant = () => {
         setPdfScanStatus(t("nlpPdfStatusSuccess"));
         setPdfSuccessVisible(true);
         applyResult(data);
+        void refreshAnalytics();
       } else {
         setPdfScanStatus(t("nlpPdfStatusFailed"));
         setPdfError(pdfApiErrorMessage(res.status, data.message, t));
@@ -329,6 +336,29 @@ const NLPAssistant = () => {
       setPdfError(t("nlpErrPdfNetwork"));
     } finally {
       setPdfScanning(false);
+    }
+  };
+
+  const handleDownloadWordTemplate = async () => {
+    setTemplateDownloadError("");
+    try {
+      const res = await fetch(`${API_BASE}/api/nlp/template`);
+      if (!res.ok) {
+        setTemplateDownloadError(t("nlpErrWordTemplate"));
+        return;
+      }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "emergency_blood_request_template.docx";
+      a.rel = "noopener";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch {
+      setTemplateDownloadError(t("nlpErrWordTemplate"));
     }
   };
 
@@ -355,6 +385,7 @@ const NLPAssistant = () => {
     setPdfScanStatus("");
     setPdfError("");
     setPdfSuccessVisible(false);
+    setTemplateDownloadError("");
     if (pdfInputRef.current) pdfInputRef.current.value = "";
   };
 
@@ -424,12 +455,27 @@ const NLPAssistant = () => {
               )}
               <button
                 type="button"
-                className="btn btn-danger w-100 mb-2"
+                className="btn btn-danger w-100 mb-0"
                 onClick={analyzeText}
                 disabled={analyzing || pdfScanning || !input.trim()}
               >
                 {analyzing ? t("nlpAnalyzingDots") : t("nlpAnalyze")}
               </button>
+              <hr className="my-2 border-secondary opacity-25" />
+              <p id="nlp-word-template-hint" className="small text-muted mb-2">
+                {t("nlpDownloadWordTemplateHint")}
+              </p>
+              <button
+                type="button"
+                className="btn btn-primary w-100 mb-2 fw-semibold shadow-sm"
+                onClick={handleDownloadWordTemplate}
+                aria-describedby="nlp-word-template-hint"
+              >
+                {t("nlpDownloadWordTemplate")}
+              </button>
+              {templateDownloadError && (
+                <p className="small text-danger mb-2">{templateDownloadError}</p>
+              )}
               <hr className="my-3" />
               <h6 className="fw-semibold mb-2">{t("nlpPdfSectionTitle")}</h6>
               <p className="small text-muted mb-2">{t("nlpPdfHint")}</p>
@@ -564,24 +610,30 @@ const NLPAssistant = () => {
                 {t("nlpAnalyticsByBloodType")}
               </h6>
               <ResponsiveContainer width="100%" height={250}>
-                <PieChart>
-                  <Pie
-                    data={derivedCharts.pieData}
-                    dataKey="value"
-                    nameKey="name"
-                    innerRadius={55}
-                    outerRadius={85}
-                    label={({ value }) => (value > 0 ? value : "")}
-                  >
-                    {derivedCharts.pieData.map((entry, index) => (
-                      <Cell
-                        key={`${entry.name}-${index}`}
-                        fill={PIE_COLORS[index % PIE_COLORS.length]}
-                      />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
+                {derivedCharts.pieData.length > 0 ? (
+                  <PieChart>
+                    <Pie
+                      data={derivedCharts.pieData}
+                      dataKey="value"
+                      nameKey="name"
+                      innerRadius={55}
+                      outerRadius={85}
+                      label={({ value }) => (value > 0 ? value : "")}
+                    >
+                      {derivedCharts.pieData.map((entry, index) => (
+                        <Cell
+                          key={`${entry.name}-${index}`}
+                          fill={PIE_COLORS[index % PIE_COLORS.length]}
+                        />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                  </PieChart>
+                ) : (
+                  <div className="d-flex align-items-center justify-content-center h-100 text-muted small px-2 text-center">
+                    {t("nlpAnalyticsChartEmpty")}
+                  </div>
+                )}
               </ResponsiveContainer>
               <small className="text-muted text-center d-block">
                 {analytics.totalRequests}{" "}
@@ -596,22 +648,36 @@ const NLPAssistant = () => {
                 {t("nlpAnalyticsByHospital")}
               </h6>
               <ResponsiveContainer width="100%" height={250}>
-                <BarChart data={derivedCharts.barData}>
-                  <XAxis hide dataKey="name" />
-                  <YAxis />
-                  <Tooltip
-                    formatter={(value) => [
-                      `${value} ${t("nlpAnalyticsRequestCountSuffix")}`,
-                      t("nlpTooltipTotalSeries"),
-                    ]}
-                    labelFormatter={hospitalTooltipLabel}
-                  />
-                  <Bar
-                    dataKey="value"
-                    fill="#dc3545"
-                    radius={[8, 8, 0, 0]}
-                  />
-                </BarChart>
+                {derivedCharts.barData.length > 0 ? (
+                  <BarChart data={derivedCharts.barData}>
+                    <XAxis hide dataKey="name" />
+                    <YAxis />
+                    <Tooltip
+                      formatter={(value) => [
+                        `${value} ${t("nlpAnalyticsRequestCountSuffix")}`,
+                        t("nlpTooltipTotalSeries"),
+                      ]}
+                      labelFormatter={(label) =>
+                        hospitalTooltipLabel(
+                          label !== undefined &&
+                            label !== null &&
+                            String(label).trim() !== ""
+                            ? label
+                            : t("nlpNotDetected")
+                        )
+                      }
+                    />
+                    <Bar
+                      dataKey="value"
+                      fill="#dc3545"
+                      radius={[8, 8, 0, 0]}
+                    />
+                  </BarChart>
+                ) : (
+                  <div className="d-flex align-items-center justify-content-center h-100 text-muted small px-2 text-center">
+                    {t("nlpAnalyticsChartEmpty")}
+                  </div>
+                )}
               </ResponsiveContainer>
             </div>
           </div>

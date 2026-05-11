@@ -1,7 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useLanguage } from "../context/LanguageContext";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5050";
+
+const BLOOD_TYPES = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
 
 const formatDate = (dateStr) => {
   if (!dateStr) return "—";
@@ -17,10 +19,12 @@ const formatDate = (dateStr) => {
 };
 
 const Inventory = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [inventory, setInventory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [filterSearch, setFilterSearch] = useState("");
+  const [filterBloodType, setFilterBloodType] = useState("");
 
   const fetchInventory = () => {
     setLoading(true);
@@ -66,8 +70,26 @@ const Inventory = () => {
     fetchInventory();
   }, []);
 
+  const filteredInventory = useMemo(() => {
+    const q = filterSearch.trim().toLowerCase();
+    return inventory.filter((row) => {
+      if (filterBloodType && row.bloodType !== filterBloodType) return false;
+      if (q && !String(row.hospital).toLowerCase().includes(q)) return false;
+      return true;
+    });
+  }, [inventory, filterSearch, filterBloodType]);
+
+  const hasActiveFilters = Boolean(filterSearch.trim() || filterBloodType);
+
+  const clearFilters = () => {
+    setFilterSearch("");
+    setFilterBloodType("");
+  };
+
+  const dir = language === "AR" ? "rtl" : "ltr";
+
   return (
-    <div className="bdms-page inventory-page">
+    <div className="bdms-page inventory-page" dir={dir} lang={language === "AR" ? "ar" : "en"}>
       <div className="container py-5">
         <div className="mb-3">
           <h3 className="fw-semibold mb-1 text-danger">
@@ -84,41 +106,95 @@ const Inventory = () => {
             backgroundColor: "#ffffff",
           }}
         >
-          <div className="d-flex justify-content-between align-items-center mb-3">
-            <h5 className="mb-0">Current Stock by Hospital</h5>
+          <div className="d-flex flex-column flex-md-row justify-content-between align-items-stretch align-items-md-center gap-3 mb-3">
+            <h5 className="mb-0">{t("inventoryStockByHospital")}</h5>
           </div>
+
+          {!loading && !error && inventory.length > 0 && (
+            <div className="row g-2 align-items-end mb-3">
+              <div className="col-12 col-md-6 col-lg-5">
+                <label htmlFor="inventory-filter-search" className="form-label small text-muted mb-1">
+                  {t("inventoryFilterSearchLabel")}
+                </label>
+                <input
+                  id="inventory-filter-search"
+                  type="search"
+                  className="form-control"
+                  placeholder={t("inventoryFilterSearchPlaceholder")}
+                  value={filterSearch}
+                  onChange={(e) => setFilterSearch(e.target.value)}
+                  autoComplete="off"
+                />
+              </div>
+              <div className="col-12 col-md-4 col-lg-3">
+                <label htmlFor="inventory-filter-blood" className="form-label small text-muted mb-1">
+                  {t("inventoryFilterBloodType")}
+                </label>
+                <select
+                  id="inventory-filter-blood"
+                  className="form-select"
+                  value={filterBloodType}
+                  onChange={(e) => setFilterBloodType(e.target.value)}
+                >
+                  <option value="">{t("inventoryBloodTypeAll")}</option>
+                  {BLOOD_TYPES.map((bt) => (
+                    <option key={bt} value={bt}>
+                      {bt}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="col-12 col-md-2 col-lg-auto">
+                <button
+                  type="button"
+                  className="btn btn-outline-secondary w-100 text-nowrap"
+                  onClick={clearFilters}
+                  disabled={!hasActiveFilters}
+                >
+                  {t("inventoryClearFilters")}
+                </button>
+              </div>
+            </div>
+          )}
 
           {loading ? (
             <div className="text-center py-5">
               <div className="spinner-border text-danger" role="status" />
-              <p className="mt-2 text-muted">Loading inventory…</p>
+              <p className="mt-2 text-muted">{t("inventoryLoading")}</p>
             </div>
           ) : error ? (
             <div className="text-center py-5 text-danger">
               <p>{error}</p>
               <button className="btn btn-outline-danger" onClick={fetchInventory}>
-                Retry
+                {t("inventoryRetry")}
               </button>
             </div>
           ) : inventory.length === 0 ? (
             <div className="text-center py-5 text-muted">
-              <p>No blood stock records yet.</p>
-              <p className="small mb-0">Stock will appear here once hospitals add records via Blood Bank Management.</p>
+              <p>{t("inventoryEmptyTitle")}</p>
+              <p className="small mb-0">{t("inventoryEmptyHint")}</p>
+            </div>
+          ) : filteredInventory.length === 0 ? (
+            <div className="text-center py-5 text-muted">
+              <p className="mb-2">{t("inventoryNoFilterMatches")}</p>
+              <button type="button" className="btn btn-outline-danger btn-sm" onClick={clearFilters}>
+                {t("inventoryClearFilters")}
+              </button>
             </div>
           ) : (
             <div className="table-responsive">
               <table className="table table-striped table-hover align-middle mb-0">
                 <thead className="table-light">
                   <tr>
-                    <th style={{ width: "60px" }}>#</th>
-                    <th>Hospital</th>
-                    <th>Blood Type</th>
-                    <th>Units Available</th>
-                    <th>Last Updated</th>
+                    <th style={{ width: "60px" }}>{t("inventoryColIndex")}</th>
+                    <th>{t("inventoryColHospital")}</th>
+                    <th>{t("inventoryColBloodType")}</th>
+                    <th>{t("inventoryColUnits")}</th>
+                    <th>{t("inventoryColUpdated")}</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {inventory.map((row, index) => (
+                  {filteredInventory.map((row, index) => (
                     <tr key={`${row.hospital}-${row.bloodType}`}>
                       <td>{index + 1}</td>
                       <td>{row.hospital}</td>

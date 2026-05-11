@@ -21,6 +21,7 @@ import { analyzeSentiment, analyzeBloodRequest, cleanTextForNlp } from "./utils/
 import { recordNlpAnalyze } from "./utils/nlpAnalyticsStore.js";
 import { uploadNlpPdf } from "./middleware/nlpPdfUpload.js";
 import { extractPdfTextFromBuffer } from "./utils/extractPdfText.js";
+import { buildEmergencyBloodRequestTemplateBuffer } from "./utils/emergencyBloodRequestDocx.js";
 import multer from "multer";
 import { validateStoredPhoneNumber } from "./utils/phoneValidation.js";
 
@@ -1393,6 +1394,24 @@ app.patch("/users/:id", async (req, res) => {
 // -------------------------
 // NLP API
 // -------------------------
+app.get("/api/nlp/template", async (_req, res) => {
+  try {
+    const buffer = await buildEmergencyBloodRequestTemplateBuffer();
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    );
+    res.setHeader(
+      "Content-Disposition",
+      'attachment; filename="emergency_blood_request_template.docx"'
+    );
+    res.send(buffer);
+  } catch (err) {
+    console.error("NLP template error:", err);
+    res.status(500).json({ message: "Failed to generate template" });
+  }
+});
+
 app.post("/api/nlp/analyze", (req, res) => {
   try {
     const { text } = req.body || {};
