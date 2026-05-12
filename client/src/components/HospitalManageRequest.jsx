@@ -39,11 +39,27 @@ const formatEligibility = (eligibility) => {
 };
 
 const HospitalManageRequest = () => {
+  const { t } = useLanguage();
   const location = useLocation();
   const navigate = useNavigate();
+  const [completing, setCompleting] = useState(false);
+  const [showRejectModal, setShowRejectModal] = useState(false);
+  const [rejectionReason, setRejectionReason] = useState("");
 
   // Comes from HosAppoint.jsx: state={{ item }}
   const booking = location.state?.item || location.state?.p;
+
+  let user = null;
+  try {
+    const raw =
+      typeof localStorage !== "undefined"
+        ? localStorage.getItem("bdmsUser")
+        : null;
+    if (raw) user = JSON.parse(raw);
+  } catch {
+    user = null;
+  }
+  const userId = user?._id || user?.id;
 
   if (!booking) {
     return (
@@ -68,14 +84,6 @@ const HospitalManageRequest = () => {
   const bloodType = booking.bloodType || donor.bloodType || "—";
   const appointmentDate = booking.appointmentDate ? formatDate(booking.appointmentDate) : "—";
   const canConfirmDonation = booking.appointmentDate && new Date() >= new Date(booking.appointmentDate);
-
-  // Optional actions (only if you want them)
-  const user = JSON.parse(localStorage.getItem("bdmsUser"));
-  const userId = user?._id || user?.id;
-
-  const [completing, setCompleting] = useState(false);
-  const [showRejectModal, setShowRejectModal] = useState(false);
-  const [rejectionReason, setRejectionReason] = useState("");
 
   const handleConfirmDonation = async () => {
     if (!userId || booking.status !== "approved") return;
