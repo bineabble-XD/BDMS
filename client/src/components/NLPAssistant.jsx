@@ -41,6 +41,33 @@ const PIE_COLORS = [
 
 const PROGRESS_BAR_CLASSES = ["bg-danger", "bg-primary", "bg-success", "bg-warning"];
 
+const EMPTY_ANALYTICS = {
+  bloodTypeData: [],
+  locationData: [],
+  totalRequests: 0,
+};
+
+function normalizeAnalyticsPayload(raw) {
+  const bloodTypeData = Array.isArray(raw?.bloodTypeData)
+    ? raw.bloodTypeData
+        .map((item) => ({
+          name: item?.name != null ? String(item.name) : "",
+          value: Math.max(0, Number(item?.value) || 0),
+        }))
+        .filter((item) => item.name !== "")
+    : [];
+  const locationData = Array.isArray(raw?.locationData)
+    ? raw.locationData
+        .map((item) => ({
+          name: item?.name != null ? String(item.name) : "",
+          value: Math.max(0, Number(item?.value) || 0),
+        }))
+        .filter((item) => item.name !== "")
+    : [];
+  const totalRequests = Math.max(0, Number(raw?.totalRequests) || 0);
+  return { bloodTypeData, locationData, totalRequests };
+}
+
 /** Map server PDF errors to translated strings (keys: nlpErrPdf*). */
 function pdfApiErrorMessage(status, serverMessage, t) {
   const m = String(serverMessage || "").toLowerCase();
@@ -166,22 +193,26 @@ const NLPAssistant = () => {
   const [extractedKeywords, setExtractedKeywords] = useState([]);
   const pdfInputRef = useRef(null);
 
-  const [analytics, setAnalytics] = useState({
-    bloodTypeData: [],
-    locationData: [],
-    totalRequests: 0,
-  });
+  const [analytics, setAnalytics] = useState(EMPTY_ANALYTICS);
 
   const derivedCharts = useMemo(() => {
-    const pieData = analytics.bloodTypeData.filter((item) => item.value > 0);
-    const barData = analytics.locationData.filter((item) => item.value > 0);
-    const byBloodDesc = [...analytics.bloodTypeData].sort(
-      (a, b) => b.value - a.value
+    const bt = Array.isArray(analytics.bloodTypeData)
+      ? analytics.bloodTypeData
+      : [];
+    const loc = Array.isArray(analytics.locationData)
+      ? analytics.locationData
+      : [];
+    const pieData = bt.filter((item) => item && Number(item.value) > 0);
+    const barData = loc.filter((item) => item && Number(item.value) > 0);
+    const byBloodDesc = [...bt].sort(
+      (a, b) => Number(b?.value ?? 0) - Number(a?.value ?? 0)
     );
-    const byLocDesc = [...analytics.locationData].sort(
-      (a, b) => b.value - a.value
+    const byLocDesc = [...loc].sort(
+      (a, b) => Number(b?.value ?? 0) - Number(a?.value ?? 0)
     );
-    const rarestBlood = [...pieData].sort((a, b) => a.value - b.value)[0];
+    const rarestBlood = [...pieData].sort(
+      (a, b) => Number(a?.value ?? 0) - Number(b?.value ?? 0)
+    )[0];
     return {
       pieData,
       barData,
@@ -195,8 +226,8 @@ const NLPAssistant = () => {
   const refreshAnalytics = useCallback(async () => {
     try {
       const res = await fetch(`${API_BASE}/api/nlp/analytics`);
-      const data = await res.json();
-      if (res.ok) setAnalytics(data);
+      const data = await res.json().catch(() => ({}));
+      if (res.ok) setAnalytics(normalizeAnalyticsPayload(data));
     } catch (e) {
       console.error(e);
     }
@@ -224,7 +255,11 @@ const NLPAssistant = () => {
       data.confidence != null && data.confidence !== "" ? String(data.confidence) : ""
     );
     setSource(data.source || "");
-    setExtractedKeywords(Array.isArray(data.extractedKeywords) ? data.extractedKeywords : []);
+    setExtractedKeywords(
+      Array.isArray(data.extractedKeywords)
+        ? data.extractedKeywords.map((k) => String(k)).filter(Boolean)
+        : []
+    );
   };
 
   const analyzeText = async () => {
@@ -575,8 +610,11 @@ const NLPAssistant = () => {
                 <small className="text-muted d-block mb-2">{t("nlpExtractedKeywords")}</small>
                 {extractedKeywords.length ? (
                   <div className="d-flex flex-wrap gap-1">
-                    {extractedKeywords.map((k) => (
-                      <span key={k} className="badge rounded-pill bg-light text-dark border">
+                    {extractedKeywords.map((k, i) => (
+                      <span
+                        key={`${k}-${i}`}
+                        className="badge rounded-pill bg-light text-dark border"
+                      >
                         {k}
                       </span>
                     ))}
@@ -729,7 +767,11 @@ const NLPAssistant = () => {
               <StatRow
                 dotClass="bg-success"
                 label={t("nlpStatActiveHospitals")}
-                value={analytics.locationData.length}
+                value={
+                  Array.isArray(analytics.locationData)
+                    ? analytics.locationData.length
+                    : 0
+                }
               />
               <StatRow
                 dotClass="bg-warning"
