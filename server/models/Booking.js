@@ -24,12 +24,23 @@ const bookingSchema = new mongoose.Schema(
     // 🔒 ALL eligibility fields from Appointment.jsx
     eligibility: {
       screening: { type: mongoose.Schema.Types.Mixed },
+
       lastDonationMonth: String,
       donatedBefore: Boolean,
-      sickPast3Months: Boolean,
+
       medsRecently: String,
       hasColdFluFever: String,
       medicalRestriction: String,
+
+      highBloodPressure: String,
+      diabetes: String,
+      tattoo: String,
+
+      travel: String,
+      travelCountry: String,
+
+      recentDonation: String,
+      vaccination: String,
     },
 
     status: {

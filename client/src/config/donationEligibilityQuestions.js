@@ -40,15 +40,42 @@ export function createEmptyEligibilityAnswers() {
 /**
  * @param {Record<string, string>} answers
  */
-export function getEligibilityStatus(answers) {
+export function getEligibilityStatus(
+  answers,
+  extraForm = {}
+) {
+
   const allAnswered = ELIGIBILITY_QUESTIONS.every((q) => {
     const v = answers[q.id];
-    return v === ELIGIBILITY_ANSWER.YES || v === ELIGIBILITY_ANSWER.NO;
+
+    return (
+      v === ELIGIBILITY_ANSWER.YES ||
+      v === ELIGIBILITY_ANSWER.NO
+    );
   });
 
-  const ineligible = ELIGIBILITY_QUESTIONS.some(
-    (q) => answers[q.id] === q.disqualifyingAnswer
-  );
+  // Existing screening logic
+  const screeningIneligible =
+    ELIGIBILITY_QUESTIONS.some(
+      (q) =>
+        answers[q.id] ===
+        q.disqualifyingAnswer
+    );
 
-  return { allAnswered, ineligible };
+  // New advanced checks
+  const extraIneligible =
+    extraForm.highBloodPressure === "yes" ||
+    extraForm.diabetes === "yes" ||
+    extraForm.medsRecently === "yes" ||
+    extraForm.tattoo === "yes" ||
+    extraForm.travel === "yes" ||
+    extraForm.recentDonation === "yes" ||
+    extraForm.vaccination === "yes";
+
+  return {
+    allAnswered,
+    ineligible:
+      screeningIneligible ||
+      extraIneligible,
+  };
 }

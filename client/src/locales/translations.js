@@ -568,6 +568,22 @@ export const translations = {
     inventoryColUpdated: "Last updated",
     bloodStockReportTitle: "Blood Stock Report",
 
+    // Appointment Sections
+    apptGeneralHealthQuestions: "General Health Questions",
+    apptLifestyleTravel: "Lifestyle & Travel",
+    apptDonationHistory: "Donation History",
+    apptDonorConsent: "Donor Consent",
+    apptEligible: "Eligible to Donate",
+    apptNotEligible: "Not Eligible to Donate",
+
+    apptHighBloodPressure: "Do you currently have high blood pressure?",
+    apptDiabetes: "Do you have diabetes?",
+    apptMedicationRecently: "Have you taken any medication recently?",
+    apptTattoo: "Have you had tattoo / piercing / Hijama in the last 12 months?",
+    apptTravelOutside: "Have you traveled outside Oman in the last 12 months?",
+    apptVaccination: "Have you received any vaccination in the last month?",
+    apptSelect: "Select",
+
     save: "Save",
     delete: "Delete",
     back: "Back",
@@ -1126,6 +1142,22 @@ export const translations = {
     inventoryColUnits: "الوحدات المتوفرة",
     inventoryColUpdated: "آخر تحديث",
     bloodStockReportTitle: "تقرير مخزون الدم",
+
+    apptGeneralHealthQuestions: "الأسئلة الصحية العامة",
+    apptLifestyleTravel: "نمط الحياة والسفر",
+    apptDonationHistory: "سجل التبرع",
+    apptDonorConsent: "موافقة المتبرع",
+    apptEligible: "مؤهل للتبرع",
+    apptNotEligible: "غير مؤهل للتبرع",
+
+    apptHighBloodPressure: "هل تعاني حالياً من ارتفاع ضغط الدم؟",
+    apptDiabetes: "هل لديك مرض السكري؟",
+    apptMedicationRecently: "هل تناولت أي أدوية مؤخراً؟",
+    apptTattoo: "هل قمت بعمل وشم / ثقب / حجامة خلال آخر 12 شهراً؟",
+    apptTravelOutside: "هل سافرت خارج عُمان خلال آخر 12 شهراً؟",
+    apptVaccination: "هل تلقيت أي تطعيم خلال الشهر الماضي؟",
+    apptSelect: "اختر",
+
 
     save: "حفظ",
     delete: "حذف",
